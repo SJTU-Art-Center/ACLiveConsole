@@ -1,0 +1,236 @@
+﻿<Window x:Class="ACNginxConsole.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ACNginxConsole"
+        mc:Ignorable="d"
+        Title="AC Live Console" Height="604.5" Width="800" Closed="Window_Closed">
+
+    <Window.Resources>
+        <Storyboard x:Key="expandRightCol">
+            <local:GridLengthAnimation Storyboard.TargetName="RightCol" Storyboard.TargetProperty="Width" Duration="0:0:0.5" Completed="GridLengthAnimation_Completed"/>
+        </Storyboard>
+        <Storyboard x:Key="SliderAnimation">
+            <DoubleAnimation Storyboard.TargetName="sliderEditor" Storyboard.TargetProperty="Value" Completed="DoubleAnimation_Completed"/>
+        </Storyboard>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="29.5"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StatusBar Grid.Row="0" VerticalAlignment="Top" Grid.ColumnSpan="2">
+            <Label x:Name="label" Content="测试" Height="23.748" Width="143.5"/>
+            <Label x:Name="label1" Content="推流" Height="23.748" Width="296"/>
+        </StatusBar>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="5"/>
+                <ColumnDefinition x:Name="RightCol" Width="0"/>
+            </Grid.ColumnDefinitions>
+
+            <TabControl Grid.Column="0" x:Name="tabControl" SelectionChanged="TabControl_SelectionChanged">
+                <TabItem Header="主页" Width="70">
+                    <Grid Background="Black">
+                        <Canvas Margin="146.75,68.25,120.25,64.25" VerticalAlignment="Center" HorizontalAlignment="Center" Width="500" Height="403">
+                            <Label x:Name="label8" Content="启动密码" Height="27.75" Canvas.Left="44" Canvas.Top="346.125" Width="62.25" Foreground="White"/>
+                            <PasswordBox x:Name="passwordBox" Height="27.75" Canvas.Left="111.25" Canvas.Top="346.125" Width="284" FontSize="16" PasswordChanged="PasswordBox_PasswordChanged"/>
+                            <Image x:Name="image1" Height="272.25" Canvas.Left="56" Canvas.Top="29.5" Width="393.375"/>
+                            <Button x:Name="button4" Content="→" Height="27.75" Canvas.Left="400.031" Canvas.Top="346.125" Width="48.938" Click="Button4_Click_1"/>
+                            <Image x:Name="ACLiveConsoleLogo_png" Height="350" Canvas.Left="81.25" Source="ACLiveConsoleLogo.png" Stretch="Fill" Width="350"/>
+                        </Canvas>
+                        <Label x:Name="labelVer" Content="版本:" Margin="10,0,0,0" Foreground="White" HorizontalAlignment="Left" Width="367.5" Height="48" VerticalAlignment="Bottom" FontSize="9"/>
+                    </Grid>
+                </TabItem>
+                <TabItem x:Name="tabItemConfig" Header="配置" Width="70">
+                    <Grid Background="#FFE5E5E5">
+                        <TextBox x:Name="textBoxAdd" Margin="205.75,53,203.75,0" TextWrapping="Wrap" Height="20.25" VerticalAlignment="Top" TextChanged="TextBoxAdd_TextChanged_1" Visibility="Hidden"/>
+                        <Label x:Name="labelAdd" Content="串流地址" HorizontalAlignment="Left" Height="24.25" Margin="145.25,49,0,0" VerticalAlignment="Top" Width="60" Visibility="Hidden" />
+                        <TextBox x:Name="textBoxCode" Height="20.25" Margin="205.75,87.5,203.75,0" TextWrapping="Wrap" VerticalAlignment="Top" TextChanged="TextBoxCode_TextChanged_1" Visibility="Hidden"/>
+                        <Label x:Name="labelCode" Content="串流码" HorizontalAlignment="Left" Height="35.25" Margin="145.25,84.5,0,0" VerticalAlignment="Top" Width="55.5" Visibility="Hidden"/>
+                        <TextBox x:Name="textBoxMan" Height="48" Margin="205.75,119.75,203.75,0" TextWrapping="Wrap" VerticalAlignment="Top" Visibility="Hidden"/>
+                        <Label x:Name="labelMan" Content="自定义" HorizontalAlignment="Left" Height="27" Margin="145.25,119.75,0,0" VerticalAlignment="Top" Width="60" Visibility="Hidden"/>
+                        <RadioButton x:Name="radioButtonB" Content="B站" HorizontalAlignment="Left" Height="20.25" Margin="14.5,55,0,0" VerticalAlignment="Top" Width="104.25" Checked="RadioButton_Checked"/>
+                        <RadioButton x:Name="radioButtonWeibo" Content="微博" HorizontalAlignment="Left" Height="20.25" Margin="14.5,90.5,0,0" VerticalAlignment="Top" Width="104.25" Checked="RadioButtonWeibo_Checked_1"/>
+                        <RadioButton x:Name="radioButtonMan" Content="自定义" HorizontalAlignment="Left" Height="30.75" Margin="14.5,124.75,0,0" VerticalAlignment="Top" Width="104.25" Checked="RadioButtonMan_Checked_1"/>
+                        <Label x:Name="label5" Content="推流平台" HorizontalAlignment="Left" Height="27" Margin="14.5,13.5,0,0" VerticalAlignment="Top" Width="118" Background="#FFCC261F" Foreground="White"/>
+                        <Label x:Name="label6" Content="推流地址" Height="27" Margin="145.25,13.5,203.75,0" VerticalAlignment="Top" Background="#FFF2EC29" Foreground="Black"/>
+                        <Label x:Name="labelWhite" Content="推流写入" Height="27" Margin="0,13.5,10,0" VerticalAlignment="Top" Background="White" HorizontalAlignment="Right" Width="180.5"/>
+                        <Button x:Name="buttonPlus" Content="+1流" Height="48" Margin="0,119.75,10.5,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="180" Click="ButtonPlus_Click" Visibility="Hidden"/>
+                        <Label x:Name="label3" Content="准备写入" Height="24" Margin="14.5,189,10,0" VerticalAlignment="Top" Background="#FF949494" Foreground="White"/>
+
+                        <Button x:Name="buttonWrite" Content="转换" Margin="0,0,10,10" HorizontalAlignment="Right" Width="126.5" Height="45" VerticalAlignment="Bottom" Visibility="Visible" Click="ButtonWrite_Click"/>
+                        <Label x:Name="label4" Content="option.txt" HorizontalAlignment="Left" Margin="14.5,0,0,10" Width="74.75" Height="32.5" VerticalAlignment="Bottom"/>
+                        <Button x:Name="buttonRead" Content="读取" Margin="0,0,141.5,10" Height="45" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="52" Click="Button_Click" Visibility="Hidden"/>
+                        <Image x:Name="ErrorImage" Margin="89.25,0,0,21.5" Source="109_AllAnnotations_Error_16x16_72.png" Stretch="Fill" Height="16" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="16"/>
+                        <Label x:Name="labelError" Content="ERROR!" HorizontalAlignment="Left" Margin="110.25,0,0,14.5" Width="124" Height="28" VerticalAlignment="Bottom"/>
+                        <Image x:Name="ErrorImageAdd" HorizontalAlignment="Right" Height="16" Margin="0,54.5,174.5,0" Source="109_AllAnnotations_Error_16x16_72.png" Stretch="Fill" VerticalAlignment="Top" Width="16" Visibility="Hidden"/>
+                        <Label x:Name="labelErrorAdd" Content="串流地址不能为空！" HorizontalAlignment="Right" Height="26.25" Margin="0,49,46,0" VerticalAlignment="Top" Width="123.75" Visibility="Hidden"/>
+                        <Image x:Name="ErrorImageCode" HorizontalAlignment="Right" Height="16" Margin="0,90.5,174.5,0" Source="109_AllAnnotations_Error_16x16_72.png" Stretch="Fill" VerticalAlignment="Top" Width="16" Visibility="Hidden"/>
+                        <Label x:Name="labelErrorCode" Content="串流码不能为空！" HorizontalAlignment="Right" Height="28.738" Margin="0,86,49.75,0" VerticalAlignment="Top" Width="120" Visibility="Hidden"/>
+                        <Image x:Name="CheckImage" Margin="88.75,0,0,21.5" Source="109_AllAnnotations_Default_16x16_72.png" Stretch="Fill" HorizontalAlignment="Left" Width="16" Height="16" VerticalAlignment="Bottom"/>
+                        <Label x:Name="labelSourceName" Content="流名称" HorizontalAlignment="Right" Height="25.25" Margin="0,49,126.5,0" VerticalAlignment="Top" Width="67" RenderTransformOrigin="0.239,0.594" Visibility="Hidden"/>
+                        <TextBox x:Name="textBoxSourceName" Height="20.25" Margin="0,53,10,0" TextWrapping="Wrap" Text="流0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="135.5" Visibility="Hidden"/>
+                        <Slider x:Name="sliderEditor" Height="23" Margin="0,0,253.5,10" VerticalAlignment="Bottom" Maximum="1" HorizontalAlignment="Right" Width="67.5" ValueChanged="SliderEditor_ValueChanged" Cursor="" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="1"/>
+                        <Label x:Name="labelEditor" Content="编辑器转换" Margin="0,0,253.5,33" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="70"/>
+                        <Grid Margin="14.5,223.5,10,64">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition x:Name="DataCol" Width="*"/>
+                                <ColumnDefinition Width="15"/>
+                                <ColumnDefinition x:Name="TextCol" Width="0"/>
+                            </Grid.ColumnDefinitions>
+                            <ListView Grid.Column="0" x:Name="listViewOpt" GotFocus="ListViewOpt_GotFocus">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="序号" DisplayMemberBinding="{Binding Path=Id}" Width="30"/>
+                                        <GridViewColumn Header="类型" DisplayMemberBinding="{Binding Path=Type}" Width="80"/>
+                                        <GridViewColumn Header="流名称" DisplayMemberBinding="{Binding Path=SourceName}" Width="100"/>
+                                        <GridViewColumn Header="串流代码" DisplayMemberBinding="{Binding Path=StreamCode}" Width="500"/>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+
+                            <TextBox Grid.Column="2" x:Name="textBoxOpt" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" TextChanged="TextBoxOpt_TextChanged" GotFocus="TextBoxOpt_GotFocus"/>
+                        </Grid>
+                        <Button x:Name="buttonRecover" Content="复原" Margin="0,0,198.5,10" Height="45" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="51" Click="ButtonRecover_Click" Visibility="Hidden"/>
+
+                    </Grid>
+                </TabItem>
+                <TabItem x:Name="tabItemTest" Header="测试" Width="70">
+                    <Grid Background="#FFE5E5E5">
+                        <Button x:Name="button" Content="开始测试" HorizontalAlignment="Left" Height="37.75" Margin="14.5,22.75,0,0" VerticalAlignment="Top" Width="128" Click="Button_Click_1" IsDefault="True" Background="#FFDDDDDD" Foreground="Black"/>
+                        <ProgressBar x:Name="TestProgress" Height="37.75" Margin="147.5,65.5,10,0" VerticalAlignment="Top"/>
+                        <Button x:Name="button1" Content="中止测试" Height="37.75" Margin="14.5,65.5,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="128" IsEnabled="False" Click="Button1_Click"/>
+                        <Label x:Name="label2" Content="测试报告" Height="26.25" Margin="14.5,116.25,10,0" VerticalAlignment="Top" Background="#FF949494" Foreground="White"/>
+                        <RichTextBox x:Name="richTextBox" Margin="14.5,153.5,10,47.25" Block.LineHeight="5" VerticalScrollBarVisibility="Auto">
+                            <FlowDocument>
+                                <Paragraph>
+                                    <Run Text="尚无报告"/>
+                                </Paragraph>
+                            </FlowDocument>
+                        </RichTextBox>
+                        <Label x:Name="Testlabel" Content="就绪" Height="26.5" Margin="147.5,29.25,10,0" VerticalAlignment="Top"/>
+                        <Image x:Name="image" HorizontalAlignment="Left" Margin="14.5,0,0,13" Width="16.25" Source="109_AllAnnotations_Error_16x16_72.png" Height="20" VerticalAlignment="Bottom"/>
+                        <TextBox x:Name="textBoxRedCount" HorizontalAlignment="Left" Margin="35.75,0,0,11" TextWrapping="Wrap" Text="0" Width="39.5" IsReadOnly="True" Height="20" VerticalAlignment="Bottom"/>
+                        <Label x:Name="labelUpTime" Content="更新时间:" Margin="0,0,9.4,5" Height="30" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="203.5"/>
+                    </Grid>
+                </TabItem>
+                <TabItem x:Name="tabItemStream" Header="推流" Width="70">
+                    <Grid Background="#FFE5E5E5">
+                        <Button x:Name="button_StartLive" Content="开始推流" HorizontalAlignment="Left" Height="37.75" Margin="14.5,22.75,0,0" VerticalAlignment="Top" Width="128" Click="Button_StartLive_Click"/>
+                        <Button x:Name="button_EndLive" Content="终止推流" HorizontalAlignment="Left" Height="37.75" Margin="14.5,65.5,0,0" VerticalAlignment="Top" Width="128" Click="Button_EndLive_Click"/>
+                        <TextBox x:Name="textBoxLiveTime" Margin="147.5,66,10,0" TextWrapping="Wrap" Text="00:00:00" TextAlignment="Center" FontSize="28" Background="{x:Null}" Foreground="Black" Height="37.25" VerticalAlignment="Top"/>
+                        <Label x:Name="labelLive" Content="就绪" Height="29" Margin="147.5,29.25,10,0" VerticalAlignment="Top"/>
+                        <Expander x:Name="expander" Header="应急处理" Margin="-3,155,0,0">
+                            <Grid Background="White">
+                                <Rectangle Fill="#FFF4F4F5" Height="130.5" Margin="176,39,71.5,0" VerticalAlignment="Top"/>
+                                <RichTextBox x:Name="richTextBox1" Height="130.5" Margin="175,39,71.5,0" VerticalAlignment="Top" Block.LineHeight="10">
+                                    <FlowDocument>
+                                        <Paragraph FontSize="18">
+                                            <Bold>断线重连检查单</Bold>
+                                        </Paragraph>
+                                        <Paragraph>
+                                            <Bold>
+                                                <Run Text="1."/>
+                                            </Bold>
+                                            <Run Text=" "/>
+                                            <Run Text="  前往配置选项卡重新写入配置。"/>
+                                        </Paragraph>
+                                        <Paragraph>
+                                            <Bold>
+                                                <Run Text="2."/>
+                                            </Bold>
+                                            <Run Text=" "/>
+                                            <Run Text="  按下右边的按钮将在2s内完成终止推流与开始推流，从而完成重连。"/>
+                                            <Run Text=" "/>
+                                        </Paragraph>
+
+                                        <Paragraph>
+                                            <Bold>
+                                                <Run Text="*."/>
+                                            </Bold>
+                                            <Run Text=" "/>
+                                            <Run Text="  仍不奏效，需要先重新确认，再在OBS里关开推流。"/>
+
+                                        </Paragraph>
+                                    </FlowDocument>
+                                </RichTextBox>
+                                <Button x:Name="button2" Content="配置" Click="Button2_Click" Margin="0,72.86,0,0" Height="20" VerticalAlignment="Top" HorizontalAlignment="Right" Width="70"/>
+                                <Button x:Name="button3" Content="急断急连" Click="Button3_Click" Margin="0,97.86,0,0" Height="20" VerticalAlignment="Top" HorizontalAlignment="Right" Width="70"/>
+                                <Button x:Name="buttonEGY" Content="启用断线重连" HorizontalAlignment="Left" Height="24" Margin="10,39,0,0" VerticalAlignment="Top" Width="155.5" Click="Button4_Click"/>
+                                <Button x:Name="ButtonQuitAll" Content="解决程序冲突" HorizontalAlignment="Left" Height="24" Margin="10,72.86,0,0" VerticalAlignment="Top" Width="155.5" Click="ButtonQuitAll_Click"/>
+                                <Rectangle Fill="#FFF4F4F5" Height="121.1" Margin="176,174.5,71.5,0" VerticalAlignment="Top"/>
+                                <RichTextBox x:Name="richTextBox2" Height="121.1" Margin="175,174.5,71.5,0" VerticalAlignment="Top" Block.LineHeight="10">
+                                    <FlowDocument>
+                                        <Paragraph FontSize="18">
+                                            <Bold>程序冲突检查单</Bold>
+                                        </Paragraph>
+                                        <Paragraph>
+                                            当多次开启推流而没有关闭（回收）的时候，修改的配置将不奏效，这时需要把推流程序全部关掉。
+                                        </Paragraph>
+                                        <Paragraph>
+                                            <Bold>
+                                                <Run Text="1."/>
+                                            </Bold>
+                                            <Run Text=" "/>
+                                            <Run Text="  按下右边的解决冲突按钮，将强制关闭全部的推流程序。"/>
+                                            <Run Text=" "/>
+                                        </Paragraph>
+                                        <Paragraph>
+                                            <Bold>
+                                                <Run Text="2."/>
+                                            </Bold>
+                                            <Run Text=" "/>
+                                            <Run Text="  当检测到全部关闭的时候将会自动重启推流程序。请在OBS里关开推流。"/>
+                                            <Run Text=" "/>
+                                        </Paragraph>
+                                    </FlowDocument>
+                                </RichTextBox>
+                                <Button x:Name="buttonCross" Content="解决冲突" Height="19.5" Margin="0,232.6,0,0" VerticalAlignment="Top" Click="ButtonCross_Click" HorizontalAlignment="Right" Width="70"/>
+                                <Button x:Name="button5" Content="配置" Height="20" Margin="0,207.6,0,0" VerticalAlignment="Top" IsCancel="True" Click="Button2_Click" HorizontalAlignment="Right" Width="70"/>
+                            </Grid>
+                        </Expander>
+                    </Grid>
+                </TabItem>
+                <TabItem x:Name="tabItemTutourial" Header="教程" Width="70">
+                    <Grid Background="#FFE5E5E5">
+                        <RichTextBox x:Name="richTextBoxTu" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" IsReadOnly="True">
+                            <FlowDocument>
+                                <Paragraph>
+                                    <Run Text="Tutourial Error"/>
+                                </Paragraph>
+                            </FlowDocument>
+                        </RichTextBox>
+                    </Grid>
+
+                </TabItem>
+                <TabItem x:Name="TabItemSetting" Header="设置" Width="70">
+                    <Grid Background="#FFE5E5E5">
+
+                        <CheckBox x:Name="checkBoxtest" Content="测试时不使用ffmpeg" HorizontalAlignment="Left" Height="17" Margin="24,23.187,0,0" VerticalAlignment="Top" Width="147" Checked="CheckBoxtest_Checked" Unchecked="CheckBoxtest_Unchecked"/>
+                        <Rectangle x:Name="Rec1" Fill="#FFF4F4F5" HorizontalAlignment="Right" Height="44.5" Margin="0,20.5,10,0" Stroke="Black" VerticalAlignment="Top" Width="362"/>
+                        <Image x:Name="WarPic" Margin="0,26,327.5,0" Source="StatusAnnotations_Warning_32xLG_color.png" Stretch="Fill" HorizontalAlignment="Right" Width="32" Height="32" VerticalAlignment="Top"/>
+                        <Label x:Name="labell1" Content="为保证测试准确性，请在测试开始后开启OBS推流。" Height="23.5" Margin="0,23.187,18.5,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="282.5"/>
+                        <Label x:Name="labell2" Content="只有在有数据流时结果才是准确的。" Height="25" Margin="0,38,40,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="282.5"/>
+                        <CheckBox x:Name="checkBox2" Content="解决程序冲突时不再次启动推流" HorizontalAlignment="Left" Height="20.5" Margin="24,46.813,0,0" VerticalAlignment="Top" Width="203" Checked="CheckBox2_Checked" Unchecked="CheckBox2_Unchecked"/>
+                        <Button x:Name="button6" Content="清除所有设置" HorizontalAlignment="Left" Height="20" Margin="43.2,98.8,0,0" VerticalAlignment="Top" Width="170.5" Click="Button6_Click"/>
+                        <Button x:Name="button7" Content="确认" HorizontalAlignment="Left" Height="20" Margin="220.2,98.8,0,0" VerticalAlignment="Top" Width="42" Click="Button7_Click" Visibility="Hidden"/>
+                        <CheckBox x:Name="checkBoxFullRange" Content="全局调试模式(较慢)" Checked="CheckBox_Checked" Margin="24,71.3,0,0" HorizontalAlignment="Left" Width="130" Height="22.5" VerticalAlignment="Top" Unchecked="CheckBoxFullRange_Unchecked"/>
+                        <Button x:Name="buttonHelp" Content="测试侧栏" HorizontalAlignment="Left" Height="23.25" Margin="24,174.25,0,0" VerticalAlignment="Top" Width="52.5" Click="ButtonHelp_Click"/>
+                        <Frame x:Name="frame" Content="Frame" HorizontalAlignment="Left" Height="210" Margin="23.75,238.75,0,0" VerticalAlignment="Top" Width="441.75" Source="Monitoring.xaml"/>
+                    </Grid>
+                </TabItem>
+
+            </TabControl>
+            <GridSplitter x:Name="ColumnSplit" Grid.Column="1" Width="5" HorizontalAlignment="Stretch"/>
+            <Frame Grid.Column="2"/>
+        </Grid>
+
+
+
+    </Grid>
+
+</Window>
