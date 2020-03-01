@@ -1,0 +1,19 @@
+正在比较文件 .\LOGS\errorcomp1.log 和 .\LOGS\ERRORCOMP2.LOG
+***** .\LOGS\errorcomp1.log
+***** .\LOGS\ERRORCOMP2.LOG
+2019/10/03 15:24:23 [notice] 11088#1704: using the "select" event method
+2019/10/03 15:24:23 [notice] 11088#1704: nginx/1.12.1
+2019/10/03 15:24:23 [info] 11088#1704: OS: 300000 build:18362, "", suite:300, type:1
+2019/10/03 15:24:23 [notice] 11088#1704: start worker processes
+2019/10/03 15:24:23 [notice] 11088#1704: start worker process 2520
+2019/10/03 15:24:23 [notice] 2520#11160: nginx/1.12.1
+2019/10/03 15:24:23 [info] 2520#11160: OS: 300000 build:18362, "", suite:300, type:1
+2019/10/03 15:24:23 [notice] 2520#11160: create thread 2376
+2019/10/03 15:24:23 [notice] 2520#11160: create thread 1156
+2019/10/03 15:24:23 [notice] 2520#11160: create thread 19408
+2019/10/03 15:24:26 [notice] 17304#10316: signal process started
+2019/10/03 15:24:26 [notice] 11088#1704: exiting
+2019/10/03 15:24:26 [notice] 2520#11160: gracefully shutting down
+2019/10/03 15:24:26 [notice] 2520#1156: exiting
+*****
+

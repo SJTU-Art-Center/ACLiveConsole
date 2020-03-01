@@ -1,0 +1,18 @@
+﻿http {
+        server {
+
+### 網頁使用 port
+set $httpport 8080;
+
+#####
+#   
+# 以下請擇一啟用
+
+### 流量統計網頁 (基礎)，去除#號啟用(須重新啟動程式)
+include slimstat.conf;
+
+### 流量統計網頁 (進階)，去除#號啟用(須重新啟動程式)
+# include default-panel.conf;
+
+    }
+}
