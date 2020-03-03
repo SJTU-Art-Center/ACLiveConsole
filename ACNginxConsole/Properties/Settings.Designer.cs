@@ -70,5 +70,17 @@ namespace ACNginxConsole.Properties {
                 this["fulltest"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool CloseProtection {
+            get {
+                return ((bool)(this["CloseProtection"]));
+            }
+            set {
+                this["CloseProtection"] = value;
+            }
+        }
     }
 }
