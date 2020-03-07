@@ -335,16 +335,16 @@
                     </Viewbox>
                     <StackPanel Height="20" Orientation="Horizontal" Margin="0,5,0,10">
                         <Button x:Name="buttonLU" Click="ButtonLU_Click" KeyDown="ButtonLU_KeyDown" KeyUp="ButtonLU_KeyUp" ToolTip="左上">
-                            <Image Source="arrow_LU_16xLG.png" ToolTip="" />
+                            <Image Source="arrow_LU_16xLG.png" />
                         </Button>
                         <Button x:Name="buttonRU" Click="ButtonRU_Click" ToolTip="右上">
-                            <Image Source="arrow_RU_16xLG.png" ToolTip="" />
+                            <Image Source="arrow_RU_16xLG.png" />
                         </Button>
                         <Button x:Name="buttonLD" Click="ButtonLD_Click" ToolTip="左下">
-                            <Image Source="arrow_LD_16xLG.png" ToolTip="" />
+                            <Image Source="arrow_LD_16xLG.png" />
                         </Button>
                         <Button x:Name="buttonRD" Click="ButtonRD_Click" ToolTip="右下">
-                            <Image Source="arrow_RD_16xLG.png" ToolTip="" />
+                            <Image Source="arrow_RD_16xLG.png" />
                         </Button>
                         <Button x:Name="buttonSolo" VerticalAlignment="Top" Height="20" Click="ButtonSolo_Click" ToolTip="独显">
                             <Image x:Name="SoloImg" Source="RecordRound_16xLG.png" Opacity="0.5"/>
