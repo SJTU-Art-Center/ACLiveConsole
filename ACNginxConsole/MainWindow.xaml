@@ -266,14 +266,15 @@
                         <Image x:Name="WarPic" Margin="0,26,327.5,0" Source="StatusAnnotations_Warning_32xLG_color.png" Stretch="Fill" HorizontalAlignment="Right" Width="32" Height="32" VerticalAlignment="Top"/>
                         <Label x:Name="labell1" Content="为保证测试准确性，请在测试开始后开启OBS推流。" Height="23.5" Margin="0,23.187,18.5,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="282.5"/>
                         <Label x:Name="labell2" Content="只有在有数据流时结果才是准确的。" Height="25" Margin="0,38,40,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="282.5"/>
-                        <Button x:Name="button6" Content="清除所有设置" HorizontalAlignment="Left" Height="20" Margin="43.2,120,0,0" VerticalAlignment="Top" Width="170.5" Click="Button6_Click"/>
-                        <Button x:Name="button7" Content="确认" HorizontalAlignment="Left" Height="20" Margin="220.2,120,0,0" VerticalAlignment="Top" Width="42" Click="Button7_Click" Visibility="Hidden"/>
-                        <StackPanel HorizontalAlignment="Left" Height="105" Margin="24,10,0,0" VerticalAlignment="Top" Width="252">
+                        <Button x:Name="button6" Content="清除所有设置" HorizontalAlignment="Left" Height="20" Margin="43,152,0,0" VerticalAlignment="Top" Width="171" Click="Button6_Click"/>
+                        <Button x:Name="button7" Content="确认" HorizontalAlignment="Left" Height="20" Margin="220,152,0,0" VerticalAlignment="Top" Width="42" Click="Button7_Click" Visibility="Hidden"/>
+                        <StackPanel HorizontalAlignment="Left" Height="137" Margin="24,10,0,0" VerticalAlignment="Top" Width="252">
                             <CheckBox x:Name="checkBoxtest" Content="测试时不使用ffmpeg" HorizontalAlignment="Left" VerticalAlignment="Top" Width="147" Checked="CheckBoxtest_Checked" Unchecked="CheckBoxtest_Unchecked" Margin="0,5,0,0"/>
                             <CheckBox x:Name="checkBox2" Content="解决程序冲突时不再次启动推流" HorizontalAlignment="Left" VerticalAlignment="Top" Width="203" Checked="CheckBox2_Checked" Unchecked="CheckBox2_Unchecked" Margin="0,5,0,0"/>
                             <CheckBox x:Name="checkBoxFullRange" Content="全局调试模式(较慢)" Checked="CheckBox_Checked" HorizontalAlignment="Left" Width="130" VerticalAlignment="Top" Unchecked="CheckBoxFullRange_Unchecked" Margin="0,5,0,0"/>
                             <CheckBox x:Name="checkBoxCloseProtect" Content="关闭监视器保护模式" HorizontalAlignment="Left" Width="130" BorderThickness="1" Margin="0,5,0,0" Checked="CheckBoxCloseProtect_Checked" Unchecked="CheckBoxCloseProtect_Unchecked"/>
-                            <CheckBox x:Name="checkBoxCloseSniffing" Content="关闭播流地址自动获取" HorizontalAlignment="Left" Height="18" Margin="0,5,0,0" Width="147" Checked="CheckBoxCloseSniffing_Checked" Unchecked="CheckBoxCloseSniffing_Unchecked"/>
+                            <CheckBox x:Name="checkBoxCloseSniffing" Content="关闭播流地址自动获取" HorizontalAlignment="Left" Margin="0,5,0,0" Width="147" Checked="CheckBoxCloseSniffing_Checked" Unchecked="CheckBoxCloseSniffing_Unchecked"/>
+                            <CheckBox x:Name="checkBoxClosingAnim" Content="计时器关闭推流时播放Closing.mp4" HorizontalAlignment="Left" Height="16" Margin="0,5,0,0" Width="242"/>
                         </StackPanel>
                     </Grid>
                 </TabItem>

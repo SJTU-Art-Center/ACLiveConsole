@@ -1492,8 +1492,77 @@ namespace ACNginxConsole
                     textBoxClock.Text = settime.Subtract(nowtime).Minutes.ToString();
                     labelLive.Content += "并将于 " + textBoxClock.Text + " 分钟后关闭...";
                     buttonClock.BorderBrush = Brushes.Red;
-                    if (textBoxClock.Text == "0")
+                    if (textBoxClock.Text == "0" && endset == true)
                     {
+                        if (checkBoxClosingAnim.IsChecked == true)
+                        {
+                            labelLive.Content = "正在关闭OBS...";
+                            //强制关闭obs
+                            if (System.Diagnostics.Process.GetProcessesByName("obs64").ToList().Count > 0)
+                            {
+                                try
+                                {
+                                    //强制关闭进程
+                                    System.Diagnostics.Process[] ps = System.Diagnostics.Process.GetProcessesByName("obs64");
+
+                                    foreach (System.Diagnostics.Process p in ps)
+                                    {
+                                        p.Kill();
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    throw ex;
+                                }
+
+                            }
+                            else if (System.Diagnostics.Process.GetProcessesByName("obs32").ToList().Count > 0)
+                            {
+                                try
+                                {
+                                    //强制关闭进程
+                                    System.Diagnostics.Process[] ps = System.Diagnostics.Process.GetProcessesByName("obs32");
+
+                                    foreach (System.Diagnostics.Process p in ps)
+                                    {
+                                        p.Kill();
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    throw ex;
+                                }
+                            }
+
+                            //再启动ffmpeg推入
+
+                            labelLive.Content = "正在推流关闭视频...";
+                            try
+                                {
+                                    using (Process process = new System.Diagnostics.Process())
+                                    {
+                                        process.StartInfo.FileName = "ffmpeg.exe";
+                                        process.StartInfo.Arguments = "-re -i Closing.mp4 -vcodec copy -acodec copy -f flv -y rtmp://127.0.0.1:1935/live";
+                                        // 必须禁用操作系统外壳程序  
+                                        process.StartInfo.UseShellExecute = false;
+                                        process.StartInfo.CreateNoWindow = true;
+                                        process.StartInfo.RedirectStandardOutput = true;
+
+                                    
+                                    process.Start();
+
+                                        string output = process.StandardOutput.ReadToEnd();
+
+                                        process.WaitForExit();
+                                        process.Close();
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    Testlabel.Content = ex.Message;
+                                }
+                            
+                        }
                         EndLive();
                         textBoxClock.Text = "";
                         endset = false;
@@ -1799,11 +1868,14 @@ namespace ACNginxConsole
         private void CheckBoxtest_Checked(object sender, RoutedEventArgs e)
         {
             Warning_show();
+            checkBoxClosingAnim.IsChecked = false;
+            checkBoxClosingAnim.IsEnabled = false;
         }
 
         private void CheckBoxtest_Unchecked(object sender, RoutedEventArgs e)
         {
             Warning_Clear();
+            checkBoxClosingAnim.IsEnabled = true;
         }
 
         /// <summary>
