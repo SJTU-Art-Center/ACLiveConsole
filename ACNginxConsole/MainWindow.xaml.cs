@@ -1,13 +1,22 @@
 ﻿// Art Center Live Console
-// Copyright (c) 2019 by Art Center, All Rights Reserved.
-
+// Copyright (c) 2019 - 2020 by Art Center, All Rights Reserved.
+// GPL-3.0
 
 //========= Platform =============
 
 // C# WPF(Windows Presentation Foundation) 
-// .NET Framework 3.5
+// .NET Framework 4.0
 
 //========= Update Log ===========
+
+// For more information, please visit:
+// https://github.com/LogCreative/ACLiveConsole.
+
+// Ver 3.0.0.0 by Li Zilong
+// Source Code Release Date: 2020/3/8
+// Add Monitor;
+// Add Datalist;
+// Monitor Function Flaw, with manual solutions.
 
 // Ver 2.5.1.0 by Li Zilong
 // Source Code Release Date: 2019/11/26
@@ -27,19 +36,13 @@
 // Date: 2019/5/23
 // Live Tutourial
 
-// =========== Notice =============
-
-// The Source Code of this application can be internaly distributed,
-// but can't be spread publicly.
-
-// It is strictly prohibited to sell this software by any means 
-// without the permission from Art Center.
 
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -56,10 +59,14 @@ using System.Threading;
 using System.Net;
 using System.Windows.Media.Animation;
 using System.Collections.ObjectModel;
+using System.Reflection;
+using Vlc.DotNet.Core;
+using Vlc.DotNet.Wpf;
 
 namespace ACNginxConsole
-{ 
+{
 
+    #region GridLengthAnimation
     /// <summary>
     /// GridLengthAnimation Class provides a way to create animation for grid.Width/Height.
     /// </summary>
@@ -101,6 +108,33 @@ namespace ACNginxConsole
             return new GridLengthAnimation();
         }
 
+        // .Net Framework 3.5 不支持缓动。已经升级至 4.0 。
+        // 如果将来打算升级框架，请见： https://www.cnblogs.com/startewho/articles/6882332.html
+        /// <summary>
+        /// The <see cref="EasingFunction"/> dependency.
+        /// </summary>
+        public const string EasingFunctionPropertyName = "EasingFunction";
+
+        public IEasingFunction EasingFuntion
+        {
+            get
+            {
+                return (IEasingFunction)GetValue(EasingFunctionProperty);
+            }
+            set
+            {
+                SetValue(EasingFunctionProperty, value);
+            }
+        }
+
+        public static readonly DependencyProperty EasingFunctionProperty = DependencyProperty.Register(
+            EasingFunctionPropertyName,
+            typeof(IEasingFunction),
+            typeof(GridLengthAnimation),
+            new UIPropertyMetadata(null)
+            );
+
+
         public override object GetCurrentValue(object defaultOriginValue, object defaultDestinationValue, AnimationClock animationClock)
         {
             double fromVal = ((GridLength)GetValue(GridLengthAnimation.FromProperty)).Value;
@@ -109,13 +143,19 @@ namespace ACNginxConsole
             double progress = animationClock.CurrentProgress.Value;
 
 
+            IEasingFunction easingFunction = EasingFuntion;
+            if (easingFunction != null)
+            {
+                progress = easingFunction.Ease(progress);
+            }
+
             if (fromVal > toVal)
             {
-                return new GridLength((1 - animationClock.CurrentProgress.Value) * (fromVal - toVal) + toVal,
+                return new GridLength((1 - progress) * (fromVal - toVal) + toVal,
                     ((GridLength)GetValue(GridLengthAnimation.FromProperty)).GridUnitType);
             }
             else
-                return new GridLength(animationClock.CurrentProgress.Value * (toVal - fromVal) + fromVal,
+                return new GridLength(progress * (toVal - fromVal) + fromVal,
                     ((GridLength)GetValue(GridLengthAnimation.ToProperty)).GridUnitType);
         }
 
@@ -127,34 +167,9 @@ namespace ACNginxConsole
             }
         }
 
-        // .Net Framework 3.5 不支持缓动。
-        // 如果将来打算升级框架，请见： https://www.cnblogs.com/startewho/articles/6882332.html
-        ///// <summary>
-        ///// The <see cref="EasingFunction"/> dependency.
-        ///// </summary>
-        //public const string EasingFunctionPropertyName = "EasingFunction";
-
-        //public IEasingFunction EasingFuntion
-        //{
-        //    get
-        //    {
-        //        return (IEasingFunction)GetValue(EasingFunctionProperty);
-        //    }
-        //    set
-        //    {
-        //        SetValue(EasingFunctionProperty, value);
-        //    }
-        //}
-
-        //public static readonly DependencyProperty EasingFunctionProperty = DependencyProperty.Register(
-        //    EasingFunctionPropertyName,
-        //    typeof(IEasingFunction),
-        //    typeof(GridLengthAnimation),
-        //    new UIPropertyMetadata(null)
-        //    );
     }
 
-    
+    #endregion
 
     /// <summary>
     /// MainWindow.xaml 的交互逻辑
@@ -167,6 +182,7 @@ namespace ACNginxConsole
         DispatcherTimer dispatcherTimerBling = new DispatcherTimer();
         DispatcherTimer dispatcherTimerRefresh = new DispatcherTimer();
         DispatcherTimer dispatcherTimerEGY = new DispatcherTimer();
+        DispatcherTimer dispatcherTimerMon = new DispatcherTimer();
 
         int time_left;
 
@@ -179,11 +195,12 @@ namespace ACNginxConsole
 
         const double RightCol_Last = 300;    //右侧边栏最后状态
 
+        #region 配置项类
         public event PropertyChangedEventHandler PropertyChanged;
         ObservableCollection<ConfigItem> configdata;//定义配置数据库
         public ObservableCollection<ConfigItem> Configdata
         {
-            
+
             get
             {
                 return configdata;
@@ -200,17 +217,13 @@ namespace ACNginxConsole
 
         int configcount = 0;
 
-        
-
-        /// <summary>
-        /// 配置项的类
-        /// </summary>
         public class ConfigItem : INotifyPropertyChanged
         {
             private int id;
             private string type;
             private string sourceName;
             private string streamCode;
+            private string liveViewingSite;
             public event PropertyChangedEventHandler PropertyChanged;
 
             public int Id
@@ -261,22 +274,132 @@ namespace ACNginxConsole
                 }
             }
 
+            public string LiveViewingSite
+            {
+                get { return liveViewingSite; }
+                set
+                {
+                    //liveViewingSite = value;
+                    if (value != "")
+                    {
+                        //抓包分析
+                        liveViewingSite = Get_realplay(Type, value);
+                    }
+                    if (this.PropertyChanged != null)
+                    {
+                        this.PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(ConfigItem)));
+                    }
+                }
+            }
+
+
             public ConfigItem() { }
-            public ConfigItem(int id, int typeint, string sourceName, string streamCode)
+            
+            public ConfigItem(int id, int typeint, string sourceName, string streamCode, string liveViewingSite="")
             {
                 this.Id = id;
                 switch (typeint)
                 {
-                    case -1: this.Type = "本地";break;
+                    case -1: this.Type = "本地"; break;
                     case 0: this.Type = "B站"; break;
                     case 1: this.Type = "微博"; break;
                     default: this.Type = "自定义"; break;
                 }
                 this.SourceName = sourceName;
                 this.StreamCode = streamCode;
+                this.LiveViewingSite = liveViewingSite;
             }
-        }
 
+            /// <summary>
+            /// 抓包函数
+            /// </summary>
+            /// <param name="Type">网站类型</param>
+            /// <param name="website">网站地址</param>
+            /// <returns>真正的播流地址</returns>
+            public string Get_realplay(string Type,string website)
+            {
+                string realplay = null;
+                if (Type == "B站")
+                {
+                    if (Properties.Settings.Default.CloseYouget == false)
+                    {
+                        //该方案暂时失效，可能需要大改。转写自you-get
+                        System.Net.WebClient client = new WebClient();
+                        //byte[] page = client.DownloadData(website);
+                        //string content = System.Text.Encoding.UTF8.GetString(page);
+                        string content = website;
+                        Regex re = new Regex(@"(?<=https?://live\.bilibili\.com/)\b\w+\b"); //正则表达式
+                        MatchCollection matches = re.Matches(content);
+                        string short_id = null, room_id = null;
+                        if (matches[0].Groups[0].ToString() != null)
+                        {
+                            short_id = matches[0].Groups[0].ToString();
+                            string api_url = "https://api.live.bilibili.com/room/v1/Room/room_init?id=" + short_id;
+                            string api_content = System.Text.Encoding.UTF8.GetString(client.DownloadData(api_url));
+
+                            re = new Regex(@"(?<=""room_id"":)\b(\w+)\b");
+                            matches = re.Matches(api_content);
+
+                            if (matches[0].Groups[0].ToString() != null)
+                            {
+                                room_id = matches[0].Groups[0].ToString();
+                                //api_url = "https://api.live.bilibili.com/room/v1/Room/get_info?room_id=" + room_id;
+                                //api_content = System.Text.Encoding.UTF8.GetString(client.DownloadData(api_url));
+
+                                api_url = "https://api.live.bilibili.com/room/v1/Room/playUrl?cid=" + room_id + "&quality=0&platform=web";  //这里可以调画质
+                                api_content = System.Text.Encoding.UTF8.GetString(client.DownloadData(api_url));
+
+                                //re = new Regex(@"(?<=""url"":)("")*.?("")");
+                                re = new Regex(@"(?<=""url"":"")([^""]+)");
+                                matches = re.Matches(api_content);
+
+                                if (matches[0].Groups[0].ToString() != null)
+                                {
+                                    api_url = matches[0].Groups[0].ToString();
+                                    re = new Regex(@".*\.flv");
+                                    matches = re.Matches(api_url);
+
+                                    try
+                                    {
+                                        //解析到
+                                        api_url = matches[0].Groups[0].ToString();
+                                        re = new Regex(@"\.flv");
+                                        string result = re.Replace(api_url, ".m3u8");
+                                        System.Diagnostics.Debug.WriteLine(result);
+                                        return result;
+                                        //该方法暂时失效
+
+                                    }
+                                    catch (Exception)
+                                    {
+                                        return "地址替换错误(-4)";
+                                    }
+                                }
+                                else
+                                    return "解析播流地址错误(-3)";
+                            }
+                            else
+                                return "解析初始化错误(-2)";
+                        }
+                        else
+                            return "网址错误(-1)";    //网址错误
+                    }
+                    else
+                        realplay = website;
+                }
+                else if (Type == "微博")
+                {
+                    realplay = website; //暂时保持不变
+                }
+                else
+                { 
+                    realplay = website; //暂时保持不变
+                }
+                return realplay;
+            }
+
+        }
+        #endregion
 
         public MainWindow()
         {
@@ -299,8 +422,11 @@ namespace ACNginxConsole
             dispatcherTimerEGY.Tick += new EventHandler(dispatcherTimerEGY_Tick);
             dispatcherTimerEGY.Interval = new TimeSpan(0, 0, 0, 0, 500);
 
+            dispatcherTimerMon.Tick += new EventHandler(dispatcherTimerMon_Tick);
+            dispatcherTimerEGY.Interval = new TimeSpan(0, 0, 0, 10);
+
             labelVer.Content = "版本: " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() + "\n";
-            labelVer.Content += "© Art Center 2019, All Rights Reserved." + "\n";
+            labelVer.Content += "© Art Center 2019 - 2020, All Rights Reserved." + "\n";
             labelVer.Content += "Based on Open Source Project: Nginx, ffmpeg, VLC";
 
             if (Environment.MachineName.Equals(Properties.Settings.Default.LastComputer))
@@ -323,10 +449,12 @@ namespace ACNginxConsole
 
             checkBox2.IsChecked = Properties.Settings.Default.Norestart;
             checkBoxFullRange.IsChecked = Properties.Settings.Default.fulltest;
+            checkBoxCloseProtect.IsChecked = Properties.Settings.Default.CloseProtection;
+            checkBoxCloseSniffing.IsChecked = Properties.Settings.Default.CloseYouget;
 
             configdata = new ObservableCollection<ConfigItem>
             {
-                new ConfigItem(configcount,-1,"本地推流","rtmp://127.0.0.1:1935/live")   
+                new ConfigItem(configcount,-1,"本地推流","rtmp://127.0.0.1:1935/live","rtmp://127.0.0.1:1935/live")   
             };  //初始化
             configcount++;
             textBoxSourceName.Text = "流" + configcount;
@@ -336,6 +464,9 @@ namespace ACNginxConsole
             //configdata.Add(new ConfigItem(++configcount, 0, "ceshi2", "ceshi2"));
 
             listViewOpt.ItemsSource = configdata;
+            comboBoxSource.ItemsSource = configdata;
+
+            RightCol.Width = new GridLength(0, GridUnitType.Pixel); //右栏宽初始值为0
         }
 
         #region 主页
@@ -351,6 +482,7 @@ namespace ACNginxConsole
             button4.Visibility = Visibility.Hidden;
             passwordBox.Visibility = Visibility.Hidden;
             label8.Visibility = Visibility.Hidden;
+            buttonSoftHelp.Visibility = Visibility.Visible;
 
             Properties.Settings.Default.LastComputer = (string)Environment.MachineName;
             Properties.Settings.Default.Save();
@@ -364,6 +496,7 @@ namespace ACNginxConsole
             tabItemStream.Visibility = Visibility.Collapsed;
             tabItemTutourial.Visibility = Visibility.Collapsed;
             TabItemSetting.Visibility = Visibility.Collapsed;
+            buttonSoftHelp.Visibility = Visibility.Hidden;
         }
 
         private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
@@ -372,7 +505,20 @@ namespace ACNginxConsole
             button4.Foreground = Brushes.Black;
         }
 
+        private void PasswordBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                Verify();
+            }
+        }
+
         private void Button4_Click_1(object sender, RoutedEventArgs e)
+        {
+            Verify();
+        }
+
+        private void Verify()
         {
             if (passwordBox.Password == "acbangbangbang")
                 Unlock();
@@ -381,7 +527,12 @@ namespace ACNginxConsole
                 button4.Content = "X";
                 button4.Foreground = Brushes.Red;
             }
+        }
 
+        private void ButtonSoftHelp_Click(object sender, RoutedEventArgs e)
+        {
+            //软件帮助
+            System.Diagnostics.Process.Start("https://github.com/LogCreative/ACLiveConsole/wiki");
         }
 
         #endregion
@@ -391,6 +542,7 @@ namespace ACNginxConsole
         private void RadioButton_Checked(object sender, RoutedEventArgs e)
         {
             AutoConfig();
+            labelWebsite.Content = "直播网址";
         }
 
         /// <summary>
@@ -402,7 +554,7 @@ namespace ACNginxConsole
             labelAdd.Visibility = Visibility.Visible;
             labelCode.Visibility = Visibility.Visible;
             labelMan.Visibility = Visibility.Visible;
-            labelMan.Content = "串流代码";
+            labelMan.Content = "推流代码";
 
             textBoxAdd.Visibility = Visibility.Visible;
             textBoxCode.Visibility = Visibility.Visible;
@@ -413,9 +565,15 @@ namespace ACNginxConsole
 
             textBoxAdd.Text = "";
             textBoxCode.Text = "";
+            textBoxSourceName.Text = "流" + configcount;
+            textBoxWebsite.Text = "";
 
             labelSourceName.Visibility = Visibility.Visible;
             textBoxSourceName.Visibility = Visibility.Visible;
+
+            labelWebsite.Visibility = Visibility.Visible;
+            textBoxWebsite.Visibility = Visibility.Visible;
+            buttonlWHelp.Visibility = Visibility.Visible;
 
             RefreshOutput();
         }
@@ -441,6 +599,11 @@ namespace ACNginxConsole
 
             labelSourceName.Visibility = Visibility.Visible;
             textBoxSourceName.Visibility = Visibility.Visible;
+
+            labelWebsite.Content = "播流地址";
+            labelWebsite.Visibility = Visibility.Visible;
+            textBoxWebsite.Visibility = Visibility.Visible;
+            buttonlWHelp.Visibility = Visibility.Visible;
 
             RefreshOutput();
         }
@@ -505,6 +668,7 @@ namespace ACNginxConsole
         private void RadioButtonWeibo_Checked_1(object sender, RoutedEventArgs e)
         {
             AutoConfig();
+            labelWebsite.Content = "播流地址";
         }
 
         /// <summary>
@@ -557,7 +721,7 @@ namespace ACNginxConsole
                 }
                 else
                 {
-                    configdata.Add(new ConfigItem(configcount, sourceType, textBoxSourceName.Text.ToString(), textBoxMan.Text.ToString()));
+                    configdata.Add(new ConfigItem(configcount, sourceType, textBoxSourceName.Text.ToString(), textBoxMan.Text.ToString(), textBoxWebsite.Text.ToString()));
                     //configdata.Add(new ConfigItem(++configcount, 0, "ceshi","ceshi2"));
                     ++configcount;
                     textBoxSourceName.Text = "流" + configcount;
@@ -566,6 +730,7 @@ namespace ACNginxConsole
             }
 
         }
+
 
         /// <summary>
         /// 读取现有的option.txt
@@ -627,8 +792,10 @@ namespace ACNginxConsole
                 textBoxOpt.Focus();
                 //进行数据表录入
                 textBoxOpt.Text = "";
-                for (int i = 1; i < configcount; i++)   //从第二个开始录入
-                    textBoxOpt.Text += "push " + configdata[i].StreamCode + ";" + "\r\n";
+                for (int i = 1; i < configcount; i++)
+                {   //从第二个开始录入
+                        textBoxOpt.Text += "push " + configdata[i].StreamCode + ";" + "\r\n";
+                }
                 goodopt = textBoxOpt.Text;
                 //changed = false;
                 recover_trans();
@@ -760,6 +927,105 @@ namespace ACNginxConsole
 
         }
 
+        //不能改
+        //private void ButtonUpdate_Click(object sender, RoutedEventArgs e)
+        //{
+        //    if (listViewOpt.SelectedItems!=null)
+        //    {
+        //        if (radioButtonB.IsChecked == true)
+        //            configdata[listViewOpt.SelectedIndex].Type = "B站";
+        //        else if (radioButtonWeibo.IsChecked == true)
+        //            Configdata[listViewOpt.SelectedIndex].Type = "微博";
+        //        else
+        //            Configdata[listViewOpt.SelectedIndex].Type = "自定义";
+
+        //        configdata[listViewOpt.SelectedIndex].StreamCode= textBoxMan.Text;
+        //        configdata[listViewOpt.SelectedIndex].SourceName= textBoxSourceName.Text;
+        //        configdata[listViewOpt.SelectedIndex].LiveViewingSite = textBoxWebsite.Text ;
+
+        //    }
+        //}
+
+        private void ListViewOpt_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (listViewOpt.SelectedItems.Count > 0)
+            {   //有选项选中
+                //buttonUpdate.IsEnabled = true;
+                //buttonDelteOne.IsEnabled = true;
+                buttonWeb.IsEnabled = true;
+                buttonClearSelect.IsEnabled = true;
+
+                textBoxMan.IsReadOnly = true;
+                textBoxSourceName.IsReadOnly = true;
+                textBoxWebsite.IsReadOnly = true;
+                //选取：信息合并后只能是自定义
+                radioButtonMan.IsChecked = true;
+                //信息填入
+                textBoxMan.Text = configdata[listViewOpt.SelectedIndex].StreamCode;
+                textBoxSourceName.Text = configdata[listViewOpt.SelectedIndex].SourceName;
+                textBoxWebsite.Text = configdata[listViewOpt.SelectedIndex].LiveViewingSite;
+            }
+            else
+            {
+                //buttonUpdate.IsEnabled = false;
+                //buttonDelteOne.IsEnabled = false;
+                buttonWeb.IsEnabled = false;
+                buttonClearSelect.IsEnabled = false;
+                textBoxMan.IsReadOnly = false;
+                textBoxSourceName.IsReadOnly = false;
+                textBoxWebsite.IsReadOnly = false;
+            }
+        }
+
+        //严格的序号定义不允许删除单项
+        //private void ButtonDelteOne_Click(object sender, RoutedEventArgs e)
+        //{
+        //    //因序号问题 只会清空内容
+        //    configdata.Remove(configdata[listViewOpt.SelectedIndex]);
+        //    //configdata[listViewOpt.SelectedIndex].Type = "";
+        //    //configdata[listViewOpt.SelectedIndex].StreamCode = "";
+        //    //configdata[listViewOpt.SelectedIndex].SourceName = "";
+        //    //configdata[listViewOpt.SelectedIndex].LiveViewingSite = "";
+        //}
+
+        private void ButtonDelteAll_Click(object sender, RoutedEventArgs e)
+        {
+            listViewOpt.SelectedItems.Clear();
+            listViewOpt.ItemsSource = null;
+            listViewOpt.Items.Clear();
+            configcount = 0;
+            configdata = new ObservableCollection<ConfigItem> {
+                new ConfigItem(configcount,-1,"本地推流","rtmp://127.0.0.1:1935/live","rtmp://127.0.0.1:1935/live")
+            };
+            ++configcount;
+            listViewOpt.ItemsSource = configdata;
+            textBoxSourceName.Text = "流" + configcount;
+        }
+
+        private void ButtonWeb_Click(object sender, RoutedEventArgs e)
+        {
+            //打开网页
+            try
+            {
+                System.Diagnostics.Process.Start(configdata[listViewOpt.SelectedIndex].LiveViewingSite);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("无法打开网页。", "错误", 0, MessageBoxImage.Error);
+            }
+        }
+
+        private void ButtonClearSelect_Click(object sender, RoutedEventArgs e)
+        {
+            //清除选区
+            listViewOpt.SelectedItems.Clear();
+        }
+
+        private void ButtonlWHelp_Click(object sender, RoutedEventArgs e)
+        {//播流地址的帮助
+            System.Diagnostics.Process.Start("https://github.com/LogCreative/ACLiveConsole/wiki/%E5%A6%82%E4%BD%95%E8%8E%B7%E5%8F%96%E6%92%AD%E6%B5%81%E5%9C%B0%E5%9D%80");
+        }
+
         #endregion
 
         #region 测试
@@ -778,7 +1044,9 @@ namespace ACNginxConsole
 
             try
             {
-
+                imageProtection.Visibility = Visibility.Hidden;
+                labelProtection.Visibility = Visibility.Hidden;
+                buttonHelp.IsEnabled = true;
 
                 Testlabel.Content = "建立测试前档案...";
                 TestProgress.Value += 10;
@@ -805,6 +1073,7 @@ namespace ACNginxConsole
                 dispatcherTimerBling.Stop();
 
                 button.IsEnabled = true;
+                
             }
 
         }
@@ -851,6 +1120,13 @@ namespace ACNginxConsole
                         label.Foreground = Brushes.White;
                         IsGreenTest = true;
                         Testlabel.Content += "，出现异常";
+                        imageProtection.Visibility = Visibility.Visible;
+                        labelProtection.Content = "保护：测试未通过！";
+                        labelProtection.Visibility = Visibility.Visible;
+                        if (checkBoxCloseProtect.IsChecked == false)
+                        {
+                            buttonHelp.IsEnabled = false;
+                        }
                     }
                     else
                     {
@@ -877,6 +1153,8 @@ namespace ACNginxConsole
                     Process.Start("Nginx.exe", "-s stop");//关闭
 
                     button.IsEnabled = true;
+                    
+                
                 }
             }
             else
@@ -1127,6 +1405,11 @@ namespace ACNginxConsole
 
         private void Button_EndLive_Click(object sender, RoutedEventArgs e)
         {
+            EndLive();
+        }
+
+        private void EndLive(bool nginxs=true)
+        {
             Process.Start("Nginx.exe", "-s stop");//关闭
 
             //销毁开始时间记录文件
@@ -1143,7 +1426,6 @@ namespace ACNginxConsole
                 }
 
             }
-
         }
 
         private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -1167,7 +1449,7 @@ namespace ACNginxConsole
         {
             if (System.Diagnostics.Process.GetProcessesByName("nginx").ToList().Count > 0)
             {
-                labelLive.Content = "Nginx 正在运行...  本窗口现在可以关闭以节约内存...";
+                labelLive.Content = "Nginx 正在运行...";
                 button_StartLive.IsEnabled = false;
                 button_EndLive.IsEnabled = true;
                 label1.Background = Brushes.Red;
@@ -1201,6 +1483,25 @@ namespace ACNginxConsole
                 DateTime nowtime = DateTime.Now;
 
                 textBoxLiveTime.Text = DateDiff(starttime, nowtime);
+
+                //当开始推流时判断
+                buttonClock.IsEnabled = true;
+                textBoxClock.IsEnabled = true;
+                if (endset == true)
+                {   //定时器被设置
+                    textBoxClock.Text = settime.Subtract(nowtime).Minutes.ToString();
+                    labelLive.Content += "并将于 " + textBoxClock.Text + " 分钟后关闭...";
+                    buttonClock.BorderBrush = Brushes.Red;
+                    if (textBoxClock.Text == "0")
+                    {
+                        EndLive();
+                        textBoxClock.Text = "";
+                        endset = false;
+                    }
+                }
+                else
+                    buttonClock.BorderBrush = Brushes.Gray;
+
             }
             catch (FileNotFoundException)
             {
@@ -1211,10 +1512,61 @@ namespace ACNginxConsole
                 label1.Foreground = Brushes.Black;
                 textBoxLiveTime.Background = Brushes.Transparent;
                 textBoxLiveTime.Foreground = Brushes.Black;
+                buttonClock.IsEnabled = false;
+                buttonClock.BorderBrush = Brushes.Gray;
+                endset = false;
+                textBoxClock.Text = "";
+                textBoxClock.IsEnabled = false;
             }
             catch (Exception ex)
             {
                 labelLive.Content = "错误：" + ex.Message;
+            }
+
+
+        }
+
+        /// <summary>
+        /// 关闭定时器
+        /// </summary>
+        DateTime settime;
+        bool endset = false;
+        private void ButtonClock_Click(object sender, RoutedEventArgs e)
+        {
+            if (endset == false)
+            {
+                if (textBoxClock.Text != "")
+                {
+                    //定时器
+                    DateTime nowtime = DateTime.Now;
+                    settime = nowtime.AddMinutes(clockmin + 1);
+                    endset = true;
+                }
+            }
+            else
+            {
+                textBoxClock.Text = "";
+                endset = false;
+                clockmin = -1;
+            }
+        }
+
+        int clockmin = -1;//设定分钟数
+        private void TextBoxClock_TextChanged(object sender, TextChangedEventArgs e)
+        {//强制数字输入，且为自然数
+            TextBox tempbox = sender as TextBox;
+            TextChange[] change = new TextChange[e.Changes.Count];
+            e.Changes.CopyTo(change, 0);
+            int offset = change[0].Offset;
+            if (change[0].AddedLength > 0)
+            {
+
+                if (tempbox.Text.IndexOf(' ') != -1 || !int.TryParse(tempbox.Text, out clockmin)||clockmin<0)
+                {
+                    tempbox.Text = tempbox.Text.Remove(offset, change[0].AddedLength);
+                    tempbox.Select(offset, 0);
+                }
+
             }
         }
 
@@ -1371,6 +1723,7 @@ namespace ACNginxConsole
                 else
                 {
                     labelLive.Content = "程序冲突解决结束";
+                    EndLive(false);
                     if (checkBox2.IsChecked == false)
                     {
                         labelLive.Content += "，准备开始推流...";
@@ -1502,6 +1855,16 @@ namespace ACNginxConsole
             Properties.Settings.Default.fulltest = false;
         }
 
+        private void CheckBoxCloseProtect_Checked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.CloseProtection = true;
+        }
+
+        private void CheckBoxCloseProtect_Unchecked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.CloseProtection = false;
+        }
+
         private void Button7_Click(object sender, RoutedEventArgs e)
         {
             Properties.Settings.Default.Reset();
@@ -1510,46 +1873,61 @@ namespace ACNginxConsole
             button6.IsEnabled = false;
         }
 
-        #endregion
-
-        private void Window_Closed(object sender, EventArgs e)
+        private void CheckBoxCloseSniffing_Checked(object sender, RoutedEventArgs e)
         {
-            Properties.Settings.Default.Save();
+            Properties.Settings.Default.CloseYouget = true;
         }
 
-        /// <summary>
-        /// 展开侧栏：测试
-        /// </summary>
-        /// 
+        private void CheckBoxCloseSniffing_Unchecked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.CloseYouget = false;
+        }
+
+        #endregion
+
+        #region 监视器
 
         double RightCol_Now;
 
         private void ButtonHelp_Click(object sender, RoutedEventArgs e)
         {
+            SideBar();
+        }
+
+        private void SideBar()
+        {
             Storyboard expandRightCol = this.FindResource("expandRightCol") as Storyboard;
             if (RightCol.Width.Value.Equals(0))
             {
                 if (expandRightCol != null)
-                { 
-                    (expandRightCol.Children[0] as GridLengthAnimation).From = new GridLength(0,GridUnitType.Pixel);
+                {
+                    (expandRightCol.Children[0] as GridLengthAnimation).From = new GridLength(0, GridUnitType.Pixel);
                     (expandRightCol.Children[0] as GridLengthAnimation).To = new GridLength(RightCol_Last, GridUnitType.Pixel);
 
                     expandRightCol.Begin(RightCol, HandoffBehavior.SnapshotAndReplace, true);
                 }
+                buttonHelp.Content = "关闭监视";
             }
             else
             {
                 RightCol_Now = RightCol.Width.Value;
 
                 expandRightCol.Pause();
-                
+
                 (expandRightCol.Children[0] as GridLengthAnimation).From = new GridLength(RightCol_Now, GridUnitType.Pixel);
                 (expandRightCol.Children[0] as GridLengthAnimation).To = new GridLength(0, GridUnitType.Pixel);
                 (expandRightCol.Children[0] as GridLengthAnimation).Duration = new Duration(TimeSpan.FromSeconds(0.5 * (RightCol_Now / 300)));
 
                 expandRightCol.Begin(RightCol, HandoffBehavior.SnapshotAndReplace, true);
+
+                //关闭所有媒体。
+
+                buttonHelp.Content = "启动监视";
             }
+            imageProtection.Visibility = Visibility.Hidden;
+            labelProtection.Visibility = Visibility.Hidden;
         }
+
 
         private void GridLengthAnimation_Completed(object sender, EventArgs e)
         {
@@ -1561,6 +1939,283 @@ namespace ACNginxConsole
                 expandRightCol.Remove(RightCol);    //解除限制
                 RightCol.Width = new GridLength(RightCol_Now, GridUnitType.Pixel);  //到达最终值
             }
+        }
+
+        byte selectedItem = 0;
+
+        private void ButtonLU_Click(object sender, RoutedEventArgs e)
+        {
+            selectedItem = 1;
+            expander1.IsEnabled = true;
+            MonitoringChanged();
+        }
+
+        private void ButtonRU_Click(object sender, RoutedEventArgs e)
+        {
+            selectedItem = 2;
+            expander1.IsEnabled = true;
+            MonitoringChanged();
+        }
+
+        private void ButtonLD_Click(object sender, RoutedEventArgs e)
+        {
+            selectedItem = 3;
+            expander1.IsEnabled = true;
+            MonitoringChanged();
+        }
+
+        private void ButtonRD_Click(object sender, RoutedEventArgs e)
+        {
+            selectedItem = 4;
+            expander1.IsEnabled = true;
+            MonitoringChanged();
+        }
+
+        private void MonitoringChanged()
+        {
+            BorderLU.BorderBrush.Opacity = (selectedItem == 1 ? 1 : 0);
+            BorderRU.BorderBrush.Opacity = (selectedItem == 2 ? 1 : 0);
+            BorderLD.BorderBrush.Opacity = (selectedItem == 3 ? 1 : 0);
+            BorderRD.BorderBrush.Opacity = (selectedItem == 4 ? 1 : 0);
+            comboBoxSource.SelectedIndex = -1;
+        }
+
+        /* 暂时没有搞清楚*/
+        private void ButtonLU_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                Monitoring.ColumnDefinitions[1].Width = new GridLength(0, GridUnitType.Star);
+                Monitoring.RowDefinitions[1].Height = new GridLength(0, GridUnitType.Star);
+            }
+        }
+
+        private void ButtonLU_KeyUp(object sender, KeyEventArgs e)
+        {
+            Monitoring.ColumnDefinitions[1].Width = new GridLength(1, GridUnitType.Star);
+            Monitoring.RowDefinitions[1].Height = new GridLength(1, GridUnitType.Star);
+        }
+
+        private VlcVideoSourceProvider sourceProvider;
+        private void ComboBoxSource_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            string PlayStream = null;
+            if (comboBoxSource.SelectedIndex != -1)
+            {
+                PlayStream = configdata[comboBoxSource.SelectedIndex].LiveViewingSite.ToString();
+            }
+            else
+            {
+                if (expander1.IsExpanded == false && textboxManStreaming.Text != "")
+                {
+                    PlayStream = textboxManStreaming.Text;
+                    textboxManStreaming.Text = "";
+                }
+                else
+                {
+                    textboxManStreaming.Text = "";
+                    PlayStream = null;
+                }
+            }
+            
+            if (PlayStream != null)
+            {
+                try
+                {
+                    var currentAssembly = Assembly.GetEntryAssembly();
+                    var currentDirectory = new FileInfo(currentAssembly.Location).DirectoryName;
+                    // Default installation path of VideoLAN.LibVLC.Windows
+                    var libDirectory = new DirectoryInfo(System.IO.Path.Combine(currentDirectory, "libvlc\\" + (IntPtr.Size == 4 ? "win-x86" : "win-x64")));
+
+                    this.sourceProvider = new VlcVideoSourceProvider(this.Dispatcher);
+                    this.sourceProvider.CreatePlayer(libDirectory, "--file-logging", "-vvv", "--logfile=Logs.log");
+                    var mediaOptions = new[]
+                    {
+                    " :network-caching=2000"
+                    };
+
+                    this.sourceProvider.MediaPlayer.Play(PlayStream, mediaOptions);
+                    this.sourceProvider.MediaPlayer.Log += new EventHandler<VlcMediaPlayerLogEventArgs>(MediaPlayer_Log);
+                    this.sourceProvider.MediaPlayer.Manager.SetFullScreen(this.sourceProvider.MediaPlayer.Manager.CreateMediaPlayer(), true);
+                    this.sourceProvider.MediaPlayer.Audio.IsMute = true;    //这个版本中被静音
+                                                                            //音量接口：this.sourceProvider.MediaPlayer.Audio.Volume，本版本暂时不用
+                    if (configdata[comboBoxSource.SelectedIndex].Type == "本地")
+                    {
+                        //设置为主监视器
+                        this.sourceProvider.MediaPlayer.EncounteredError += new EventHandler<VlcMediaPlayerEncounteredErrorEventArgs>(MediaPlayer_ErrorEncountered);
+                    }
+                    Binding bing = new Binding();
+                    bing.Source = sourceProvider;
+                    bing.Path = new PropertyPath("VideoSource");
+                    //输出图片
+                    string SourceName = null;
+                    if (comboBoxSource.SelectedIndex != -1)
+                    {
+                        SourceName = configdata[comboBoxSource.SelectedIndex].SourceName.ToString();
+                    }
+                    else
+                    {
+                        SourceName = "自定义";
+                    }
+                    switch (selectedItem)
+                    {
+                        case 1: LabelLU.Content = "左上:" + SourceName; LiveLU.SetBinding(Image.SourceProperty, bing); break;
+                        case 2: LabelRU.Content = "右上:" + SourceName; LiveRU.SetBinding(Image.SourceProperty, bing); break;
+                        case 3: LabelLD.Content = "左下:" + SourceName; LiveLD.SetBinding(Image.SourceProperty, bing); break;
+                        case 4: LabelRD.Content = "右下:" + SourceName; LiveRD.SetBinding(Image.SourceProperty, bing); break;
+                    }
+                    
+
+                }
+                catch (Exception ex)
+                {
+                    SideBar();  //关闭
+                    imageProtection.Visibility = Visibility.Visible;
+                    labelProtection.Content = "保护：" + ex.Message;
+                    labelProtection.Visibility = Visibility.Visible;
+                    //并且考虑传递错误信息 ex
+                }
+            }
+           
+        }
+
+        void MediaPlayer_Log(object sender, VlcMediaPlayerLogEventArgs e)
+        {
+           string message = "libVlc : " + e.Level + e.Message + e.Module;
+           System.Diagnostics.Debug.WriteLine(message);
+            //System.Diagnostics.Trace.WriteLine(message);
+           //this.textBoxLog.AppendText(message); 失败了
+        }
+
+        void MediaPlayer_ErrorEncountered(object sender, VlcMediaPlayerEncounteredErrorEventArgs e)
+        {
+            if (dismiss == false)
+            {
+                if (dispatcherTimerMon.IsEnabled == false)
+                {
+                    dispatcherTimerMon.Start(); //信号灯
+                }
+            }
+        }
+
+        private void Expander1_Collapsed(object sender, RoutedEventArgs e)
+        {
+            if (textboxManStreaming.Text != "")
+            {
+                expander1.Header = "自定义播流代码";
+                comboBoxSource.SelectedIndex = 0;
+                comboBoxSource.SelectedIndex = -1;
+            }
+        }
+
+        private void Expander1_Expanded(object sender, RoutedEventArgs e)
+        {
+            expander1.Header = "提交自定义播流代码";
+        }
+
+        private void ButtonSolo_Click(object sender, RoutedEventArgs e)
+        {
+            Storyboard Soloanim = this.FindResource("SoloAnimation") as Storyboard;
+
+            int shrinkcol, shrinkrow;
+            switch (selectedItem)
+            {
+                case 1: shrinkcol = 1; shrinkrow = 1; break;
+                case 2: shrinkcol = 0; shrinkrow = 1; break;
+                case 3: shrinkcol = 1; shrinkrow = 0; break;
+                case 4: shrinkcol = 0; shrinkrow = 0; break;
+                default: shrinkcol = 1; shrinkrow = 1; break;
+            }
+
+            int state;
+            if (buttonLD.IsEnabled)
+            {
+                state = 0;
+                SoloImg.Opacity = 1;
+            }
+            else
+            {
+                state = 1;
+                SoloImg.Opacity = 0.5;
+            }
+            Soloanim.Children[0].SetValue(Storyboard.TargetNameProperty, "Col" + shrinkcol);
+            (Soloanim.Children[0] as GridLengthAnimation).To = new GridLength(state, GridUnitType.Star);
+            Soloanim.Children[1].SetValue(Storyboard.TargetNameProperty, "Row" + shrinkrow);
+            (Soloanim.Children[1] as GridLengthAnimation).To = new GridLength(state, GridUnitType.Star);
+            Soloanim.Begin();
+            buttonLU.IsEnabled = !buttonLU.IsEnabled;
+            buttonRU.IsEnabled = !buttonRU.IsEnabled;
+            buttonLD.IsEnabled = !buttonLD.IsEnabled;
+            buttonRD.IsEnabled = !buttonRD.IsEnabled;
+
+        }
+
+        //bool monred = false;
+        bool dismiss = false;
+
+        /// <summary>
+        /// 监视灯闪
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void dispatcherTimerMon_Tick(object sender, EventArgs e)
+        {
+            if (dismiss == false)
+            {
+                //labelMonitor.Foreground = Brushes.White;
+                labelMonitor.Background = Brushes.Yellow;
+
+                //monred = true;
+                //变成了鬼畜灯
+                //if (monred == true)
+                //{
+                //    labelMonitor.Foreground = Brushes.Black;
+                //    labelMonitor.Background = Brushes.Transparent;
+
+                //    monred = false;
+                //}
+                //else
+                //{
+                //    labelMonitor.Foreground = Brushes.White;
+                //    labelMonitor.Background = Brushes.Red;
+
+                //    monred = true;
+                //}
+            }
+            else
+            {
+                labelMonitor.Foreground = Brushes.Black;
+                labelMonitor.Background = Brushes.Transparent;
+
+                //monred = false;
+            }
+        }
+
+        private void ButtonDismiss_Click(object sender, RoutedEventArgs e)
+        {
+            //关闭警报
+            if (dismiss == false)
+            {
+                dismiss = true;
+                dispatcherTimerMon.Stop();
+                labelMonitor.Foreground = Brushes.Black;
+                labelMonitor.Background = Brushes.Transparent;
+                DismissImg.Opacity = 1;
+                //monred = false;
+            }
+            else
+            {
+                dismiss = false;
+                DismissImg.Opacity = 0.5;
+            }
+        }
+
+        #endregion
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.Save();
+            Application.Current.Shutdown();
         }
 
         
