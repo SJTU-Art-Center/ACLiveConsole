@@ -5,6 +5,6 @@ Release 2.9.0
 
 The project will be made fully functional when it is 3.0.0.
 
-The GitHub project is under construction. It is uncompetable with vs sln project.
+To make the Visual Studio 2019 Project run, you need to add ffmpeg.exe into the bin.
 
-**Monitor Function is still under construction.**
+For Software Quick Guide, please visit: [快速入门](https://github.com/LogCreative/ACLiveConsole/wiki/%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8).
