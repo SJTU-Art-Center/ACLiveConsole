@@ -329,19 +329,21 @@ namespace ACNginxConsole
                         //string content = System.Text.Encoding.UTF8.GetString(page);
                         string content = website;
                         Regex re = new Regex(@"(?<=https?://live\.bilibili\.com/)\b\w+\b"); //正则表达式
-                        MatchCollection matches = re.Matches(content);
-                        string short_id = null, room_id = null;
-                        if (matches[0].Groups[0].ToString() != null)
+                        try
                         {
+                            MatchCollection matches = re.Matches(content);
+                            string short_id = null, room_id = null;
+
                             short_id = matches[0].Groups[0].ToString();
                             string api_url = "https://api.live.bilibili.com/room/v1/Room/room_init?id=" + short_id;
                             string api_content = System.Text.Encoding.UTF8.GetString(client.DownloadData(api_url));
 
                             re = new Regex(@"(?<=""room_id"":)\b(\w+)\b");
-                            matches = re.Matches(api_content);
-
-                            if (matches[0].Groups[0].ToString() != null)
+                            try
                             {
+                                matches = re.Matches(api_content);
+
+
                                 room_id = matches[0].Groups[0].ToString();
                                 //api_url = "https://api.live.bilibili.com/room/v1/Room/get_info?room_id=" + room_id;
                                 //api_content = System.Text.Encoding.UTF8.GetString(client.DownloadData(api_url));
@@ -351,16 +353,17 @@ namespace ACNginxConsole
 
                                 //re = new Regex(@"(?<=""url"":)("")*.?("")");
                                 re = new Regex(@"(?<=""url"":"")([^""]+)");
-                                matches = re.Matches(api_content);
-
-                                if (matches[0].Groups[0].ToString() != null)
+                                try
                                 {
+                                    matches = re.Matches(api_content);
+
+
                                     api_url = matches[0].Groups[0].ToString();
                                     re = new Regex(@".*\.flv");
-                                    matches = re.Matches(api_url);
-
                                     try
                                     {
+                                        matches = re.Matches(api_url);
+                                    
                                         //解析到
                                         api_url = matches[0].Groups[0].ToString();
                                         re = new Regex(@"\.flv");
@@ -375,14 +378,20 @@ namespace ACNginxConsole
                                         return "地址替换错误(-4)";
                                     }
                                 }
-                                else
+                                catch
+                                {
                                     return "解析播流地址错误(-3)";
+                                }
                             }
-                            else
+                            catch
+                            {
                                 return "解析初始化错误(-2)";
+                            }
                         }
-                        else
+                        catch
+                        {
                             return "网址错误(-1)";    //网址错误
+                        }
                     }
                     else
                         realplay = website;
@@ -575,6 +584,11 @@ namespace ACNginxConsole
             textBoxWebsite.Visibility = Visibility.Visible;
             buttonlWHelp.Visibility = Visibility.Visible;
 
+            textBoxAdd.IsReadOnly = false;
+            textBoxCode.IsReadOnly = false;
+            textBoxSourceName.IsReadOnly = false;
+            textBoxWebsite.IsReadOnly = false;
+
             RefreshOutput();
         }
 
@@ -604,6 +618,10 @@ namespace ACNginxConsole
             labelWebsite.Visibility = Visibility.Visible;
             textBoxWebsite.Visibility = Visibility.Visible;
             buttonlWHelp.Visibility = Visibility.Visible;
+
+            textBoxMan.IsReadOnly = false;
+            textBoxSourceName.IsReadOnly = false;
+            textBoxWebsite.IsReadOnly = false;
 
             RefreshOutput();
         }
