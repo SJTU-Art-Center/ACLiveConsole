@@ -276,6 +276,7 @@
                             <CheckBox x:Name="checkBoxCloseSniffing" Content="关闭播流地址自动获取" HorizontalAlignment="Left" Margin="0,5,0,0" Width="147" Checked="CheckBoxCloseSniffing_Checked" Unchecked="CheckBoxCloseSniffing_Unchecked"/>
                             <CheckBox x:Name="checkBoxClosingAnim" Content="计时器关闭推流时播放Closing.mp4" HorizontalAlignment="Left" Height="16" Margin="0,5,0,0" Width="242"/>
                         </StackPanel>
+                        <Button x:Name="buttonTest" Content="试验性界面" HorizontalAlignment="Left" Height="66" Margin="43,222,0,0" VerticalAlignment="Top" Width="85" Click="ButtonTest_Click"/>
                     </Grid>
                 </TabItem>
 

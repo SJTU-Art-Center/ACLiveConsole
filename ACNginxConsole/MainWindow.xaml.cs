@@ -53,6 +53,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using static System.Windows.Forms.Screen;
 using System.IO;
 using System.Diagnostics;
 using System.Threading;
@@ -432,7 +433,7 @@ namespace ACNginxConsole
             dispatcherTimerEGY.Interval = new TimeSpan(0, 0, 0, 0, 500);
 
             dispatcherTimerMon.Tick += new EventHandler(dispatcherTimerMon_Tick);
-            dispatcherTimerEGY.Interval = new TimeSpan(0, 0, 0, 10);
+            dispatcherTimerMon.Interval = new TimeSpan(0, 0, 0, 10);
 
             labelVer.Content = "版本: " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() + "\n";
             labelVer.Content += "© Art Center 2019 - 2020, All Rights Reserved." + "\n";
@@ -2308,7 +2309,20 @@ namespace ACNginxConsole
             Application.Current.Shutdown();
         }
 
-        
+        private void ButtonTest_Click(object sender, RoutedEventArgs e)
+        {
+            AnimMsg windowAnim = new AnimMsg();
+            if (AllScreens.Length > 1)
+            {
+                windowAnim.Left = PrimaryScreen.WorkingArea.Width;
+                windowAnim.Top = 0;
+                windowAnim.WindowState = WindowState.Maximized;
+            }
+            else
+            {
+                windowAnim.WindowState = WindowState.Maximized;
+            }
+            windowAnim.Show();
+        }
     }
-
 }
