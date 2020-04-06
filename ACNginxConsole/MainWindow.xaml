@@ -86,7 +86,7 @@
                         <Grid Margin="14.5,223.5,10,64">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition x:Name="DataCol" Width="*"/>
-                                <ColumnDefinition Width="15"/>
+                                <ColumnDefinition x:Name="SeperateCol" Width="0"/>
                                 <ColumnDefinition x:Name="TextCol" Width="0"/>
                             </Grid.ColumnDefinitions>
                             <Grid Grid.Column="0">
@@ -169,9 +169,9 @@
 
                         <Button x:Name="buttonHelp" Content="启动监视" HorizontalAlignment="Left" Height="41.25" Margin="14.5,118.75,0,0" VerticalAlignment="Top" Width="128" Click="ButtonHelp_Click" Background="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}" Foreground="White"/>
                         <StackPanel Margin="10,177,10,0.5">
-                            <Expander x:Name="expander" Header="应急处理" BorderBrush="#FFD40404" BorderThickness="2" VerticalAlignment="Top" Background="#FFF9E0E0">
+                            <Expander x:Name="expander" Header="应急处理" BorderBrush="{x:Null}" BorderThickness="2" VerticalAlignment="Top" Background="#FFF9E0E0">
                                 <Grid Margin="0,0,0,20">
-                                    <Rectangle Fill="#FFFEB7B7" Height="130.5" Margin="176,39,71.5,0" VerticalAlignment="Top"/>
+                                    <Rectangle Fill="#FFFEE7E7" Height="130.5" Margin="176,39,71.5,0" VerticalAlignment="Top"/>
                                     <RichTextBox x:Name="richTextBox1" Height="130.5" Margin="175,39,71.5,0" VerticalAlignment="Top" Block.LineHeight="10">
                                         <FlowDocument>
                                             <Paragraph FontSize="18">
@@ -207,7 +207,7 @@
                                     <Button x:Name="button3" Content="急断急连" Click="Button3_Click" Margin="0,97.86,0,0" Height="20" VerticalAlignment="Top" HorizontalAlignment="Right" Width="70"/>
                                     <Button x:Name="buttonEGY" Content="启用断线重连" HorizontalAlignment="Left" Height="24" Margin="10,39,0,0" VerticalAlignment="Top" Width="155.5" Click="Button4_Click"/>
                                     <Button x:Name="ButtonQuitAll" Content="解决程序冲突" HorizontalAlignment="Left" Height="24" Margin="10,72.86,0,0" VerticalAlignment="Top" Width="155.5" Click="ButtonQuitAll_Click"/>
-                                    <Rectangle Fill="#FFFEB7B7" Height="121.1" Margin="176,174.5,71.5,0" VerticalAlignment="Top"/>
+                                    <Rectangle Fill="#FFFEE7E7" Height="121.1" Margin="176,174.5,71.5,0" VerticalAlignment="Top"/>
                                     <RichTextBox x:Name="richTextBox2" Height="121.1" Margin="175,174.5,71.5,0" VerticalAlignment="Top" Block.LineHeight="10">
                                         <FlowDocument>
                                             <Paragraph FontSize="18">
@@ -284,9 +284,9 @@
             <GridSplitter x:Name="ColumnSplit" Grid.Column="1" Width="5" HorizontalAlignment="Stretch"/>
             <Grid Grid.Column="2" Background="{DynamicResource {x:Static SystemColors.InactiveBorderBrushKey}}">
                 <StackPanel  Margin="5,0">
-                    <Label x:Name="label7" Content="直播监视器" Margin="0,10" Foreground="White" Background="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}"/>
+                    <Label x:Name="label7" Content="直播监视器" Margin="0,15,0,0" Foreground="White" Background="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}"/>
                     <Viewbox Margin="0">
-                        <Grid x:Name="Monitoring" Margin="0,0,0,0" Width="1600" Height="900" Background="{DynamicResource {x:Static SystemColors.InfoBrushKey}}">
+                        <Grid x:Name="Monitoring" Margin="0,0,0,0" Width="1600" Height="900" Background="#FFE2EBF4">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition x:Name="Col0" Width="*"/>
                                 <ColumnDefinition x:Name="Col1" Width="*"/>
@@ -334,34 +334,59 @@
                             </Border>
                         </Grid>
                     </Viewbox>
-                    <StackPanel Height="20" Orientation="Horizontal" Margin="0,5,0,10">
-                        <Button x:Name="buttonLU" Click="ButtonLU_Click" KeyDown="ButtonLU_KeyDown" KeyUp="ButtonLU_KeyUp" ToolTip="左上">
-                            <Image Source="arrow_LU_16xLG.png" />
-                        </Button>
-                        <Button x:Name="buttonRU" Click="ButtonRU_Click" ToolTip="右上">
-                            <Image Source="arrow_RU_16xLG.png" />
-                        </Button>
-                        <Button x:Name="buttonLD" Click="ButtonLD_Click" ToolTip="左下">
-                            <Image Source="arrow_LD_16xLG.png" />
-                        </Button>
-                        <Button x:Name="buttonRD" Click="ButtonRD_Click" ToolTip="右下">
-                            <Image Source="arrow_RD_16xLG.png" />
-                        </Button>
-                        <Button x:Name="buttonSolo" VerticalAlignment="Top" Height="20" Click="ButtonSolo_Click" ToolTip="独显">
-                            <Image x:Name="SoloImg" Source="RecordRound_16xLG.png" Opacity="0.5"/>
-                        </Button>
-                        <Button x:Name="buttonDismiss" Click="ButtonDismiss_Click" ToolTip="关闭警报">
-                            <Image x:Name="DismissImg" Source="RecordStop_16xLG.png" Opacity="0.5"/>
-                        </Button>
-                    </StackPanel>
-                    <Label x:Name="label9" Content="监视源"/>
-                    <ComboBox x:Name="comboBoxSource" Margin="0" DisplayMemberPath="SourceName" SelectionChanged="ComboBoxSource_SelectionChanged"/>
+                    <Grid Height="20">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Height="20" Orientation="Horizontal" Margin="0" HorizontalAlignment="Left">
+                            <Button x:Name="buttonLU" Click="ButtonLU_Click" KeyDown="ButtonLU_KeyDown" KeyUp="ButtonLU_KeyUp" ToolTip="左上">
+                                <Image Source="arrow_LU_16xLG.png" />
+                            </Button>
+                            <Button x:Name="buttonRU" Click="ButtonRU_Click" ToolTip="右上">
+                                <Image Source="arrow_RU_16xLG.png" />
+                            </Button>
+                            <Button x:Name="buttonLD" Click="ButtonLD_Click" ToolTip="左下">
+                                <Image Source="arrow_LD_16xLG.png" />
+                            </Button>
+                            <Button x:Name="buttonRD" Click="ButtonRD_Click" ToolTip="右下">
+                                <Image Source="arrow_RD_16xLG.png" />
+                            </Button>
+                            <Button x:Name="buttonSolo" VerticalAlignment="Top" Height="20" Click="ButtonSolo_Click" ToolTip="独显" IsEnabled="False">
+                                <Image x:Name="SoloImg" Source="RecordRound_16xLG.png" Opacity="0.5"/>
+                            </Button>
+                            <Button x:Name="buttonDismiss" Click="ButtonDismiss_Click" ToolTip="关闭警报">
+                                <Image x:Name="DismissImg" Source="RecordStop_16xLG.png" Opacity="0.5"/>
+                            </Button>
+                        </StackPanel>
+                        <ComboBox Grid.Column="1" x:Name="comboBoxSource" DisplayMemberPath="SourceName" SelectionChanged="ComboBoxSource_SelectionChanged" ToolTip="监视源" Margin="0" RenderTransformOrigin="0.503,0.55" Height="20" IsEnabled="False"/>
+                    </Grid>
+                    <Grid Margin="0,5,0,0" Background="#FF75D2F6" Height="27">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <Button x:Name="buttonDanmakuSwitch" Grid.Column="0" Content="启动弹幕" Width="70" Background="White" Foreground="#FF77D3F5" BorderBrush="#FF01BBE2" Click="ButtonDanmakuSwitch_Click" />
+                        <Button Grid.Column="1" x:Name="buttonAutoDanmaku" Content="自动" Background="White" Foreground="#FF01B9DE" BorderBrush="#FF01BCE1" Width="40" Click="ButtonAutoDanmaku_Click"/>
+                    </Grid>
 
-                    <Expander x:Name="expander1" Header="自定义播流代码"  VerticalAlignment="Top" Collapsed="Expander1_Collapsed" Expanded="Expander1_Expanded" Margin="0,10,0,0" IsEnabled="False">
+                    <ListBox x:Name="listBoxDanmaku" VerticalAlignment="Top" Margin="0" BorderBrush="#FF75D2F6" Foreground="#FF17546E" SelectionMode="Multiple">
+                        <ListBox.Background>
+                            <LinearGradientBrush EndPoint="0.8,1.25" MappingMode="RelativeToBoundingBox" Opacity="0.25" StartPoint="0.9,0">
+                                <GradientStop Color="#FF17C3E0" Offset="0"/>
+                                <GradientStop Color="White" Offset="0.363"/>
+                            </LinearGradientBrush>
+                        </ListBox.Background>
+                        <ListBoxItem x:Name="debugLog" Content="debugLog"/>
+                        <ListBoxItem x:Name="debugLog2" Content="debugLog"/>
+                    </ListBox>
+                    <Expander x:Name="expander1" Header="自定义播流代码"  VerticalAlignment="Top" Collapsed="Expander1_Collapsed" Expanded="Expander1_Expanded" Margin="0,10,0,0" IsEnabled="False" Visibility="Hidden">
                         <Grid Background="#FFE5E5E5">
                             <TextBox x:Name="textboxManStreaming" TextWrapping="Wrap"/>
                         </Grid>
                     </Expander>
+
                 </StackPanel>
 
             </Grid>

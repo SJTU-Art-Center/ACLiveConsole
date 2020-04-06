@@ -5,12 +5,15 @@
 //========= Platform =============
 
 // C# WPF(Windows Presentation Foundation) 
-// .NET Framework 4.0
+// .NET Framework 4.5
 
 //========= Update Log ===========
 
 // For more information, please visit:
 // https://github.com/LogCreative/ACLiveConsole.
+
+// Ver 3.5.0.0 by Li Zilong
+// Unreleased.
 
 // Ver 3.0.0.0 by Li Zilong
 // Source Code Release Date: 2020/3/8
@@ -63,6 +66,9 @@ using System.Collections.ObjectModel;
 using System.Reflection;
 using Vlc.DotNet.Core;
 using Vlc.DotNet.Wpf;
+using BiliDMLib;
+using BilibiliDM_PluginFramework;
+using Newtonsoft.Json.Linq;
 
 namespace ACNginxConsole
 {
@@ -184,6 +190,7 @@ namespace ACNginxConsole
         DispatcherTimer dispatcherTimerRefresh = new DispatcherTimer();
         DispatcherTimer dispatcherTimerEGY = new DispatcherTimer();
         DispatcherTimer dispatcherTimerMon = new DispatcherTimer();
+        DispatcherTimer dispatcherTimerDanmaku = new DispatcherTimer();
 
         int time_left;
 
@@ -225,6 +232,7 @@ namespace ACNginxConsole
             private string sourceName;
             private string streamCode;
             private string liveViewingSite;
+            private int bililive_roomid;
             public event PropertyChangedEventHandler PropertyChanged;
 
             public int Id
@@ -275,6 +283,20 @@ namespace ACNginxConsole
                 }
             }
 
+            //B站弹幕姬专用 获取直播间号码
+            public int Bililive_roomid
+            {
+                get { return bililive_roomid; }
+                set
+                {
+                    bililive_roomid = value;
+                    if (this.PropertyChanged != null)
+                    {
+                        this.PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(ConfigItem)));
+                    }
+                }
+            }
+
             public string LiveViewingSite
             {
                 get { return liveViewingSite; }
@@ -284,6 +306,11 @@ namespace ACNginxConsole
                     if (value != "")
                     {
                         //抓包分析
+                        if (Type == "B站")
+                        {
+                            //对room_id进行赋值
+                            bililive_roomid = Get_roomid(value);
+                        }
                         liveViewingSite = Get_realplay(Type, value);
                     }
                     if (this.PropertyChanged != null)
@@ -311,13 +338,47 @@ namespace ACNginxConsole
                 this.LiveViewingSite = liveViewingSite;
             }
 
+            private int Get_roomid(string website)
+            {
+                System.Net.WebClient client = new WebClient();
+                //byte[] page = client.DownloadData(website);
+                //string content = System.Text.Encoding.UTF8.GetString(page);
+                string content = website;
+                Regex re = new Regex(@"(?<=https?://live\.bilibili\.com/)\b\w+\b"); //正则表达式
+                try
+                {
+                    MatchCollection matches = re.Matches(content);
+                    string short_id = null;
+
+                    //使用api稳定性不高
+                    short_id = matches[0].Groups[0].ToString();
+                    string api_url = "https://api.live.bilibili.com/room/v1/Room/room_init?id=" + short_id;
+                    string api_content = System.Text.Encoding.UTF8.GetString(client.DownloadData(api_url));
+
+                    re = new Regex(@"(?<=""room_id"":)\b(\w+)\b");
+                    try
+                    {
+                        matches = re.Matches(api_content);
+                        return Convert.ToInt32(matches[0].Groups[0].ToString().Trim());
+                    }
+                    catch
+                    {
+                        return -2;
+                    }
+                }
+                catch
+                {
+                    return -1;
+                }
+            }
+
             /// <summary>
             /// 抓包函数
             /// </summary>
             /// <param name="Type">网站类型</param>
             /// <param name="website">网站地址</param>
             /// <returns>真正的播流地址</returns>
-            public string Get_realplay(string Type,string website)
+            private string Get_realplay(string Type,string website)
             {
                 string realplay = null;
                 if (Type == "B站")
@@ -434,6 +495,9 @@ namespace ACNginxConsole
 
             dispatcherTimerMon.Tick += new EventHandler(dispatcherTimerMon_Tick);
             dispatcherTimerMon.Interval = new TimeSpan(0, 0, 0, 10);
+
+            dispatcherTimerDanmaku.Tick += new EventHandler(dispatcherTimerDanmaku_Tick);
+            dispatcherTimerDanmaku.Interval = new TimeSpan(0, 0, 0, 0, 30);
 
             labelVer.Content = "版本: " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() + "\n";
             labelVer.Content += "© Art Center 2019 - 2020, All Rights Reserved." + "\n";
@@ -886,6 +950,7 @@ namespace ACNginxConsole
         {
             editor = sliderEditor.Value;        //单向绑定
             DataCol.Width = new GridLength(1 - editor, GridUnitType.Star);
+            SeperateCol.Width = new GridLength((-4*editor*editor+4*editor)*15, GridUnitType.Pixel);
             TextCol.Width = new GridLength(editor, GridUnitType.Star);
             if (editor == 0)
             {
@@ -1451,6 +1516,10 @@ namespace ACNginxConsole
         {
             if (tabControl.SelectedIndex == 3)
             {
+                button_StartLive.IsEnabled = false;
+                button_EndLive.IsEnabled = false;
+                buttonClock.IsEnabled = false;
+                textBoxClock.IsEnabled = false;
                 labelLive.Content = "初始化...";
                 dispatcherTimerRefresh.Start();
             }
@@ -1997,6 +2066,7 @@ namespace ACNginxConsole
 
                     expandRightCol.Begin(RightCol, HandoffBehavior.SnapshotAndReplace, true);
                 }
+
                 buttonHelp.Content = "关闭监视";
             }
             else
@@ -2033,33 +2103,33 @@ namespace ACNginxConsole
         }
 
         byte selectedItem = 0;
+        private void selectItem(byte selec)
+        {
+            selectedItem = selec;
+            expander1.IsEnabled = true;
+            comboBoxSource.IsEnabled = true;
+            buttonSolo.IsEnabled = true;
+            MonitoringChanged();
+        }
 
         private void ButtonLU_Click(object sender, RoutedEventArgs e)
         {
-            selectedItem = 1;
-            expander1.IsEnabled = true;
-            MonitoringChanged();
+            selectItem(1);
         }
 
         private void ButtonRU_Click(object sender, RoutedEventArgs e)
         {
-            selectedItem = 2;
-            expander1.IsEnabled = true;
-            MonitoringChanged();
+            selectItem(2);
         }
 
         private void ButtonLD_Click(object sender, RoutedEventArgs e)
         {
-            selectedItem = 3;
-            expander1.IsEnabled = true;
-            MonitoringChanged();
+            selectItem(3);
         }
 
         private void ButtonRD_Click(object sender, RoutedEventArgs e)
         {
-            selectedItem = 4;
-            expander1.IsEnabled = true;
-            MonitoringChanged();
+            selectItem(4);
         }
 
         private void MonitoringChanged()
@@ -2299,7 +2369,11 @@ namespace ACNginxConsole
                 dismiss = false;
                 DismissImg.Opacity = 0.5;
             }
+
+
         }
+
+        
 
         #endregion
 
@@ -2309,11 +2383,12 @@ namespace ACNginxConsole
             Application.Current.Shutdown();
         }
 
+        AnimMsg windowAnim; //全局的第二窗口
         private void ButtonTest_Click(object sender, RoutedEventArgs e)
         {
-            AnimMsg windowAnim = new AnimMsg();
+            windowAnim = new AnimMsg();
             if (AllScreens.Length > 1)
-            {
+            {//第二屏幕
                 windowAnim.Left = PrimaryScreen.WorkingArea.Width;
                 windowAnim.Top = 0;
                 windowAnim.WindowState = WindowState.Maximized;
@@ -2324,5 +2399,198 @@ namespace ACNginxConsole
             }
             windowAnim.Show();
         }
+
+        //private Thread ProcDanmakuThread;
+
+        private Queue<DanmakuModel> _danmakuQueue = new Queue<DanmakuModel>();
+
+        //private readonly StaticModel Static = new StaticModel();
+
+        DanmakuLoader danmu = new DanmakuLoader();
+
+        private bool enable_regex = false;
+        private string regex = "";
+        private Regex FilterRegex;
+        private bool ignorespam_enabled = false;
+
+        private void dispatcherTimerDanmaku_Tick(object sender, EventArgs e)
+        {
+            lock (_danmakuQueue)
+            {
+                var count = 0;
+                if (_danmakuQueue.Any())
+                {
+                    count = (int)Math.Ceiling(_danmakuQueue.Count / 30.0);
+                }
+
+                for (var i = 0; i < count; i++)
+                {
+                    if (_danmakuQueue.Any())
+                    {
+                        var danmaku = _danmakuQueue.Dequeue();
+                        if (danmaku.MsgType == MsgTypeEnum.Comment && enable_regex)
+                        {
+                            if (FilterRegex.IsMatch(danmaku.CommentText)) continue;
+
+                        }
+
+                        if (danmaku.MsgType == MsgTypeEnum.Comment && ignorespam_enabled)
+                        {
+                            try
+                            {
+                                var jobj = (JObject)danmaku.RawDataJToken;
+                                if (jobj["info"][0][9].Value<int>() != 0)
+                                {
+                                    continue;
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+
+                        }
+                        ProcDanmaku(danmaku);
+                        //if (danmaku.MsgType == MsgTypeEnum.Comment)
+                        //{
+                            //lock (Static)
+                            //{
+                            //    Static.DanmakuCountShow += 1;
+                            //    Static.AddUser(danmaku.UserName);
+                            //}
+                        //}
+                    }
+                }
+            }
+        }
+
+        bool DanmakuSwitch = false;
+        
+        private async void ButtonDanmakuSwitch_Click(object sender, RoutedEventArgs e)
+        {
+            var myblue = new SolidColorBrush(Color.FromArgb(100, 1, 187, 226));
+            if (DanmakuSwitch)
+            {
+                danmu.Disconnect();
+
+                buttonDanmakuSwitch.Foreground = myblue;
+                buttonDanmakuSwitch.Background = Brushes.White;
+                buttonDanmakuSwitch.Content = "启动弹幕";
+
+                DanmakuSwitch = false;
+
+                dispatcherTimerDanmaku.Stop();
+            }
+            else
+            {
+                
+                buttonDanmakuSwitch.Content = "连接中";
+                int room_id = 0;
+                foreach (ConfigItem cit in configdata)
+                {
+                    if (cit.Type == "B站" && cit.Bililive_roomid > 0)    //有效的B站房间号
+                    {
+                        room_id = cit.Bililive_roomid;
+                        break;
+                    }
+                }
+                if (room_id == 0)
+                {
+                    buttonDanmakuSwitch.Content = "连接失败";
+                }
+                else
+                {
+                    var connectresult = await danmu.ConnectAsync(room_id);
+                    var trytime = 0;
+                    if (!connectresult && danmu.Error != null)// 如果连接不成功并且出错了
+                    {
+                        buttonDanmakuSwitch.Content = "连接失败";
+                    }
+
+                    while (!connectresult && sender == null)
+                    {
+                        if (trytime > 3)
+                            break;
+                        else
+                            trytime++;
+
+                        await System.Threading.Tasks.Task.Delay(1000); // 稍等一下
+                        connectresult = await danmu.ConnectAsync(room_id);
+                    }
+
+                    if (connectresult)
+                    {
+
+                        listBoxDanmaku.Items.Clear();
+
+                        buttonDanmakuSwitch.Foreground = Brushes.White;
+                        buttonDanmakuSwitch.Background = myblue;
+                        buttonDanmakuSwitch.Content = "关闭弹幕";
+
+                        DanmakuSwitch = true;
+
+                        danmu.ReceivedDanmaku += b_ReceivedDanmaku;
+                        //b.ReceivedRoomCount += b_ReceivedRoomCount;
+
+                        dispatcherTimerDanmaku.Start();
+                    }
+                    else
+                    {
+                        buttonDanmakuSwitch.Content = "连接失败";
+                    }
+                }
+
+                if (buttonDanmakuSwitch.Content.ToString() == "连接失败")
+                {
+                    await System.Threading.Tasks.Task.Delay(1000);
+                    buttonDanmakuSwitch.Content = "启动弹幕";
+                }
+            }
+            
+        }
+
+        bool AutoDanmaku = false;
+        private void ButtonAutoDanmaku_Click(object sender, RoutedEventArgs e)
+        {
+            var myblue = new SolidColorBrush(Color.FromArgb(100, 1, 185, 222));
+            if (AutoDanmaku)
+            {
+                buttonAutoDanmaku.Foreground = myblue;
+                buttonAutoDanmaku.Background = Brushes.White;
+                buttonAutoDanmaku.Content = "自动";
+            }
+            else
+            {
+                buttonAutoDanmaku.Foreground = Brushes.White;
+                buttonAutoDanmaku.Background = myblue;
+                buttonAutoDanmaku.Content = "手动";
+            }
+            AutoDanmaku = !AutoDanmaku;
+        }
+
+        private void b_ReceivedDanmaku(object sender, ReceivedDanmakuArgs e)
+        {
+            lock (_danmakuQueue)
+            {
+                var danmakuModel = e.Danmaku;
+                _danmakuQueue.Enqueue(danmakuModel);
+            }
+        }
+
+        /// <summary>
+        /// 向弹幕池添加弹幕
+        /// </summary>
+        /// <param name="danmakuModel"></param>
+        private void ProcDanmaku(DanmakuModel danmakuModel)
+        {
+            if (danmakuModel.MsgType == MsgTypeEnum.Comment)
+            {
+                ListBoxItem newDanmakuL = new ListBoxItem();
+                newDanmakuL.Content = danmakuModel.CommentText;
+                listBoxDanmaku.Items.Add(newDanmakuL);
+            }
+            
+        }
+
     }
 }
