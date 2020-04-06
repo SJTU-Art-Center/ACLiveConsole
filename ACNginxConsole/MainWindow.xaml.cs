@@ -203,6 +203,11 @@ namespace ACNginxConsole
 
         const double RightCol_Last = 300;    //右侧边栏最后状态
 
+        private bool enable_regex = false;
+        private string regex = "";
+        private Regex FilterRegex;
+        private bool ignorespam_enabled = false;
+
         #region 配置项类
         public event PropertyChangedEventHandler PropertyChanged;
         ObservableCollection<ConfigItem> configdata;//定义配置数据库
@@ -472,6 +477,71 @@ namespace ACNginxConsole
         }
         #endregion
 
+        #region 弹幕池
+
+
+        //时间可以被设置 每次过一个计时器时间将会刷新
+        //应当有时间差的存储 通过ListItem的Opacity展示出来
+
+        //弹幕池用来临时存储弹幕 给用户一个选择缓冲的时间
+        Queue<DanmakuItem> DanmakuPool = new Queue<DanmakuItem>();
+
+        static int EXPIRE_TIME = 10;
+        public class DanmakuItem
+        {
+            private string danmaku;
+            private int timepass;     //经过次数
+            private bool isSelected;
+
+            public string Danmaku
+            {
+                get { return danmaku; }
+                set
+                {
+                    danmaku = value;
+                }
+            }
+
+            public int Timepass
+            {
+                get { return timepass; }
+                set
+                {
+                    timepass = value;
+                }
+            }
+
+            public bool IsSelected
+            {
+                get { return isSelected; }
+                set
+                {
+                    isSelected = value;
+                }
+            }
+
+            public double Opacity
+            {
+                get { return timepass * 1.0 / EXPIRE_TIME; }
+            }
+
+            public void Timepass_increasement()
+            {
+                ++timepass;
+            }
+
+            public DanmakuItem() { }
+            public DanmakuItem(string DanmakuIn = "")
+            {
+                Danmaku = DanmakuIn;
+                Timepass = 0;
+                isSelected = AutoDanmaku ? true : false;
+            }
+
+        }
+
+        #endregion
+
         public MainWindow()
         {
 
@@ -496,8 +566,9 @@ namespace ACNginxConsole
             dispatcherTimerMon.Tick += new EventHandler(dispatcherTimerMon_Tick);
             dispatcherTimerMon.Interval = new TimeSpan(0, 0, 0, 10);
 
+            //0.5s 更新一次
             dispatcherTimerDanmaku.Tick += new EventHandler(dispatcherTimerDanmaku_Tick);
-            dispatcherTimerDanmaku.Interval = new TimeSpan(0, 0, 0, 0, 30);
+            dispatcherTimerDanmaku.Interval = new TimeSpan(0, 0, 0, 0, 500);
 
             labelVer.Content = "版本: " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() + "\n";
             labelVer.Content += "© Art Center 2019 - 2020, All Rights Reserved." + "\n";
@@ -541,6 +612,15 @@ namespace ACNginxConsole
             comboBoxSource.ItemsSource = configdata;
 
             RightCol.Width = new GridLength(0, GridUnitType.Pixel); //右栏宽初始值为0
+
+            danmu.ReceivedDanmaku += b_ReceivedDanmaku;
+            //b.ReceivedRoomCount += b_ReceivedRoomCount;
+
+            FilterRegex = new Regex(regex);
+
+            EXPIRE_TIME = Properties.Settings.Default.StoreTime;
+            textBoxStoreSec.Text = (EXPIRE_TIME * 0.5).ToString();
+
         }
 
         #region 主页
@@ -2400,18 +2480,11 @@ namespace ACNginxConsole
             windowAnim.Show();
         }
 
-        //private Thread ProcDanmakuThread;
-
         private Queue<DanmakuModel> _danmakuQueue = new Queue<DanmakuModel>();
 
         //private readonly StaticModel Static = new StaticModel();
-
+        //private Thread releaseThread;
         DanmakuLoader danmu = new DanmakuLoader();
-
-        private bool enable_regex = false;
-        private string regex = "";
-        private Regex FilterRegex;
-        private bool ignorespam_enabled = false;
 
         private void dispatcherTimerDanmaku_Tick(object sender, EventArgs e)
         {
@@ -2451,118 +2524,162 @@ namespace ACNginxConsole
 
                         }
                         ProcDanmaku(danmaku);
-                        //if (danmaku.MsgType == MsgTypeEnum.Comment)
-                        //{
-                            //lock (Static)
-                            //{
-                            //    Static.DanmakuCountShow += 1;
-                            //    Static.AddUser(danmaku.UserName);
-                            //}
-                        //}
                     }
                 }
             }
+
+            //    ListBoxItem newDanmakuL = new ListBoxItem();
+            //    newDanmakuL.Content = danmakuModel.CommentText;
+            //    listBoxDanmaku.Items.Add(newDanmakuL);
+
+            //手动刷新弹幕池和Listbox
+            listBoxDanmaku.Items.Clear();
+
+            //Count会在循环之中改变的
+            for(int i = 0; i < DanmakuPool.Count; ++i)
+            {
+                //依序放入 i = index
+                //时间增加
+                DanmakuPool.ElementAt(i).Timepass_increasement();
+                DanmakuItem item = DanmakuPool.ElementAt(i);
+                if (item.Timepass>=EXPIRE_TIME)
+                {
+                    if (item.IsSelected == true)
+                    {
+                        //TODO：发送弹幕 打到公屏上
+                        Debug.WriteLine(item.Danmaku);
+
+                    }
+                    DanmakuPool.Dequeue();  //时间不以人定
+                    --i;                    //顺序发生改变
+                }
+                else
+                {   
+                    //添加项目，还没到消失时间
+                    ListBoxItem listBoxItem = new ListBoxItem();
+                    listBoxItem.Content = item.Danmaku;
+                    listBoxItem.Opacity = item.Opacity;
+                    listBoxDanmaku.Items.Add(listBoxItem);
+                    if (item.IsSelected == true)
+                        listBoxDanmaku.SelectedItems.Add(listBoxDanmaku.Items[i]);
+                }
+
+            }
+
+
         }
 
         bool DanmakuSwitch = false;
-        
+        //bool connected = false; //是否连接过
+
         private async void ButtonDanmakuSwitch_Click(object sender, RoutedEventArgs e)
         {
             var myblue = new SolidColorBrush(Color.FromArgb(100, 1, 187, 226));
             if (DanmakuSwitch)
             {
+
                 danmu.Disconnect();
+
+                //队列不再deQueue, ProcDanmaku 不会再被调用。
+                dispatcherTimerDanmaku.Stop();
+                //清除弹幕池
+                _danmakuQueue.Clear();
+                //显性清除
+                listBoxDanmaku.Items.Clear();
+
+                //TODO:淡出
 
                 buttonDanmakuSwitch.Foreground = myblue;
                 buttonDanmakuSwitch.Background = Brushes.White;
                 buttonDanmakuSwitch.Content = "启动弹幕";
 
                 DanmakuSwitch = false;
-
-                dispatcherTimerDanmaku.Stop();
+                
             }
             else
             {
-                
-                buttonDanmakuSwitch.Content = "连接中";
-                int room_id = 0;
-                foreach (ConfigItem cit in configdata)
-                {
-                    if (cit.Type == "B站" && cit.Bililive_roomid > 0)    //有效的B站房间号
+                ////只有第一次启动时进行真正链接
+                //if (!connected)
+                //{
+                    buttonDanmakuSwitch.Content = "连接中";
+                    int room_id = 0;
+                    foreach (ConfigItem cit in configdata)
                     {
-                        room_id = cit.Bililive_roomid;
-                        break;
+                        if (cit.Type == "B站" && cit.Bililive_roomid > 0)    //有效的B站房间号
+                        {
+                            room_id = cit.Bililive_roomid;
+                            break;
+                        }
                     }
-                }
-                if (room_id == 0)
-                {
-                    buttonDanmakuSwitch.Content = "连接失败";
-                }
-                else
-                {
-                    var connectresult = await danmu.ConnectAsync(room_id);
-                    var trytime = 0;
-                    if (!connectresult && danmu.Error != null)// 如果连接不成功并且出错了
+                    if (room_id == 0)
                     {
                         buttonDanmakuSwitch.Content = "连接失败";
-                    }
-
-                    while (!connectresult && sender == null)
-                    {
-                        if (trytime > 3)
-                            break;
-                        else
-                            trytime++;
-
-                        await System.Threading.Tasks.Task.Delay(1000); // 稍等一下
-                        connectresult = await danmu.ConnectAsync(room_id);
-                    }
-
-                    if (connectresult)
-                    {
-
-                        listBoxDanmaku.Items.Clear();
-
-                        buttonDanmakuSwitch.Foreground = Brushes.White;
-                        buttonDanmakuSwitch.Background = myblue;
-                        buttonDanmakuSwitch.Content = "关闭弹幕";
-
-                        DanmakuSwitch = true;
-
-                        danmu.ReceivedDanmaku += b_ReceivedDanmaku;
-                        //b.ReceivedRoomCount += b_ReceivedRoomCount;
-
-                        dispatcherTimerDanmaku.Start();
                     }
                     else
                     {
-                        buttonDanmakuSwitch.Content = "连接失败";
-                    }
-                }
+                        var connectresult = await danmu.ConnectAsync(room_id);
+                        var trytime = 0;
+                        if (!connectresult && danmu.Error != null)// 如果连接不成功并且出错了
+                        {
+                            buttonDanmakuSwitch.Content = "连接失败";
+                        }
 
-                if (buttonDanmakuSwitch.Content.ToString() == "连接失败")
-                {
-                    await System.Threading.Tasks.Task.Delay(1000);
-                    buttonDanmakuSwitch.Content = "启动弹幕";
-                }
+                        while (!connectresult && sender == null)
+                        {
+                            if (trytime > 3)
+                                break;
+                            else
+                                trytime++;
+
+                            await System.Threading.Tasks.Task.Delay(1000); // 稍等一下
+                            connectresult = await danmu.ConnectAsync(room_id);
+                        }
+
+                        if (connectresult)
+                        {
+
+                            listBoxDanmaku.Items.Clear();
+
+                            buttonDanmakuSwitch.Foreground = Brushes.White;
+                            buttonDanmakuSwitch.Background = myblue;
+                            buttonDanmakuSwitch.Content = "关闭弹幕";
+
+                            DanmakuSwitch = true;
+
+                            dispatcherTimerDanmaku.Start();
+                            //TODO：淡入
+                        }
+                        else
+                        {
+                            buttonDanmakuSwitch.Content = "连接失败";
+                        }
+                    }
+
+                    if (buttonDanmakuSwitch.Content.ToString() == "连接失败")
+                    {
+                        await System.Threading.Tasks.Task.Delay(1000);
+                        buttonDanmakuSwitch.Content = "启动弹幕";
+                    }
+                //}
+                
             }
             
         }
 
-        bool AutoDanmaku = false;
+        static bool AutoDanmaku = true;
         private void ButtonAutoDanmaku_Click(object sender, RoutedEventArgs e)
         {
             var myblue = new SolidColorBrush(Color.FromArgb(100, 1, 185, 222));
-            if (AutoDanmaku)
+            if (!AutoDanmaku)
             {
-                buttonAutoDanmaku.Foreground = myblue;
-                buttonAutoDanmaku.Background = Brushes.White;
+                buttonAutoDanmaku.Foreground = Brushes.White;
+                buttonAutoDanmaku.Background = myblue;
                 buttonAutoDanmaku.Content = "自动";
             }
             else
             {
-                buttonAutoDanmaku.Foreground = Brushes.White;
-                buttonAutoDanmaku.Background = myblue;
+                buttonAutoDanmaku.Foreground = myblue;
+                buttonAutoDanmaku.Background = Brushes.White;
                 buttonAutoDanmaku.Content = "手动";
             }
             AutoDanmaku = !AutoDanmaku;
@@ -2570,27 +2687,56 @@ namespace ACNginxConsole
 
         private void b_ReceivedDanmaku(object sender, ReceivedDanmakuArgs e)
         {
-            lock (_danmakuQueue)
-            {
-                var danmakuModel = e.Danmaku;
-                _danmakuQueue.Enqueue(danmakuModel);
-            }
+            //if (!DanmakuSwitch)
+            //{   //关闭后不再enQueue,现在改为断连
+                lock (_danmakuQueue)
+                {
+                    var danmakuModel = e.Danmaku;
+                    _danmakuQueue.Enqueue(danmakuModel);
+                }
+            //}
         }
 
         /// <summary>
-        /// 向弹幕池添加弹幕
+        /// 向弹幕池添加弹幕 这里弹幕池将是显性的
         /// </summary>
         /// <param name="danmakuModel"></param>
         private void ProcDanmaku(DanmakuModel danmakuModel)
         {
             if (danmakuModel.MsgType == MsgTypeEnum.Comment)
             {
-                ListBoxItem newDanmakuL = new ListBoxItem();
-                newDanmakuL.Content = danmakuModel.CommentText;
-                listBoxDanmaku.Items.Add(newDanmakuL);
+                //    ListBoxItem newDanmakuL = new ListBoxItem();
+                //    newDanmakuL.Content = danmakuModel.CommentText;
+                //    listBoxDanmaku.Items.Add(newDanmakuL);
+                DanmakuPool.Enqueue(new DanmakuItem(danmakuModel.CommentText));
             }
-            
         }
 
+        private void ListBoxDanmaku_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            for(int i = 0; i < listBoxDanmaku.Items.Count; ++i)
+                DanmakuPool.ElementAt(i).IsSelected = listBoxDanmaku.SelectedItems.Contains(listBoxDanmaku.Items[i]);
+                
+        }
+
+        private void TextBoxStoreSec_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            //强制数字输入，且为大于2
+            TextBox tempbox = sender as TextBox;
+            TextChange[] change = new TextChange[e.Changes.Count];
+            e.Changes.CopyTo(change, 0);
+            int offset = change[0].Offset;
+            if (change[0].AddedLength > 0)
+            {
+
+                if (tempbox.Text.IndexOf(' ') != -1 || !int.TryParse(tempbox.Text, out clockmin) || clockmin < 2)
+                {
+                    tempbox.Text = tempbox.Text.Remove(offset, change[0].AddedLength);
+                    tempbox.Select(offset, 0);
+                }
+
+            }
+            clockmin = Properties.Settings.Default.StoreTime;
+        }
     }
 }

@@ -266,17 +266,19 @@
                         <Image x:Name="WarPic" Margin="0,26,327.5,0" Source="StatusAnnotations_Warning_32xLG_color.png" Stretch="Fill" HorizontalAlignment="Right" Width="32" Height="32" VerticalAlignment="Top"/>
                         <Label x:Name="labell1" Content="为保证测试准确性，请在测试开始后开启OBS推流。" Height="23.5" Margin="0,23.187,18.5,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="282.5"/>
                         <Label x:Name="labell2" Content="只有在有数据流时结果才是准确的。" Height="25" Margin="0,38,40,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="282.5"/>
-                        <Button x:Name="button6" Content="清除所有设置" HorizontalAlignment="Left" Height="20" Margin="43,152,0,0" VerticalAlignment="Top" Width="171" Click="Button6_Click"/>
-                        <Button x:Name="button7" Content="确认" HorizontalAlignment="Left" Height="20" Margin="220,152,0,0" VerticalAlignment="Top" Width="42" Click="Button7_Click" Visibility="Hidden"/>
-                        <StackPanel HorizontalAlignment="Left" Height="137" Margin="24,10,0,0" VerticalAlignment="Top" Width="252">
+                        <Button x:Name="button6" Content="清除所有设置" HorizontalAlignment="Left" Height="20" Margin="28,198,0,0" VerticalAlignment="Top" Width="170" Click="Button6_Click"/>
+                        <Button x:Name="button7" Content="确认" HorizontalAlignment="Left" Height="20" Margin="204,198,0,0" VerticalAlignment="Top" Width="42" Click="Button7_Click" Visibility="Hidden"/>
+                        <StackPanel Height="188" Margin="24,10,180,0" VerticalAlignment="Top">
                             <CheckBox x:Name="checkBoxtest" Content="测试时不使用ffmpeg" HorizontalAlignment="Left" VerticalAlignment="Top" Width="147" Checked="CheckBoxtest_Checked" Unchecked="CheckBoxtest_Unchecked" Margin="0,5,0,0"/>
                             <CheckBox x:Name="checkBox2" Content="解决程序冲突时不再次启动推流" HorizontalAlignment="Left" VerticalAlignment="Top" Width="203" Checked="CheckBox2_Checked" Unchecked="CheckBox2_Unchecked" Margin="0,5,0,0"/>
                             <CheckBox x:Name="checkBoxFullRange" Content="全局调试模式(较慢)" Checked="CheckBox_Checked" HorizontalAlignment="Left" Width="130" VerticalAlignment="Top" Unchecked="CheckBoxFullRange_Unchecked" Margin="0,5,0,0"/>
                             <CheckBox x:Name="checkBoxCloseProtect" Content="关闭监视器保护模式" HorizontalAlignment="Left" Width="130" BorderThickness="1" Margin="0,5,0,0" Checked="CheckBoxCloseProtect_Checked" Unchecked="CheckBoxCloseProtect_Unchecked"/>
                             <CheckBox x:Name="checkBoxCloseSniffing" Content="关闭播流地址自动获取" HorizontalAlignment="Left" Margin="0,5,0,0" Width="147" Checked="CheckBoxCloseSniffing_Checked" Unchecked="CheckBoxCloseSniffing_Unchecked"/>
                             <CheckBox x:Name="checkBoxClosingAnim" Content="计时器关闭推流时播放Closing.mp4" HorizontalAlignment="Left" Height="16" Margin="0,5,0,0" Width="242"/>
+                            <Label x:Name="labelDan" Content="弹幕池存储秒数" HorizontalAlignment="Left" Height="24" VerticalAlignment="Top" Width="100"/>
+                            <TextBox x:Name="textBoxStoreSec" HorizontalAlignment="Left" Height="21" TextWrapping="Wrap" Text="5" Width="90" Margin="2,0,0,0" TextChanged="TextBoxStoreSec_TextChanged"/>
                         </StackPanel>
-                        <Button x:Name="buttonTest" Content="试验性界面" HorizontalAlignment="Left" Height="66" Margin="43,222,0,0" VerticalAlignment="Top" Width="85" Click="ButtonTest_Click"/>
+                        <Button x:Name="buttonTest" Content="试验性界面" HorizontalAlignment="Left" Height="66" Margin="28,240,0,0" VerticalAlignment="Top" Width="85" Click="ButtonTest_Click"/>
                     </Grid>
                 </TabItem>
 
@@ -368,18 +370,16 @@
                             <ColumnDefinition />
                         </Grid.ColumnDefinitions>
                         <Button x:Name="buttonDanmakuSwitch" Grid.Column="0" Content="启动弹幕" Width="70" Background="White" Foreground="#FF77D3F5" BorderBrush="#FF01BBE2" Click="ButtonDanmakuSwitch_Click" />
-                        <Button Grid.Column="1" x:Name="buttonAutoDanmaku" Content="自动" Background="White" Foreground="#FF01B9DE" BorderBrush="#FF01BCE1" Width="40" Click="ButtonAutoDanmaku_Click"/>
+                        <Button Grid.Column="1" x:Name="buttonAutoDanmaku" Content="自动" Background="#FF01BCE1" Foreground="White" BorderBrush="#FF01BCE1" Width="40" Click="ButtonAutoDanmaku_Click"/>
                     </Grid>
 
-                    <ListBox x:Name="listBoxDanmaku" VerticalAlignment="Top" Margin="0" BorderBrush="#FF75D2F6" Foreground="#FF17546E" SelectionMode="Multiple">
+                    <ListBox x:Name="listBoxDanmaku" VerticalAlignment="Top" Margin="0" BorderBrush="#FF75D2F6" Foreground="#FF17546E" SelectionMode="Multiple" MaxHeight="{DynamicResource {x:Static SystemParameters.MaximizedPrimaryScreenHeightKey}}" SelectionChanged="ListBoxDanmaku_SelectionChanged">
                         <ListBox.Background>
                             <LinearGradientBrush EndPoint="0.8,1.25" MappingMode="RelativeToBoundingBox" Opacity="0.25" StartPoint="0.9,0">
                                 <GradientStop Color="#FF17C3E0" Offset="0"/>
                                 <GradientStop Color="White" Offset="0.363"/>
                             </LinearGradientBrush>
                         </ListBox.Background>
-                        <ListBoxItem x:Name="debugLog" Content="debugLog"/>
-                        <ListBoxItem x:Name="debugLog2" Content="debugLog"/>
                     </ListBox>
                     <Expander x:Name="expander1" Header="自定义播流代码"  VerticalAlignment="Top" Collapsed="Expander1_Collapsed" Expanded="Expander1_Expanded" Margin="0,10,0,0" IsEnabled="False" Visibility="Hidden">
                         <Grid Background="#FFE5E5E5">
