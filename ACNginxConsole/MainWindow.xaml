@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:ACNginxConsole"
         xmlns:loval="clr-namespace:Vlc.DotNet.Wpf;assembly=Vlc.DotNet.Wpf"
         mc:Ignorable="d"
-        Title="AC Live Console" Height="621" Width="771.798" Closed="Window_Closed">
+        Title="AC Live Console" Height="621" Width="771.798" Closed="Window_Closed" SizeChanged="Window_SizeChanged">
 
     <Window.Resources>
         <Storyboard x:Key="expandRightCol">
@@ -26,7 +26,7 @@
             <RowDefinition Height="29.5"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <StatusBar Grid.Row="0" VerticalAlignment="Top" Grid.ColumnSpan="2">
+        <StatusBar x:Name="StatusBarTop" Grid.Row="0" VerticalAlignment="Top" Grid.ColumnSpan="2">
             <Label x:Name="label" Content="测试" Height="23.748" Width="143.5"/>
             <Label x:Name="label1" Content="推流" Height="23.748" Width="296"/>
             <Label x:Name="labelMonitor" Content="监视" Width="143.5"/>
@@ -47,7 +47,8 @@
                             <Image x:Name="image1" Height="272.25" Canvas.Left="56" Canvas.Top="29.5" Width="393.375"/>
                             <Button x:Name="button4" Content="→" Height="27.75" Canvas.Left="400.031" Canvas.Top="346.125" Width="48.938" Click="Button4_Click_1"/>
                             <Image x:Name="ACLiveConsoleLogo_png" Height="350" Canvas.Left="81.25" Source="ACLiveConsoleLogo.png" Stretch="Fill" Width="350"/>
-                            <Button x:Name="buttonSoftHelp" Content="软件入门 →" HorizontalAlignment="Left" Height="40" VerticalAlignment="Top" Width="186" Canvas.Left="160" Canvas.Top="342" Background="#FF242121" Foreground="White" BorderBrush="#FFE6D0D0" FontWeight="Bold" FontSize="16" Click="ButtonSoftHelp_Click"/>
+                            <Button x:Name="buttonSoftHelp" Content="软件入门 →" HorizontalAlignment="Left" Height="40" VerticalAlignment="Top" Width="135" Canvas.Left="111" Canvas.Top="339" Background="#FF242121" Foreground="White" BorderBrush="#FFE6D0D0" FontWeight="Bold" FontSize="16" Click="ButtonSoftHelp_Click"/>
+                            <Button x:Name="buttonDanmakuEntry" Content="弹幕电脑 →" HorizontalAlignment="Left" Height="40" VerticalAlignment="Top" Width="135" Canvas.Left="265" Canvas.Top="339" Background="#FF242121" Foreground="White" BorderBrush="#FFE6D0D0" FontWeight="Bold" FontSize="16" Click="ButtonDanmakuEntry_Click"/>
                         </Canvas>
                         <Label x:Name="labelVer" Content="版本:" Margin="10,0,0,0" Foreground="White" HorizontalAlignment="Left" Width="367.5" Height="48" VerticalAlignment="Bottom" FontSize="9"/>
                     </Grid>
@@ -266,9 +267,9 @@
                         <Image x:Name="WarPic" Margin="0,26,327.5,0" Source="StatusAnnotations_Warning_32xLG_color.png" Stretch="Fill" HorizontalAlignment="Right" Width="32" Height="32" VerticalAlignment="Top"/>
                         <Label x:Name="labell1" Content="为保证测试准确性，请在测试开始后开启OBS推流。" Height="23.5" Margin="0,23.187,18.5,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="282.5"/>
                         <Label x:Name="labell2" Content="只有在有数据流时结果才是准确的。" Height="25" Margin="0,38,40,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="282.5"/>
-                        <Button x:Name="button6" Content="清除所有设置" HorizontalAlignment="Left" Height="20" Margin="28,198,0,0" VerticalAlignment="Top" Width="170" Click="Button6_Click"/>
-                        <Button x:Name="button7" Content="确认" HorizontalAlignment="Left" Height="20" Margin="204,198,0,0" VerticalAlignment="Top" Width="42" Click="Button7_Click" Visibility="Hidden"/>
-                        <StackPanel Height="188" Margin="24,10,180,0" VerticalAlignment="Top">
+                        <Button x:Name="button6" Content="清除所有设置" HorizontalAlignment="Left" Height="20" Margin="24,334,0,0" VerticalAlignment="Top" Width="170" Click="Button6_Click"/>
+                        <Button x:Name="button7" Content="确认" HorizontalAlignment="Left" Height="20" Margin="200,334,0,0" VerticalAlignment="Top" Width="42" Click="Button7_Click"/>
+                        <StackPanel Height="319" Margin="24,10,180,0" VerticalAlignment="Top">
                             <CheckBox x:Name="checkBoxtest" Content="测试时不使用ffmpeg" HorizontalAlignment="Left" VerticalAlignment="Top" Width="147" Checked="CheckBoxtest_Checked" Unchecked="CheckBoxtest_Unchecked" Margin="0,5,0,0"/>
                             <CheckBox x:Name="checkBox2" Content="解决程序冲突时不再次启动推流" HorizontalAlignment="Left" VerticalAlignment="Top" Width="203" Checked="CheckBox2_Checked" Unchecked="CheckBox2_Unchecked" Margin="0,5,0,0"/>
                             <CheckBox x:Name="checkBoxFullRange" Content="全局调试模式(较慢)" Checked="CheckBox_Checked" HorizontalAlignment="Left" Width="130" VerticalAlignment="Top" Unchecked="CheckBoxFullRange_Unchecked" Margin="0,5,0,0"/>
@@ -277,17 +278,25 @@
                             <CheckBox x:Name="checkBoxClosingAnim" Content="计时器关闭推流时播放Closing.mp4" HorizontalAlignment="Left" Height="16" Margin="0,5,0,0" Width="242"/>
                             <Label x:Name="labelDan" Content="弹幕池存储秒数" HorizontalAlignment="Left" Height="24" VerticalAlignment="Top" Width="100"/>
                             <TextBox x:Name="textBoxStoreSec" HorizontalAlignment="Left" Height="21" TextWrapping="Wrap" Text="5" Width="90" Margin="2,0,0,0" TextChanged="TextBoxStoreSec_TextChanged"/>
+                            <ListBox x:Name="listBoxStyle" Height="150" Margin="2,0,10,0">
+                                <ListBoxItem>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image></Image>
+                                        <Label>景深悬浮</Label>
+                                    </StackPanel>
+                                </ListBoxItem>
+                            </ListBox>
                         </StackPanel>
-                        <Button x:Name="buttonTest" Content="试验性界面" HorizontalAlignment="Left" Height="66" Margin="28,240,0,0" VerticalAlignment="Top" Width="85" Click="ButtonTest_Click"/>
+                        <Button x:Name="buttonTest" Content="试验性界面" HorizontalAlignment="Left" Height="66" Margin="331,152,0,0" VerticalAlignment="Top" Width="85" Click="ButtonTest_Click" Visibility="Hidden"/>
                     </Grid>
                 </TabItem>
 
             </TabControl>
             <GridSplitter x:Name="ColumnSplit" Grid.Column="1" Width="5" HorizontalAlignment="Stretch"/>
             <Grid Grid.Column="2" Background="{DynamicResource {x:Static SystemColors.InactiveBorderBrushKey}}">
-                <StackPanel  Margin="5,0">
+                <StackPanel x:Name="StackPanelRightCol"  Margin="5,0">
                     <Label x:Name="label7" Content="直播监视器" Margin="0,15,0,0" Foreground="White" Background="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}"/>
-                    <Viewbox Margin="0">
+                    <Viewbox x:Name="ViewboxMonitor" Margin="0">
                         <Grid x:Name="Monitoring" Margin="0,0,0,0" Width="1600" Height="900" Background="#FFE2EBF4">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition x:Name="Col0" Width="*"/>
@@ -336,7 +345,7 @@
                             </Border>
                         </Grid>
                     </Viewbox>
-                    <Grid Height="20">
+                    <Grid x:Name="MonitorBtn" Height="20">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition/>
@@ -363,7 +372,7 @@
                         </StackPanel>
                         <ComboBox Grid.Column="1" x:Name="comboBoxSource" DisplayMemberPath="SourceName" SelectionChanged="ComboBoxSource_SelectionChanged" ToolTip="监视源" Margin="0" RenderTransformOrigin="0.503,0.55" Height="20" IsEnabled="False"/>
                     </Grid>
-                    <Grid Margin="0,5,0,0" Background="#FF75D2F6" Height="27">
+                    <Grid x:Name="DanmakuSider" Margin="0,15,0,0" Background="#FF75D2F6" Height="27">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
@@ -373,7 +382,7 @@
                         <Button Grid.Column="1" x:Name="buttonAutoDanmaku" Content="自动" Background="#FF01BCE1" Foreground="White" BorderBrush="#FF01BCE1" Width="40" Click="ButtonAutoDanmaku_Click"/>
                     </Grid>
 
-                    <ListBox x:Name="listBoxDanmaku" VerticalAlignment="Top" Margin="0" BorderBrush="#FF75D2F6" Foreground="#FF17546E" SelectionMode="Multiple" MaxHeight="{DynamicResource {x:Static SystemParameters.MaximizedPrimaryScreenHeightKey}}" SelectionChanged="ListBoxDanmaku_SelectionChanged">
+                    <ListBox x:Name="listBoxDanmaku" VerticalAlignment="Top" Margin="0" BorderBrush="#FF75D2F6" Foreground="#FF17546E" SelectionMode="Multiple" SelectionChanged="ListBoxDanmaku_SelectionChanged">
                         <ListBox.Background>
                             <LinearGradientBrush EndPoint="0.8,1.25" MappingMode="RelativeToBoundingBox" Opacity="0.25" StartPoint="0.9,0">
                                 <GradientStop Color="#FF17C3E0" Offset="0"/>
