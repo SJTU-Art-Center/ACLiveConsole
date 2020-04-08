@@ -192,6 +192,8 @@ namespace ACNginxConsole
     public partial class MainWindow : Window
     {
 
+        #region 全局变量定义
+
         bool InputError = false;
         DispatcherTimer dispatcherTimer = new DispatcherTimer();
         DispatcherTimer dispatcherTimerBling = new DispatcherTimer();
@@ -215,6 +217,8 @@ namespace ACNginxConsole
         private string regex = "";
         private Regex FilterRegex;
         private bool ignorespam_enabled = false;
+
+        #endregion
 
         #region 配置项类
         public event PropertyChangedEventHandler PropertyChanged;
@@ -2489,30 +2493,7 @@ namespace ACNginxConsole
 
         #endregion
 
-        private void Window_Closed(object sender, EventArgs e)
-        {
-            Properties.Settings.Default.StoreTime = EXPIRE_TIME;
-            Properties.Settings.Default.Save();
-            Application.Current.Shutdown();
-        }
-
-        AnimMsg windowAnim; //全局的第二窗口
-        private void ButtonTest_Click(object sender, RoutedEventArgs e)
-        {
-            Open_DanmakuWindow();
-            //windowAnim = new AnimMsg();
-            //if (AllScreens.Length > 1)
-            //{//第二屏幕
-            //    windowAnim.Left = PrimaryScreen.WorkingArea.Width;
-            //    windowAnim.Top = 0;
-            //    windowAnim.WindowState = WindowState.Maximized;
-            //}
-            //else
-            //{
-            //    windowAnim.WindowState = WindowState.Maximized;
-            //}
-            //windowAnim.Show();
-        }
+        #region 弹幕系统
 
         private Queue<DanmakuModel> _danmakuQueue = new Queue<DanmakuModel>();
 
@@ -2746,7 +2727,7 @@ namespace ACNginxConsole
                 //    ListBoxItem newDanmakuL = new ListBoxItem();
                 //    newDanmakuL.Content = danmakuModel.CommentText;
                 //    listBoxDanmaku.Items.Add(newDanmakuL);
-                DanmakuPool.Enqueue(new DanmakuItem(danmakuModel.CommentText,danmakuModel.isAdmin));
+                DanmakuPool.Enqueue(new DanmakuItem(danmakuModel.CommentText, danmakuModel.isAdmin));
             }
         }
 
@@ -2778,9 +2759,9 @@ namespace ACNginxConsole
                 {
                     EXPIRE_TIME = Storesec * 2;
                 }
-                
+
             }
-                
+
 
         }
 
@@ -2846,7 +2827,7 @@ namespace ACNginxConsole
         {
             focaldephov = new FocalDepthHover();
             this.Topmost = true;
-            Start_inSecond(focaldephov);
+            focaldephov.Show();
 
         }
 
@@ -2855,23 +2836,6 @@ namespace ACNginxConsole
             //TODO:淡出计时
             focaldephov.Close();
             this.Topmost = false;
-        }
-
-        private void Start_inSecond(FocalDepthHover hover)
-        {
-            if (AllScreens.Length > 1)
-            {//第二屏幕
-                hover.Left = PrimaryScreen.WorkingArea.Width;
-                hover.Top = 0;
-                hover.WindowState = WindowState.Maximized;
-            }
-            else
-            {
-                hover.WindowState = WindowState.Maximized;
-            }
-            hover.Show();
-            //TODO: 淡入计时
-
         }
 
         public static event ReceivedDanmuEvt ReceivedDanmu;
@@ -2889,5 +2853,31 @@ namespace ACNginxConsole
                 ReceivedDanmu(this, new ReceivedDanmuArgs() { Danmu = SendDanmu });
         }
 
+        #endregion
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.StoreTime = EXPIRE_TIME;
+            Properties.Settings.Default.Save();
+            Application.Current.Shutdown();
+        }
+
+        //AnimMsg windowAnim; //全局的第二窗口
+        private void ButtonTest_Click(object sender, RoutedEventArgs e)
+        {
+            Open_DanmakuWindow();
+            //windowAnim = new AnimMsg();
+            //if (AllScreens.Length > 1)
+            //{//第二屏幕
+            //    windowAnim.Left = PrimaryScreen.WorkingArea.Width;
+            //    windowAnim.Top = 0;
+            //    windowAnim.WindowState = WindowState.Maximized;
+            //}
+            //else
+            //{
+            //    windowAnim.WindowState = WindowState.Maximized;
+            //}
+            //windowAnim.Show();
+        }
     }
 }

@@ -14,6 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using System.Windows.Media.Effects;
+using static System.Windows.Forms.Screen;
 
 namespace ACNginxConsole
 {
@@ -26,19 +27,20 @@ namespace ACNginxConsole
         // 当前的模型基于 2D
         // TODO: 拥有摄像机功能的 WPF 3D
 
-        public static double HOVER_TIME = 10;           //悬浮时间
+        public static double HOVER_TIME = 10;       //悬浮时间
         public static double FocalPt_inSize = 32;   //焦点对应的字号
         public static int BLUR_MAX = 10;            //最大模糊程度
-        public static int LAYER_NUM = 3;            //层数
+        public static int LAYER_NUM = 4;            //层数
+        public static double INIT_TOP;              //开始顶距
+        public static double DECR_FAC = 0.9;        //缩小系数
 
         public List<HoverLayer> hoverLayers;
 
-        // 弹幕层级
+        // 悬浮弹幕类
         public class HoverLayer
         {
             private double textSize;    //字号
             private double layerTop;    //顶距
-                                        
 
             //在本模型中，使用平方反比律来推算高斯模糊程度
             //字号和高斯模糊程度都是平方量，两者直接成比例关系
@@ -92,67 +94,32 @@ namespace ACNginxConsole
 
         }
 
-        DispatcherTimer GCTimer = new DispatcherTimer();
-
         public FocalDepthHover()
         {
             InitializeComponent();
 
-            //初始时有三层，对应于三个 thumb
-            hoverLayers = new List<HoverLayer>
+            //加载时显示在第二屏幕上
+            if (AllScreens.Length > 1)
+            {//第二屏幕
+                Left = PrimaryScreen.WorkingArea.Width;
+                Top = 0;
+                WindowState = WindowState.Maximized;
+            }
+            else
             {
-                new HoverLayer(32,126),
-                new HoverLayer(26.667,86),
-                new HoverLayer(21.333,52)
-            };
+                WindowState = WindowState.Maximized;
+            }
 
-            // 自定义化 路漫漫其修远兮
-            //double temp_ts = FocalPt_inSize;
-            //double tempTop = GridCanvas.Height / 2;
-            //for(int i = 0; i < LAYER_NUM; ++i)
-            //{
-            //    HoverLayer layer = new HoverLayer(temp_ts, tempTop);
-            //    layer.Layer_Thumb.Width = GridCanvas.Width;
-            //    layer.Layer_Thumb.Height = temp_ts / 0.75;
-
-            //    hoverLayers.Add(layer);
-            //    tempTop -= temp_ts / 0.75;
-            //    temp_ts -= 5;
-            //}
-
+            //添加接收事件
             MainWindow.ReceivedDanmu += ReceiveDanmu;
 
             current_order = 0;
 
-
-        }
-
-        //只需要进行纵向移动
-
-        private void ThumbLayer1_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
-        {
-            double newTop = Canvas.GetTop(ThumbLayer1) + e.VerticalChange;
-            Canvas.SetTop(ThumbLayer1, newTop);
-            hoverLayers.ElementAt(0).LayerTop = newTop;
-        }
-
-        private void ThumbLayer2_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
-        {
-            double newTop = Canvas.GetTop(ThumbLayer2) + e.VerticalChange;
-            Canvas.SetTop(ThumbLayer2, newTop);
-            hoverLayers.ElementAt(1).LayerTop = newTop;
-        }
-
-        private void ThumbLayer3_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
-        {
-            double newTop = Canvas.GetTop(ThumbLayer3) + e.VerticalChange;
-            Canvas.SetTop(ThumbLayer3, newTop);
-            hoverLayers.ElementAt(2).LayerTop = newTop;
         }
 
         int current_order;  //层
 
-        Queue<Label> danmakuLabels = new Queue<Label>();
+        //Queue<Label> danmakuLabels = new Queue<Label>();
 
         /// <summary>
         /// 接收到弹幕 该弹幕将会被立刻打在公屏上
@@ -171,14 +138,15 @@ namespace ACNginxConsole
             GridCanvas.Children.Add(label);
             Canvas.SetLeft(label, GridCanvas.Width);
 
+            //主播和房管优先放在第一层
             int temp_ord = (e.Danmu.IsAdmin ? 0 : current_order);
             
             Canvas.SetTop(label, hoverLayers.ElementAt(temp_ord).LayerTop);
             label.FontSize = hoverLayers.ElementAt(temp_ord).TextSize;
             label.Effect = new BlurEffect() { Radius = hoverLayers.ElementAt(temp_ord).Blur };
             
-            //动画
-            Storyboard storyboard = new Storyboard();//新建一个动画板
+            //故事板
+            Storyboard storyboard = new Storyboard();
 
             //添加X轴方向的动画
             DoubleAnimation doubleAnimation = new DoubleAnimation(
@@ -187,11 +155,12 @@ namespace ACNginxConsole
             Storyboard.SetTarget(doubleAnimation, label);
             Storyboard.SetTargetProperty(doubleAnimation, new PropertyPath("(Canvas.Left)"));
             storyboard.Children.Add(doubleAnimation);
+
+            //故事板即将开始
             storyboard.Completed += new EventHandler(Storyboard_over);
-
             storyboard.Begin();
-
-            danmakuLabels.Enqueue(label);
+            
+            //danmakuLabels.Enqueue(label);
 
             if (current_order == LAYER_NUM - 1)
                 current_order = 0;
@@ -201,11 +170,64 @@ namespace ACNginxConsole
 
         private void Storyboard_over(object sender,EventArgs e)
         {
-            //先进先出一定移除最先进的。
-            Label LabeltoRemove = danmakuLabels.Dequeue();
+            //寻找绑定的对象
+            Label LabeltoRemove = 
+                Storyboard.GetTarget((sender as ClockGroup).Timeline.Children[0]) as Label;
+
+            //先进先出一定移除最先进的。队列不再使用，改为寻找发送者。
+            //Label LabeltoRemove = danmakuLabels.Dequeue();
+
             GridCanvas.Children.Remove(LabeltoRemove);
-            //System.Diagnostics.Debug.WriteLine("Danmu Removed");
         }
 
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            INIT_TOP = this.ActualHeight / 2;
+            Regen_Layers();
+        }
+
+        private void Regen_Layers()
+        {
+            hoverLayers = new List<HoverLayer>();
+
+            double temp_ts = FocalPt_inSize;
+            double tempTop = INIT_TOP; //初始高度
+            for (int i = 0; i < LAYER_NUM; ++i)
+            {
+                HoverLayer layer = new HoverLayer(temp_ts, tempTop);
+                layer.Layer_Thumb.Width = this.ActualWidth;
+                layer.Layer_Thumb.Height = temp_ts / 0.75;
+                layer.Layer_Thumb.Opacity = 0;
+                layer.Layer_Thumb.DragDelta += ThumbLayer_DragDelta;
+
+                hoverLayers.Add(layer);
+                ThumbCanvas.Children.Add(layer.Layer_Thumb);
+                Canvas.SetLeft(layer.Layer_Thumb, 0);
+                Canvas.SetTop(layer.Layer_Thumb, tempTop);
+
+                temp_ts *= DECR_FAC;
+                tempTop -= temp_ts / 0.75 + 10;
+            }
+        }
+
+        //只需要进行纵向移动
+        private void ThumbLayer_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+        {
+            var thumb = sender as System.Windows.Controls.Primitives.Thumb;
+            double newTop = Canvas.GetTop(thumb) + e.VerticalChange;
+            Canvas.SetTop(thumb, newTop);
+
+            //使用高度识别，不是唯一标识符了，但是只要缩小系数不为1就可以。
+            //之后可以使用派生模板的方法自己制作
+            for (int i=0;i<hoverLayers.Count;++i)
+            {
+                if (thumb.Height == hoverLayers.ElementAt(i).TextSize / 0.75)
+                {
+                    hoverLayers.ElementAt(i).LayerTop = newTop;
+                    break;
+                }
+            }
+
+        }
     }
 }

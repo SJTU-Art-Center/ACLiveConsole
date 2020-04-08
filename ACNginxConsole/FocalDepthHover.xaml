@@ -5,16 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ACNginxConsole"
         mc:Ignorable="d"
-        Title="FocalDepthHover" Height="450" Width="800" WindowStyle="None" ResizeMode="NoResize" FontFamily="/ACNginxConsole;component/#RTWS YueGothic Trial Regular">
-    <Grid Background="Black">
+        Title="FocalDepthHover" Height="450" Width="800" WindowStyle="None" ResizeMode="NoResize" FontFamily="/ACNginxConsole;component/#RTWS YueGothic Trial Regular" AllowsTransparency="True" Background="Black" Loaded="Window_Loaded">
+    <Grid>
         <Canvas x:Name="GridCanvas">
 
         </Canvas>
         <Canvas x:Name="ThumbCanvas">
-            <Thumb x:Name="ThumbLayer1" Height="46" Width="{DynamicResource {x:Static SystemParameters.MaximumWindowTrackWidthKey}}" Canvas.Top="126" DragDelta="ThumbLayer1_DragDelta" Opacity="0"/>
-            <Thumb x:Name="ThumbLayer2" Height="40" Width="{DynamicResource {x:Static SystemParameters.MaximumWindowTrackWidthKey}}" Canvas.Top="86" DragDelta="ThumbLayer2_DragDelta" Opacity="0"/>
-            <Thumb x:Name="ThumbLayer3" Height="34" Width="{DynamicResource {x:Static SystemParameters.MaximumWindowTrackWidthKey}}" Canvas.Top="52" DragDelta="ThumbLayer3_DragDelta" Opacity="0"/>
+        
         </Canvas>
     </Grid>
-    
+
 </Window>
