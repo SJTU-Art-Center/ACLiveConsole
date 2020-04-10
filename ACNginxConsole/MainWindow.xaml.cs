@@ -728,6 +728,8 @@ namespace ACNginxConsole
             labelWebsite.Content = "直播网址";
         }
 
+
+
         /// <summary>
         /// 自动编码
         /// </summary>
@@ -2588,7 +2590,7 @@ namespace ACNginxConsole
 
         private async void ButtonDanmakuSwitch_Click(object sender, RoutedEventArgs e)
         {
-            var myblue = new SolidColorBrush(Color.FromArgb(100, 1, 188, 225));
+            var myblue = new SolidColorBrush(Color.FromArgb(255, 1, 188, 225));
             if (DanmakuSwitch)
             {
 
@@ -2688,7 +2690,7 @@ namespace ACNginxConsole
         static bool AutoDanmaku = true;
         private void ButtonAutoDanmaku_Click(object sender, RoutedEventArgs e)
         {
-            var myblue = new SolidColorBrush(Color.FromArgb(100, 1, 188, 225));
+            var myblue = new SolidColorBrush(Color.FromArgb(255, 1, 188, 225));
             if (!AutoDanmaku)
             {
                 buttonAutoDanmaku.Foreground = Brushes.White;
@@ -2821,20 +2823,23 @@ namespace ACNginxConsole
 
         //TODO: 以后写成一个list用于调用样式列表。
 
-        FocalDepthHover focaldephov;
+        FocalDepthHover focaldephov = new FocalDepthHover();
 
         private void Open_DanmakuWindow()
         {
-            focaldephov = new FocalDepthHover();
             this.Topmost = true;
             focaldephov.Show();
+            //focaldephov.Opacity = 1;
+
+            OpacSlider.Value = 1;
 
         }
 
         private void Close_DanmakuWindow()
         {
             //TODO:淡出计时
-            focaldephov.Close();
+            //focaldephov.Opacity = 0;
+            OpacSlider.Value = 0;
             this.Topmost = false;
         }
 
@@ -2879,5 +2884,128 @@ namespace ACNginxConsole
             //}
             //windowAnim.Show();
         }
+
+        #region 景深悬浮设置
+
+        private void BackColorPicker_SelectedColorChanged(object sender, RoutedPropertyChangedEventArgs<Color> e)
+        {
+            if (focaldephov.IsLoaded)
+                focaldephov.Background = new SolidColorBrush(BackColorPicker.SelectedColor);
+        }
+
+        private void OpacSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (focaldephov.IsLoaded)
+                focaldephov.Opacity = OpacSlider.Value;
+        }
+
+        private void ForeColorPicker_SelectedColorChanged(object sender, RoutedPropertyChangedEventArgs<Color> e)
+        {
+            FocalDepthHover.ForeColor = ForeColorPicker.SelectedColor;
+        }
+
+        Binding bing_sub;
+        private void BackNone_Selected(object sender, RoutedEventArgs e)
+        {
+            bing_sub = new Binding();
+            if (focaldephov.IsLoaded)
+                focaldephov.BackImg.SetBinding(Image.SourceProperty, bing_sub);
+        }
+
+        private VlcVideoSourceProvider sourceProvider_local;
+        private void BackLive_Selected(object sender, RoutedEventArgs e)
+        {
+            string PlayStream = configdata[0].LiveViewingSite.ToString();
+            var currentAssembly = Assembly.GetEntryAssembly();
+            var currentDirectory = new FileInfo(currentAssembly.Location).DirectoryName;
+            // Default installation path of VideoLAN.LibVLC.Windows
+            var libDirectory = new DirectoryInfo(System.IO.Path.Combine(currentDirectory, "libvlc\\" + (IntPtr.Size == 4 ? "win-x86" : "win-x64")));
+
+            this.sourceProvider_local = new VlcVideoSourceProvider(this.Dispatcher);
+            this.sourceProvider_local.CreatePlayer(libDirectory, "--file-logging", "-vvv", "--logfile=Logs.log");
+            var mediaOptions = new[]
+            {
+                    " :network-caching=2000"
+            };
+
+            this.sourceProvider_local.MediaPlayer.Play(PlayStream, mediaOptions);
+            this.sourceProvider_local.MediaPlayer.Log += new EventHandler<VlcMediaPlayerLogEventArgs>(MediaPlayer_Log);
+            this.sourceProvider_local.MediaPlayer.Manager.SetFullScreen(this.sourceProvider_local.MediaPlayer.Manager.CreateMediaPlayer(), true);
+            this.sourceProvider_local.MediaPlayer.Audio.IsMute = true;    //这个版本中被静音
+                                                                          //音量接口：this.sourceProvider_local.MediaPlayer.Audio.Volume，本版本暂时不用
+            this.sourceProvider_local.MediaPlayer.EncounteredError += new EventHandler<VlcMediaPlayerEncounteredErrorEventArgs>(MediaPlayer_ErrorEncountered);
+
+            bing_sub = new Binding();
+            bing_sub.Source = sourceProvider_local;
+            bing_sub.Path = new PropertyPath("VideoSource");
+            //输出图片
+            focaldephov.BackImg.SetBinding(Image.SourceProperty, bing_sub);
+        }
+
+        private void BackLive_Unselected(object sender, RoutedEventArgs e)
+        {
+            sourceProvider_local.Dispose();
+        }
+
+        private void BackPic_Selected(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Forms.OpenFileDialog openFileDialog = new System.Windows.Forms.OpenFileDialog();
+            openFileDialog.Title = "选择背景图像";
+            openFileDialog.Filter = "png|*.png|jpg|*.jpg|jpeg|*.jpeg";
+            openFileDialog.FileName = string.Empty;
+            openFileDialog.FilterIndex = 1;
+            openFileDialog.RestoreDirectory = true;
+            openFileDialog.DefaultExt = "png";
+            System.Windows.Forms.DialogResult result = openFileDialog.ShowDialog();
+            if (result == System.Windows.Forms.DialogResult.Cancel)
+            {
+                ComboBoxBackImg.SelectedIndex = 0;
+                return;
+            }
+
+            focaldephov.BackImg.Source = new ImageSourceConverter().ConvertFromString(openFileDialog.FileName) as ImageSource;
+
+        }
+
+        private void OpacSliderFore_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (focaldephov.IsLoaded)
+                focaldephov.GridCanvas.Opacity = OpacSliderFore.Value;
+        }
+
+        Binding bing_fore;
+
+        private void ForeNone_Selected(object sender, RoutedEventArgs e)
+        {
+            bing_fore = new Binding();
+            if (focaldephov.IsLoaded)
+                focaldephov.ForeImg.SetBinding(Image.SourceProperty, bing_fore);
+        }
+
+        private void ForePic_Selected(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Forms.OpenFileDialog openFileDialog = new System.Windows.Forms.OpenFileDialog();
+            openFileDialog.Title = "选择前景图像";
+            openFileDialog.Filter = "png|*.png|jpg|*.jpg|jpeg|*.jpeg";
+            openFileDialog.FileName = string.Empty;
+            openFileDialog.FilterIndex = 1;
+            openFileDialog.RestoreDirectory = true;
+            openFileDialog.DefaultExt = "png";
+            System.Windows.Forms.DialogResult result = openFileDialog.ShowDialog();
+            if (result == System.Windows.Forms.DialogResult.Cancel)
+            {
+                //bug?
+                ForePic.IsSelected = false;
+                ForeNone.IsSelected = true;
+                return;
+            }
+
+            focaldephov.ForeImg.Source = new ImageSourceConverter().ConvertFromString(openFileDialog.FileName) as ImageSource;
+
+        }
+
+        #endregion
+
+        
     }
 }

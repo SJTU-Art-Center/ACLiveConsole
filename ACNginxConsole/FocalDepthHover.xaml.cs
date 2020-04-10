@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using System.Windows.Media.Effects;
 using static System.Windows.Forms.Screen;
+using System.ComponentModel;
 
 namespace ACNginxConsole
 {
@@ -33,6 +34,8 @@ namespace ACNginxConsole
         public static int LAYER_NUM = 4;            //层数
         public static double INIT_TOP;              //开始顶距
         public static double DECR_FAC = 0.9;        //缩小系数
+        public static bool From_Front = false;       //从前往后
+        public static Color ForeColor;              //字体颜色
 
         public List<HoverLayer> hoverLayers;
 
@@ -113,8 +116,7 @@ namespace ACNginxConsole
             //添加接收事件
             MainWindow.ReceivedDanmu += ReceiveDanmu;
 
-            current_order = 0;
-
+            ForeColor = Color.FromArgb(255, 255, 255, 255);
         }
 
         int current_order;  //层
@@ -132,7 +134,7 @@ namespace ACNginxConsole
             //创建对象
             Label label = new Label();
             label.Content = e.Danmu.Danmaku;
-            label.Foreground = Brushes.White;
+            label.Foreground = new SolidColorBrush(ForeColor);
 
             //初始状态
             GridCanvas.Children.Add(label);
@@ -159,13 +161,13 @@ namespace ACNginxConsole
             //故事板即将开始
             storyboard.Completed += new EventHandler(Storyboard_over);
             storyboard.Begin();
-            
+
             //danmakuLabels.Enqueue(label);
 
-            if (current_order == LAYER_NUM - 1)
-                current_order = 0;
+            if (From_Front)
+                current_order = (current_order == LAYER_NUM - 1 ? 0 : ++current_order);
             else
-                ++current_order;
+                current_order = (current_order == 0 ? LAYER_NUM - 1 : --current_order);
         }
 
         private void Storyboard_over(object sender,EventArgs e)
@@ -182,16 +184,18 @@ namespace ACNginxConsole
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            INIT_TOP = this.ActualHeight / 2;
+            INIT_TOP = this.ActualHeight / 3;
             Regen_Layers();
         }
 
         private void Regen_Layers()
         {
+            current_order = (From_Front ? 0 : LAYER_NUM - 1);
+
             hoverLayers = new List<HoverLayer>();
 
             double temp_ts = FocalPt_inSize;
-            double tempTop = INIT_TOP; //初始高度
+            double tempTop = INIT_TOP; 
             for (int i = 0; i < LAYER_NUM; ++i)
             {
                 HoverLayer layer = new HoverLayer(temp_ts, tempTop);
@@ -217,11 +221,10 @@ namespace ACNginxConsole
             double newTop = Canvas.GetTop(thumb) + e.VerticalChange;
             Canvas.SetTop(thumb, newTop);
 
-            //使用高度识别，不是唯一标识符了，但是只要缩小系数不为1就可以。
-            //之后可以使用派生模板的方法自己制作
+            //识别调整层
             for (int i=0;i<hoverLayers.Count;++i)
             {
-                if (thumb.Height == hoverLayers.ElementAt(i).TextSize / 0.75)
+                if(thumb == hoverLayers.ElementAt(i).Layer_Thumb)
                 {
                     hoverLayers.ElementAt(i).LayerTop = newTop;
                     break;

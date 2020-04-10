@@ -3,12 +3,14 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker"
         xmlns:local="clr-namespace:ACNginxConsole"
         xmlns:loval="clr-namespace:Vlc.DotNet.Wpf;assembly=Vlc.DotNet.Wpf"
         mc:Ignorable="d"
         Title="AC Live Console" Height="621" Width="771.798" Closed="Window_Closed" SizeChanged="Window_SizeChanged">
 
     <Window.Resources>
+        <colorPicker:ColorToStringConverter x:Key="ColorToStringConverter"/>
         <Storyboard x:Key="expandRightCol">
             <local:GridLengthAnimation Storyboard.TargetName="RightCol" Storyboard.TargetProperty="Width" Duration="0:0:0.5" Completed="GridLengthAnimation_Completed"/>
         </Storyboard>
@@ -19,6 +21,16 @@
             <local:GridLengthAnimation x:Name="ColAnim" Storyboard.TargetProperty="Width" Duration="0:0:1"/>
             <local:GridLengthAnimation x:Name="RowAnim" Storyboard.TargetProperty="Height" Duration="0:0:1"/>
         </Storyboard>
+        <DrawingBrush x:Key="CheckersBrush" 
+                  Viewport="0,0,11,11" ViewportUnits="Absolute"
+                  TileMode="Tile">
+            <DrawingBrush.Drawing>
+                <DrawingGroup>
+                    <GeometryDrawing Geometry="M0,0 L2,0 2,2, 0,2Z" Brush="White"/>
+                    <GeometryDrawing Geometry="M0,1 L2,1 2,2 1,2 1,0 0,0Z" Brush="LightGray"/>
+                </DrawingGroup>
+            </DrawingBrush.Drawing>
+        </DrawingBrush>
     </Window.Resources>
 
     <Grid>
@@ -267,9 +279,9 @@
                         <Image x:Name="WarPic" Margin="0,26,327.5,0" Source="StatusAnnotations_Warning_32xLG_color.png" Stretch="Fill" HorizontalAlignment="Right" Width="32" Height="32" VerticalAlignment="Top"/>
                         <Label x:Name="labell1" Content="为保证测试准确性，请在测试开始后开启OBS推流。" Height="23.5" Margin="0,23.187,18.5,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="282.5"/>
                         <Label x:Name="labell2" Content="只有在有数据流时结果才是准确的。" Height="25" Margin="0,38,40,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="282.5"/>
-                        <Button x:Name="button6" Content="清除所有设置" HorizontalAlignment="Left" Height="20" Margin="24,334,0,0" VerticalAlignment="Top" Width="170" Click="Button6_Click"/>
-                        <Button x:Name="button7" Content="确认" HorizontalAlignment="Left" Height="20" Margin="200,334,0,0" VerticalAlignment="Top" Width="42" Click="Button7_Click"/>
-                        <StackPanel Height="319" Margin="24,10,180,0" VerticalAlignment="Top">
+                        <Button x:Name="button6" Content="清除所有设置" HorizontalAlignment="Left" Margin="24,0,0,59" Width="170" Click="Button6_Click" Height="20" VerticalAlignment="Bottom"/>
+                        <Button x:Name="button7" Content="确认" HorizontalAlignment="Left" Margin="199,0,0,59" Width="42" Click="Button7_Click" Height="20" VerticalAlignment="Bottom"/>
+                        <StackPanel Margin="24,10,180,84">
                             <CheckBox x:Name="checkBoxtest" Content="测试时不使用ffmpeg" HorizontalAlignment="Left" VerticalAlignment="Top" Width="147" Checked="CheckBoxtest_Checked" Unchecked="CheckBoxtest_Unchecked" Margin="0,5,0,0"/>
                             <CheckBox x:Name="checkBox2" Content="解决程序冲突时不再次启动推流" HorizontalAlignment="Left" VerticalAlignment="Top" Width="203" Checked="CheckBox2_Checked" Unchecked="CheckBox2_Unchecked" Margin="0,5,0,0"/>
                             <CheckBox x:Name="checkBoxFullRange" Content="全局调试模式(较慢)" Checked="CheckBox_Checked" HorizontalAlignment="Left" Width="130" VerticalAlignment="Top" Unchecked="CheckBoxFullRange_Unchecked" Margin="0,5,0,0"/>
@@ -278,14 +290,67 @@
                             <CheckBox x:Name="checkBoxClosingAnim" Content="计时器关闭推流时播放Closing.mp4" HorizontalAlignment="Left" Height="16" Margin="0,5,0,0" Width="242"/>
                             <Label x:Name="labelDan" Content="弹幕池存储秒数" HorizontalAlignment="Left" Height="24" VerticalAlignment="Top" Width="100"/>
                             <TextBox x:Name="textBoxStoreSec" HorizontalAlignment="Left" Height="21" TextWrapping="Wrap" Text="5" Width="90" Margin="2,0,0,0" TextChanged="TextBoxStoreSec_TextChanged"/>
-                            <ListBox x:Name="listBoxStyle" Height="150" Margin="2,0,10,0">
-                                <ListBoxItem>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Image></Image>
-                                        <Label>景深悬浮</Label>
-                                    </StackPanel>
-                                </ListBoxItem>
-                            </ListBox>
+                            <Label Content="弹幕样式" />
+                            <StackPanel x:Name="StyleStack" Height="248" Orientation="Horizontal">
+                                <Expander x:Name="expanderFDH" Header="景深悬浮" Width="224" Margin="0,0,0,-17">
+                                    <Grid Background="#FFEAEAEA" Height="248">
+                                        <StackPanel Margin="10,10,0,0">
+                                            <CheckBox x:Name="checkBoxFDHEnabled" Content="启用"/>
+                                            <StackPanel x:Name="StackPanelFDHControls" Margin="0,5,0,0">
+                                                <Grid Height="32" Background="{DynamicResource CheckersBrush}" Opacity="{Binding Value, ElementName=OpacSlider}">
+                                                    <Rectangle>
+                                                        <Rectangle.Fill>
+                                                            <SolidColorBrush Color="{Binding SelectedColor, ElementName=BackColorPicker}" />
+                                                        </Rectangle.Fill>
+                                                    </Rectangle>
+                                                    <Label Content="我是一个弹幕" FontFamily="/ACNginxConsole;component/#RTWS YueGothic Trial Regular" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="{Binding Value, ElementName=OpacSliderFore}">
+                                                        <Label.Foreground>
+                                                            <SolidColorBrush Color="{Binding SelectedColor, ElementName=ForeColorPicker}" />
+                                                        </Label.Foreground>
+                                                    </Label>
+                                                </Grid>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="auto"/>
+                                                        <ColumnDefinition />
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition/>
+                                                        <RowDefinition/>
+                                                        <RowDefinition/>
+                                                        <RowDefinition/>
+                                                        <RowDefinition/>
+                                                        <RowDefinition/>
+                                                        <RowDefinition/>
+                                                    </Grid.RowDefinitions>
+                                                    <Label Grid.Row="0" Content="窗口不透明度" VerticalAlignment="Center"/>
+                                                    <colorPicker:ColorSlider Grid.Row="0" x:Name="OpacSlider" Grid.Column="1" LeftColor="#00000000" RightColor="{Binding SelectedColor, ElementName=BackColorPicker}" Value="1" Maximum="1" LargeChange="0.1" ValueChanged="OpacSlider_ValueChanged" Background="{DynamicResource CheckersBrush}"/>
+                                                    <Label Grid.Row="1" Content="弹幕不透明度"/>
+                                                    <colorPicker:ColorSlider Grid.Row="1" x:Name="OpacSliderFore" Grid.Column="1" LeftColor="#00000000" RightColor="{Binding SelectedColor, ElementName=ForeColorPicker}" Value="1" Maximum="1" LargeChange="0.1" ValueChanged="OpacSliderFore_ValueChanged" Background="{DynamicResource CheckersBrush}" />
+                                                    <Label Grid.Row="2" Content="窗口背景" VerticalAlignment="Center"/>
+                                                    <colorPicker:ColorComboBox x:Name="BackColorPicker" Grid.Column="1" Grid.Row="2" SelectedColorChanged="BackColorPicker_SelectedColorChanged" SelectedColor="Black" />
+                                                    <Label Grid.Row="3" Content="字体前景"/>
+                                                    <colorPicker:ColorComboBox x:Name="ForeColorPicker" Grid.Row="3" Grid.Column="1" SelectedColor="White" SelectedColorChanged="ForeColorPicker_SelectedColorChanged"/>
+                                                    <Label Grid.Row="4" Content="背景源"/>
+                                                    <ComboBox x:Name="ComboBoxBackImg" Grid.Row="4" Grid.Column="1">
+                                                        <ComboBoxItem x:Name="BackNone" Content="无" Selected="BackNone_Selected" IsSelected="True"/>
+                                                        <ComboBoxItem x:Name="BackLive" Content="直播源" Selected="BackLive_Selected" Unselected="BackLive_Unselected" />
+                                                        <ComboBoxItem x:Name="BackPic" Content="图片..." Selected="BackPic_Selected"/>
+                                                    </ComboBox>
+                                                    <Label Content="前景源" Grid.Row="5"/>
+                                                    <ComboBox x:Name="ComboBoxForeImg" Grid.Row="5" Grid.Column="1">
+                                                        <ComboBoxItem x:Name="ForeNone" Content="无" IsSelected="True" Selected="ForeNone_Selected"/>
+                                                        <ComboBoxItem x:Name="ForePic" Content="图片..." Selected="ForePic_Selected"/>
+                                                    </ComboBox>
+                                                </Grid>
+
+
+                                            </StackPanel>
+
+                                        </StackPanel>
+                                    </Grid>
+                                </Expander>
+                            </StackPanel>
                         </StackPanel>
                         <Button x:Name="buttonTest" Content="试验性界面" HorizontalAlignment="Left" Height="66" Margin="331,152,0,0" VerticalAlignment="Top" Width="85" Click="ButtonTest_Click"/>
                     </Grid>

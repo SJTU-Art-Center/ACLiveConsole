@@ -1,18 +1,17 @@
-﻿<Window x:Class="ACNginxConsole.FocalDepthHover"
+﻿<Window
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ACNginxConsole"
+        xmlns:ColorPicker="clr-namespace:ColorPicker;assembly=ColorPicker" x:Class="ACNginxConsole.FocalDepthHover"
         mc:Ignorable="d"
-        Title="FocalDepthHover" Height="450" Width="800" WindowStyle="None" ResizeMode="NoResize" FontFamily="/ACNginxConsole;component/#RTWS YueGothic Trial Regular" AllowsTransparency="True" Background="Black" Loaded="Window_Loaded">
-    <Grid>
-        <Canvas x:Name="GridCanvas">
-
-        </Canvas>
-        <Canvas x:Name="ThumbCanvas">
-        
-        </Canvas>
+        Title="FocalDepthHover" Height="450" Width="800" WindowStyle="None" ResizeMode="NoResize" FontFamily="/ACNginxConsole;component/#RTWS YueGothic Trial Regular" AllowsTransparency="True" Loaded="Window_Loaded" Background="Black">
+    <Grid x:Name="grid">
+        <Image x:Name="BackImg"/>
+        <Canvas x:Name="GridCanvas"/>
+        <Canvas x:Name="ThumbCanvas"/>
+        <Image x:Name="ForeImg"/>
     </Grid>
 
 </Window>
