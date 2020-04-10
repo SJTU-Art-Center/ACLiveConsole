@@ -1,0 +1,16 @@
+﻿<Window x:Class="ACNginxConsole.DanmakuEntry"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ACNginxConsole"
+        mc:Ignorable="d"
+        Title="弹幕电脑" Height="155.622" Width="468.058" Topmost="True" ResizeMode="NoResize" Closed="Window_Closed" WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Label x:Name="label1" Content="B站直播网址" HorizontalAlignment="Left" Margin="10,8,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="textBoxWebsite" HorizontalAlignment="Left" Height="26" Margin="15,40,0,0" VerticalAlignment="Top" Width="432" VerticalContentAlignment="Center" TextChanged="TextBoxWebsite_TextChanged"/>
+        <Button x:Name="button" Content="载入" HorizontalAlignment="Left" Height="32" Margin="374,78,0,0" VerticalAlignment="Top" Width="73" Click="Button_Click"/>
+        <Label x:Name="labelDError" Content="ERROR" HorizontalAlignment="Left" Height="32" Margin="10,78,0,0" VerticalAlignment="Top" VerticalContentAlignment="Center" Foreground="Red" Visibility="Hidden"/>
+
+    </Grid>
+</Window>
