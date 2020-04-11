@@ -281,78 +281,102 @@
                         <Label x:Name="labell2" Content="只有在有数据流时结果才是准确的。" Height="25" Margin="0,38,40,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="282.5"/>
                         <Button x:Name="button6" Content="清除所有设置" HorizontalAlignment="Left" Margin="24,0,0,59" Width="170" Click="Button6_Click" Height="20" VerticalAlignment="Bottom"/>
                         <Button x:Name="button7" Content="确认" HorizontalAlignment="Left" Margin="199,0,0,59" Width="42" Click="Button7_Click" Height="20" VerticalAlignment="Bottom"/>
-                        <StackPanel Margin="24,10,180,84">
+                        <StackPanel Margin="24,10,66,84" CanVerticallyScroll="True" ScrollViewer.CanContentScroll="True">
                             <CheckBox x:Name="checkBoxtest" Content="测试时不使用ffmpeg" HorizontalAlignment="Left" VerticalAlignment="Top" Width="147" Checked="CheckBoxtest_Checked" Unchecked="CheckBoxtest_Unchecked" Margin="0,5,0,0"/>
                             <CheckBox x:Name="checkBox2" Content="解决程序冲突时不再次启动推流" HorizontalAlignment="Left" VerticalAlignment="Top" Width="203" Checked="CheckBox2_Checked" Unchecked="CheckBox2_Unchecked" Margin="0,5,0,0"/>
                             <CheckBox x:Name="checkBoxFullRange" Content="全局调试模式(较慢)" Checked="CheckBox_Checked" HorizontalAlignment="Left" Width="130" VerticalAlignment="Top" Unchecked="CheckBoxFullRange_Unchecked" Margin="0,5,0,0"/>
                             <CheckBox x:Name="checkBoxCloseProtect" Content="关闭监视器保护模式" HorizontalAlignment="Left" Width="130" BorderThickness="1" Margin="0,5,0,0" Checked="CheckBoxCloseProtect_Checked" Unchecked="CheckBoxCloseProtect_Unchecked"/>
                             <CheckBox x:Name="checkBoxCloseSniffing" Content="关闭播流地址自动获取" HorizontalAlignment="Left" Margin="0,5,0,0" Width="147" Checked="CheckBoxCloseSniffing_Checked" Unchecked="CheckBoxCloseSniffing_Unchecked"/>
                             <CheckBox x:Name="checkBoxClosingAnim" Content="计时器关闭推流时播放Closing.mp4" HorizontalAlignment="Left" Height="16" Margin="0,5,0,0" Width="242"/>
-                            <Label x:Name="labelDan" Content="弹幕池存储秒数" HorizontalAlignment="Left" Height="24" VerticalAlignment="Top" Width="100"/>
-                            <TextBox x:Name="textBoxStoreSec" HorizontalAlignment="Left" Height="21" TextWrapping="Wrap" Text="5" Width="90" Margin="2,0,0,0" TextChanged="TextBoxStoreSec_TextChanged"/>
-                            <Label Content="弹幕样式" />
-                            <StackPanel x:Name="StyleStack" Height="248" Orientation="Horizontal">
-                                <Expander x:Name="expanderFDH" Header="景深悬浮" Width="224" Margin="0,0,0,-17">
-                                    <Grid Background="#FFEAEAEA" Height="248">
-                                        <StackPanel Margin="10,10,0,0">
-                                            <CheckBox x:Name="checkBoxFDHEnabled" Content="启用"/>
-                                            <StackPanel x:Name="StackPanelFDHControls" Margin="0,5,0,0">
-                                                <Grid Height="32" Background="{DynamicResource CheckersBrush}" Opacity="{Binding Value, ElementName=OpacSlider}">
-                                                    <Rectangle>
-                                                        <Rectangle.Fill>
-                                                            <SolidColorBrush Color="{Binding SelectedColor, ElementName=BackColorPicker}" />
-                                                        </Rectangle.Fill>
-                                                    </Rectangle>
-                                                    <Label Content="我是一个弹幕" FontFamily="/ACNginxConsole;component/#RTWS YueGothic Trial Regular" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="{Binding Value, ElementName=OpacSliderFore}">
-                                                        <Label.Foreground>
-                                                            <SolidColorBrush Color="{Binding SelectedColor, ElementName=ForeColorPicker}" />
-                                                        </Label.Foreground>
-                                                    </Label>
-                                                </Grid>
-                                                <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="auto"/>
-                                                        <ColumnDefinition />
-                                                    </Grid.ColumnDefinitions>
-                                                    <Grid.RowDefinitions>
-                                                        <RowDefinition/>
-                                                        <RowDefinition/>
-                                                        <RowDefinition/>
-                                                        <RowDefinition/>
-                                                        <RowDefinition/>
-                                                        <RowDefinition/>
-                                                        <RowDefinition/>
-                                                    </Grid.RowDefinitions>
-                                                    <Label Grid.Row="0" Content="窗口不透明度" VerticalAlignment="Center"/>
-                                                    <colorPicker:ColorSlider Grid.Row="0" x:Name="OpacSlider" Grid.Column="1" LeftColor="#00000000" RightColor="{Binding SelectedColor, ElementName=BackColorPicker}" Value="1" Maximum="1" LargeChange="0.1" ValueChanged="OpacSlider_ValueChanged" Background="{DynamicResource CheckersBrush}"/>
-                                                    <Label Grid.Row="1" Content="弹幕不透明度"/>
-                                                    <colorPicker:ColorSlider Grid.Row="1" x:Name="OpacSliderFore" Grid.Column="1" LeftColor="#00000000" RightColor="{Binding SelectedColor, ElementName=ForeColorPicker}" Value="1" Maximum="1" LargeChange="0.1" ValueChanged="OpacSliderFore_ValueChanged" Background="{DynamicResource CheckersBrush}" />
-                                                    <Label Grid.Row="2" Content="窗口背景" VerticalAlignment="Center"/>
-                                                    <colorPicker:ColorComboBox x:Name="BackColorPicker" Grid.Column="1" Grid.Row="2" SelectedColorChanged="BackColorPicker_SelectedColorChanged" SelectedColor="Black" />
-                                                    <Label Grid.Row="3" Content="字体前景"/>
-                                                    <colorPicker:ColorComboBox x:Name="ForeColorPicker" Grid.Row="3" Grid.Column="1" SelectedColor="White" SelectedColorChanged="ForeColorPicker_SelectedColorChanged"/>
-                                                    <Label Grid.Row="4" Content="背景源"/>
-                                                    <ComboBox x:Name="ComboBoxBackImg" Grid.Row="4" Grid.Column="1">
-                                                        <ComboBoxItem x:Name="BackNone" Content="无" Selected="BackNone_Selected" IsSelected="True"/>
-                                                        <ComboBoxItem x:Name="BackLive" Content="直播源" Selected="BackLive_Selected" Unselected="BackLive_Unselected" />
-                                                        <ComboBoxItem x:Name="BackPic" Content="图片..." Selected="BackPic_Selected"/>
-                                                    </ComboBox>
-                                                    <Label Content="前景源" Grid.Row="5"/>
-                                                    <ComboBox x:Name="ComboBoxForeImg" Grid.Row="5" Grid.Column="1">
-                                                        <ComboBoxItem x:Name="ForeNone" Content="无" IsSelected="True" Selected="ForeNone_Selected"/>
-                                                        <ComboBoxItem x:Name="ForePic" Content="图片..." Selected="ForePic_Selected"/>
-                                                    </ComboBox>
-                                                </Grid>
-
-
-                                            </StackPanel>
-
+                            
+                            
+                                <Grid Height="32" Background="{DynamicResource CheckersBrush}" Opacity="{Binding Value, ElementName=OpacSlider}" Margin="0,5,0,0">
+                                    <Rectangle>
+                                        <Rectangle.Fill>
+                                            <SolidColorBrush Color="{Binding SelectedColor, ElementName=BackColorPicker}" />
+                                        </Rectangle.Fill>
+                                    </Rectangle>
+                                    <Label Content="弹幕" FontFamily="/ACNginxConsole;component/#RTWS YueGothic Trial Regular" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="{Binding Value, ElementName=OpacSliderFore}">
+                                        <Label.Foreground>
+                                            <SolidColorBrush Color="{Binding SelectedColor, ElementName=ForeColorPicker}" />
+                                        </Label.Foreground>
+                                    </Label>
+                                </Grid>
+                            <Grid Background="White">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <Expander x:Name="DanmakuControls" Header="内容" IsExpanded="True" Margin="0,5,0,0" >
+                                        <Grid Margin="0,5,0,0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="auto"/>
+                                                <ColumnDefinition/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition/>
+                                                <RowDefinition/>
+                                            </Grid.RowDefinitions>
+                                            <Button x:Name="buttonStoreSec" Grid.Row="0" Content="弹幕池存储秒数" Background="#FF6DC2F9" Foreground="#FFFFFDFA" BorderBrush="#FF126EC7" Padding="5,3" Click="ButtonStoreSec_Click" />
+                                            <TextBox x:Name="textBoxStoreSec" Text="5" TextChanged="TextBoxStoreSec_TextChanged" Grid.Column="1" VerticalContentAlignment="Center" HorizontalAlignment="Left" Width="32"/>
+                                            <Slider x:Name="SliderStoreSec" Grid.Column="1" Margin="32,0,0.5,0" Maximum="300" Minimum="2" Value="5" SmallChange="0.5" TickFrequency="100" ValueChanged="SliderStoreSec_ValueChanged" />
+                                            <Button x:Name="buttonRegex" Grid.Row="1" Content="弹幕正则表达式" Background="#FF6DC2F9" Foreground="#FFFFFDFA" Padding="5,3"/>
+                                            <TextBox x:Name="textBoxRegex" Grid.Row="1" Grid.Column="1" VerticalContentAlignment="Center" />
+                                        </Grid>
+                                    </Expander>
+                                    <Expander Header="通用" IsExpanded="True" Margin="0,5,0,0">
+                                        <StackPanel x:Name="StackPanelFDHControls" Margin="0,5,0,0">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="auto"/>
+                                                    <ColumnDefinition />
+                                                </Grid.ColumnDefinitions>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition/>
+                                                    <RowDefinition/>
+                                                    <RowDefinition/>
+                                                    <RowDefinition/>
+                                                    <RowDefinition/>
+                                                    <RowDefinition/>
+                                                    <RowDefinition/>
+                                                </Grid.RowDefinitions>
+                                                <Button x:Name="buttonWinTrans" Grid.Row="0" Content="窗口不透明度" VerticalAlignment="Center" Padding="5,3" Background="#FF6DC2F9" Foreground="#FFFEFDFA" Click="ButtonWinTrans_Click"/>
+                                                <colorPicker:ColorSlider Grid.Row="0" x:Name="OpacSlider" Grid.Column="1" LeftColor="#00000000" RightColor="{Binding SelectedColor, ElementName=BackColorPicker}" Value="1" Maximum="1" LargeChange="0.1" ValueChanged="OpacSlider_ValueChanged" Background="{DynamicResource CheckersBrush}"/>
+                                                <Button x:Name="buttonDanmuTrans" Grid.Row="1" Content="弹幕不透明度" Padding="5,3" Background="#FF6DC2F9" Foreground="#FFFEFDFA" Click="ButtonDanmuTrans_Click"/>
+                                                <colorPicker:ColorSlider Grid.Row="1" x:Name="OpacSliderFore" Grid.Column="1" LeftColor="#00000000" RightColor="{Binding SelectedColor, ElementName=ForeColorPicker}" Value="1" Maximum="1" LargeChange="0.1" ValueChanged="OpacSliderFore_ValueChanged" Background="{DynamicResource CheckersBrush}" />
+                                                <Button x:Name="buttonBackColorPicker" Grid.Row="2" Content="窗口背景" VerticalAlignment="Center" Padding="5,3" HorizontalContentAlignment="Left" Foreground="#FFFEFDFA" Background="#FF6DC2F9" Height="25" Click="ButtonBackColorPicker_Click"/>
+                                                <colorPicker:ColorComboBox x:Name="BackColorPicker" Grid.Column="1" Grid.Row="2" SelectedColorChanged="BackColorPicker_SelectedColorChanged" SelectedColor="Black" />
+                                                <Button Grid.Row="3" Content="字体前景" Padding="5,3" HorizontalContentAlignment="Left" Background="#FF6DC2F9" Foreground="#FFFEFDFA"/>
+                                                <colorPicker:ColorComboBox x:Name="ForeColorPicker" Grid.Row="3" Grid.Column="1" SelectedColor="White" SelectedColorChanged="ForeColorPicker_SelectedColorChanged"/>
+                                                <Button Grid.Row="4" Content="背景源" Padding="5,3" HorizontalContentAlignment="Left" Foreground="#FFFEFDFA" Background="#FF6DC2F9"/>
+                                                <ComboBox x:Name="ComboBoxBackImg" Grid.Row="4" Grid.Column="1" SelectedIndex="0">
+                                                    <ComboBoxItem x:Name="BackNone" Content="无" Selected="BackNone_Selected" />
+                                                    <ComboBoxItem x:Name="BackLive" Content="直播源" Selected="BackLive_Selected" Unselected="BackLive_Unselected" />
+                                                    <ComboBoxItem x:Name="BackPic" Content="图片..." Selected="BackPic_Selected"/>
+                                                </ComboBox>
+                                                <Button Content="前景源" Grid.Row="5" Padding="5,3" HorizontalContentAlignment="Left" Background="#FF6DC2F9" Foreground="#FFFEFDFA"/>
+                                                <ComboBox x:Name="ComboBoxForeImg" Grid.Row="5" Grid.Column="1" SelectedIndex="0">
+                                                    <ComboBoxItem x:Name="ForeNone" Content="无" Selected="ForeNone_Selected"/>
+                                                    <ComboBoxItem x:Name="ForePic" Content="图片..." Selected="ForePic_Selected"/>
+                                                </ComboBox>
+                                            </Grid>
                                         </StackPanel>
-                                    </Grid>
-                                </Expander>
-                            </StackPanel>
+                                    </Expander>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" >
+                                    <Expander Header="景深悬浮" IsExpanded="True" Margin="0,5,0,0">
+                                        <Grid>
+                                            
+                                        </Grid>
+                                    </Expander>
+                                    <Expander Margin="0,5,0,0" IsExpanded="True" Header="旁栏气泡">
+                                        
+                                    </Expander>
+                                </StackPanel>
+                            </Grid>
                         </StackPanel>
-                        <Button x:Name="buttonTest" Content="试验性界面" HorizontalAlignment="Left" Height="66" Margin="331,152,0,0" VerticalAlignment="Top" Width="85" Click="ButtonTest_Click"/>
+                        <Button x:Name="buttonTest" Content="试验性界面" HorizontalAlignment="Left" Height="66" Margin="331,152,0,0" VerticalAlignment="Top" Width="85" Click="ButtonTest_Click" Visibility="Hidden"/>
                     </Grid>
                 </TabItem>
 

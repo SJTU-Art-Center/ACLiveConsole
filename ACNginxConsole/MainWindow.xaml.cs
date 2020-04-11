@@ -69,6 +69,7 @@ using Vlc.DotNet.Wpf;
 using BiliDMLib;
 using BilibiliDM_PluginFramework;
 using Newtonsoft.Json.Linq;
+using BililiveRecorder.Core;
 
 namespace ACNginxConsole
 {
@@ -642,6 +643,7 @@ namespace ACNginxConsole
             FilterRegex = new Regex(regex);
 
             textBoxStoreSec.Text= (Properties.Settings.Default.StoreTime * 0.5).ToString();
+            SliderStoreSec.Value = (double)(Properties.Settings.Default.StoreTime * 0.5);
 
             Hide_Monitor();
             listBoxDanmaku.MaxHeight = this.Height - 50;
@@ -2760,6 +2762,18 @@ namespace ACNginxConsole
                 else
                 {
                     EXPIRE_TIME = Storesec * 2;
+
+                    if (SliderStoreSec != null)
+                    {
+                        if(Storesec > (int)SliderStoreSec.Maximum){
+                            SliderStoreSec.Value = SliderStoreSec.Maximum;
+                        }
+                        else
+                        {
+                            SliderStoreSec.Value = (double)Storesec;
+                        }
+                    }
+
                 }
 
             }
@@ -2958,13 +2972,14 @@ namespace ACNginxConsole
             openFileDialog.DefaultExt = "png";
             System.Windows.Forms.DialogResult result = openFileDialog.ShowDialog();
             if (result == System.Windows.Forms.DialogResult.Cancel)
-            {
+            {   //这BUG无伤大雅 不修了
                 ComboBoxBackImg.SelectedIndex = 0;
-                return;
+                //ComboBoxBackImg.SelectedValue = BackNone;
             }
-
-            focaldephov.BackImg.Source = new ImageSourceConverter().ConvertFromString(openFileDialog.FileName) as ImageSource;
-
+            else
+            {
+                focaldephov.BackImg.Source = new ImageSourceConverter().ConvertFromString(openFileDialog.FileName) as ImageSource;
+            }
         }
 
         private void OpacSliderFore_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -2993,19 +3008,153 @@ namespace ACNginxConsole
             openFileDialog.DefaultExt = "png";
             System.Windows.Forms.DialogResult result = openFileDialog.ShowDialog();
             if (result == System.Windows.Forms.DialogResult.Cancel)
-            {
-                //bug?
-                ForePic.IsSelected = false;
-                ForeNone.IsSelected = true;
-                return;
+            {   //这BUG无伤大雅 不修了
+                ComboBoxForeImg.SelectedIndex = 0;
             }
-
-            focaldephov.ForeImg.Source = new ImageSourceConverter().ConvertFromString(openFileDialog.FileName) as ImageSource;
-
+            else
+            {
+                focaldephov.ForeImg.Source = new ImageSourceConverter().ConvertFromString(openFileDialog.FileName) as ImageSource;
+            }
         }
+
 
         #endregion
 
+        Storyboard PushOut_sb = new Storyboard();
         
+        private void ButtonStoreSec_Click(object sender, RoutedEventArgs e)
+        {
+            DoubleAnimation PushOut = new DoubleAnimation();
+            PushOut.From = SliderStoreSec.Value;
+            PushOut.To = SliderStoreSec.Minimum;
+            PushOut.Duration = TimeSpan.FromSeconds(FocalDepthHover.HOVER_TIME);
+            //Storyboard.SetTarget(PushOut, SliderStoreSec);
+            Storyboard.SetTargetProperty(PushOut, new PropertyPath("(Slider.Value)"));
+
+            PushOut_sb.Children.Add(PushOut);
+            PushOut_sb.Completed += PushOut_Storyboard_Remove;
+            PushOut_sb.Begin(SliderStoreSec,HandoffBehavior.SnapshotAndReplace, true);
+
+            buttonStoreSec.IsEnabled = false;
+            //SliderStoreSec.BeginAnimation(Slider.ValueProperty, PushOut);
+            
+        }
+
+        private void SliderStoreSec_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            
+            if (textBoxStoreSec.Text != ((int)SliderStoreSec.Value).ToString())
+            {   //防止套娃
+                if(SliderStoreSec.Value< SliderStoreSec.Maximum)
+                    textBoxStoreSec.Text = ((int)SliderStoreSec.Value).ToString();
+            }
+            
+        }
+
+        private void PushOut_Storyboard_Remove(object sender, EventArgs e)
+        {
+            PushOut_sb.Remove(SliderStoreSec);
+            buttonStoreSec.IsEnabled = true;
+        }
+
+        SolidColorBrush blueback = new SolidColorBrush(Color.FromArgb(255, 109, 194, 249));
+        SolidColorBrush bluefore = new SolidColorBrush(Color.FromArgb(255, 254, 253, 250));
+        //SolidColorBrush redback = new SolidColorBrush(Color.FromArgb(255, 229, 88, 18));
+        //SolidColorBrush redfore = new SolidColorBrush(Color.FromArgb(255, 239, 231, 218));
+        Storyboard FullFadeOut_sb = new Storyboard();
+
+        private void ButtonWinTrans_Click(object sender, RoutedEventArgs e)
+        {
+            FadeOutAnim(buttonWinTrans, OpacSlider);
+        }
+
+        private void ButtonDanmuTrans_Click(object sender, RoutedEventArgs e)
+        {
+            FadeOutAnim(buttonDanmuTrans, OpacSliderFore);
+        }
+
+        private void OpacFadeOut_Storyboard_Remove(object sender, EventArgs e)
+        {
+            Fade_Storyboard_Remove(buttonWinTrans, OpacSlider);
+        }
+
+        private void DanmuFadeOut_Storyboard_Remove(object sender, EventArgs e)
+        {
+            Fade_Storyboard_Remove(buttonDanmuTrans, OpacSliderFore);
+        }
+
+        private void FadeOutAnim(object senderbutton, object senderslider)
+        {
+            //FullFadeOut_sb = new Storyboard();
+
+            var sendb = senderbutton as Button;
+            var sends = senderslider as Slider;
+            DoubleAnimation FullFadeOut = new DoubleAnimation();
+
+            if (sends.Value > sends.Minimum)
+            {
+                FullFadeOut.From = sends.Value;
+                FullFadeOut.To = sends.Minimum;
+                FullFadeOut.EasingFunction = new BackEase()
+                {
+                    Amplitude = 0.3,
+                    EasingMode = EasingMode.EaseOut,
+                };
+            }
+            else
+            {
+                FullFadeOut.From = sends.Value;
+                FullFadeOut.To = sends.Maximum;
+                FullFadeOut.EasingFunction = new BackEase()
+                {
+                    Amplitude = 0.3,
+                    EasingMode = EasingMode.EaseIn,
+                };
+            }
+
+            FullFadeOut.Duration = TimeSpan.FromSeconds(1);//或许考虑一个其他量
+
+            //Storyboard.SetTarget(FullFadeOut, SliderStoreSec);
+            Storyboard.SetTargetProperty(FullFadeOut, new PropertyPath("(Slider.Value)"));
+
+            FullFadeOut_sb.Children.Add(FullFadeOut);
+            if (sends == OpacSlider)
+                FullFadeOut_sb.Completed += OpacFadeOut_Storyboard_Remove;
+            else
+                FullFadeOut_sb.Completed += DanmuFadeOut_Storyboard_Remove;
+
+            FullFadeOut_sb.Begin(sends, HandoffBehavior.SnapshotAndReplace, true);
+
+            sendb.IsEnabled = false;
+        }
+
+        private void Fade_Storyboard_Remove(object senderbutton, object senderslider)
+        {
+            var sendb = senderbutton as Button;
+            var sends = senderslider as ColorPicker.ColorSlider;
+
+            var opacs_temp = sends.Value;
+            FullFadeOut_sb.Remove(sends);
+            sends.Value = opacs_temp;
+            sendb.IsEnabled = true;
+
+            //动画结束后对按钮态转换
+            if (opacs_temp == sends.Minimum)
+            {
+                sendb.Background = bluefore;
+                sendb.Foreground = blueback;
+            }
+            else
+            {
+                sendb.Background = blueback;
+                sendb.Foreground = bluefore;
+            }
+        }
+
+        private void ButtonBackColorPicker_Click(object sender, RoutedEventArgs e)
+        {
+            //可以改，那就写个霓虹色
+            //BackColorPicker.SelectedColor = Color.FromArgb(255, 255, 255, 255);
+        }
     }
 }
