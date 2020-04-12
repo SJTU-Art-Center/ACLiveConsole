@@ -302,7 +302,7 @@
                                         </Label.Foreground>
                                     </Label>
                                 </Grid>
-                            <Grid Background="White">
+                            <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition/>
                                     <ColumnDefinition/>
@@ -342,20 +342,20 @@
                                                     <RowDefinition/>
                                                 </Grid.RowDefinitions>
                                                 <Button x:Name="buttonWinTrans" Grid.Row="0" Content="窗口不透明度" VerticalAlignment="Center" Padding="5,3" Background="#FF6DC2F9" Foreground="#FFFEFDFA" Click="ButtonWinTrans_Click"/>
-                                                <colorPicker:ColorSlider Grid.Row="0" x:Name="OpacSlider" Grid.Column="1" LeftColor="#00000000" RightColor="{Binding SelectedColor, ElementName=BackColorPicker}" Value="1" Maximum="1" LargeChange="0.1" ValueChanged="OpacSlider_ValueChanged" Background="{DynamicResource CheckersBrush}"/>
+                                                <colorPicker:ColorSlider Grid.Row="0" x:Name="OpacSlider" Grid.Column="1" LeftColor="#00000000" RightColor="{Binding SelectedColor, ElementName=BackColorPicker}" Maximum="1" LargeChange="0.1" ValueChanged="OpacSlider_ValueChanged" Background="{DynamicResource CheckersBrush}"/>
                                                 <Button x:Name="buttonDanmuTrans" Grid.Row="1" Content="弹幕不透明度" Padding="5,3" Background="#FF6DC2F9" Foreground="#FFFEFDFA" Click="ButtonDanmuTrans_Click"/>
                                                 <colorPicker:ColorSlider Grid.Row="1" x:Name="OpacSliderFore" Grid.Column="1" LeftColor="#00000000" RightColor="{Binding SelectedColor, ElementName=ForeColorPicker}" Value="1" Maximum="1" LargeChange="0.1" ValueChanged="OpacSliderFore_ValueChanged" Background="{DynamicResource CheckersBrush}" />
                                                 <Button x:Name="buttonBackColorPicker" Grid.Row="2" Content="窗口背景" VerticalAlignment="Center" Padding="5,3" HorizontalContentAlignment="Left" Foreground="#FFFEFDFA" Background="#FF6DC2F9" Height="25" Click="ButtonBackColorPicker_Click"/>
                                                 <colorPicker:ColorComboBox x:Name="BackColorPicker" Grid.Column="1" Grid.Row="2" SelectedColorChanged="BackColorPicker_SelectedColorChanged" SelectedColor="Black" />
                                                 <Button Grid.Row="3" Content="字体前景" Padding="5,3" HorizontalContentAlignment="Left" Background="#FF6DC2F9" Foreground="#FFFEFDFA"/>
                                                 <colorPicker:ColorComboBox x:Name="ForeColorPicker" Grid.Row="3" Grid.Column="1" SelectedColor="White" SelectedColorChanged="ForeColorPicker_SelectedColorChanged"/>
-                                                <Button Grid.Row="4" Content="背景源" Padding="5,3" HorizontalContentAlignment="Left" Foreground="#FFFEFDFA" Background="#FF6DC2F9"/>
+                                                <Button x:Name="buttonBackImg" Grid.Row="4" Content="背景源" Padding="5,3" HorizontalContentAlignment="Left" Foreground="#FFFEFDFA" Background="#FF6DC2F9" Click="ButtonBackImg_Click"/>
                                                 <ComboBox x:Name="ComboBoxBackImg" Grid.Row="4" Grid.Column="1" SelectedIndex="0">
                                                     <ComboBoxItem x:Name="BackNone" Content="无" Selected="BackNone_Selected" />
                                                     <ComboBoxItem x:Name="BackLive" Content="直播源" Selected="BackLive_Selected" Unselected="BackLive_Unselected" />
                                                     <ComboBoxItem x:Name="BackPic" Content="图片..." Selected="BackPic_Selected"/>
                                                 </ComboBox>
-                                                <Button Content="前景源" Grid.Row="5" Padding="5,3" HorizontalContentAlignment="Left" Background="#FF6DC2F9" Foreground="#FFFEFDFA"/>
+                                                <Button x:Name="buttonForeImg" Content="前景源" Grid.Row="5" Padding="5,3" HorizontalContentAlignment="Left" Background="#FF6DC2F9" Foreground="#FFFEFDFA" Click="ButtonForeImg_Click"/>
                                                 <ComboBox x:Name="ComboBoxForeImg" Grid.Row="5" Grid.Column="1" SelectedIndex="0">
                                                     <ComboBoxItem x:Name="ForeNone" Content="无" Selected="ForeNone_Selected"/>
                                                     <ComboBoxItem x:Name="ForePic" Content="图片..." Selected="ForePic_Selected"/>
@@ -365,13 +365,15 @@
                                     </Expander>
                                 </StackPanel>
                                 <StackPanel Grid.Column="1" >
-                                    <Expander Header="景深悬浮" IsExpanded="True" Margin="0,5,0,0">
+                                    <Expander Header="弹幕样式" IsExpanded="True" Margin="0,5,0,0">
                                         <Grid>
-                                            
+                                            <ComboBox>
+                                                <ComboBoxItem x:Name="DanmuPlain" Content="普通" Selected="DanmuPlain_Selected"/>
+                                                <ComboBoxItem x:Name="DanmuBubble" Content="气泡" Selected="DanmuBubble_Selected"/>
+                                                <ComboBoxItem x:Name="DanmuBubbleFloat" Content="气泡悬浮" Selected="DanmuBubbleFloat_Selected"/>
+                                                <ComboBoxItem x:Name="DanmuBubbleCorner" Content="气泡右下" Selected="DanmuBubbleCorner_Selected"/>
+                                            </ComboBox>
                                         </Grid>
-                                    </Expander>
-                                    <Expander Margin="0,5,0,0" IsExpanded="True" Header="旁栏气泡">
-                                        
                                     </Expander>
                                 </StackPanel>
                             </Grid>

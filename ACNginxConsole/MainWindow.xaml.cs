@@ -594,6 +594,7 @@ namespace ACNginxConsole
             dispatcherTimerDanmaku.Tick += new EventHandler(dispatcherTimerDanmaku_Tick);
             dispatcherTimerDanmaku.Interval = new TimeSpan(0, 0, 0, 0, 500);
 
+
             labelVer.Content = "版本: " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() + "\n";
             labelVer.Content += "© Art Center 2019 - 2020, All Rights Reserved." + "\n";
             labelVer.Content += "Based on Open Source Project: Nginx, ffmpeg, VLC, bililive-dm";
@@ -2505,6 +2506,8 @@ namespace ACNginxConsole
         //private Thread releaseThread;
         DanmakuLoader danmu = new DanmakuLoader();
 
+        int CurrentColorTime = 0;   //到三周期的最小公倍数时循环
+
         private void dispatcherTimerDanmaku_Tick(object sender, EventArgs e)
         {
             lock (_danmakuQueue)
@@ -2585,6 +2588,33 @@ namespace ACNginxConsole
 
             }
 
+
+            //搞颜色
+
+            //double cycle_r = 2 * Math.PI / 10;
+            //double cycle_b = 2 * Math.PI / 15;
+            //double cycle_g = 2 * Math.PI / 20;
+            //int cycle = 120;
+            //byte r, g, b;
+
+            //switch (CA_State)
+            //{
+            //    case ColorAnimState.None:
+            //        break;
+            //    case ColorAnimState.BackOnly:
+            //        CurrentColorTime = (CurrentColorTime > cycle ? 0 : CurrentColorTime + 1);
+            //        r = (byte)((1 + Math.Sin((cycle_r * CurrentColorTime) + Math.Asin(BackColorPicker.SelectedColor.R))) / 2 * 256);
+            //        g = (byte)((1 + Math.Sin((cycle_g * CurrentColorTime) + Math.Asin(BackColorPicker.SelectedColor.G))) / 2 * 256);
+            //        b = (byte)((1 + Math.Sin((cycle_b * CurrentColorTime) + Math.Asin(BackColorPicker.SelectedColor.B))) / 2 * 256);
+            //        BackColorPicker.SelectedColor = Color.FromArgb(255, r, g, b);
+            //        break;
+            //    case ColorAnimState.ForeOnly:
+
+            //        break;
+            //    case ColorAnimState.Both:
+            //        //需要考虑反色
+            //        break;
+            //}
 
         }
 
@@ -2844,16 +2874,16 @@ namespace ACNginxConsole
             this.Topmost = true;
             focaldephov.Show();
             //focaldephov.Opacity = 1;
-
-            OpacSlider.Value = 1;
-
+            //OpacSlider.Value = 1;
+            FadeOutAnim(buttonWinTrans, OpacSlider);
         }
 
         private void Close_DanmakuWindow()
         {
             //TODO:淡出计时
             //focaldephov.Opacity = 0;
-            OpacSlider.Value = 0;
+            //OpacSlider.Value = 0;
+            FadeOutAnim(buttonWinTrans, OpacSlider);
             this.Topmost = false;
         }
 
@@ -2915,7 +2945,8 @@ namespace ACNginxConsole
 
         private void ForeColorPicker_SelectedColorChanged(object sender, RoutedPropertyChangedEventArgs<Color> e)
         {
-            FocalDepthHover.ForeColor = ForeColorPicker.SelectedColor;
+            (focaldephov.FindResource("BubbleFore") as SolidColorBrush).Color = ForeColorPicker.SelectedColor;
+            //FocalDepthHover.ForeColor = ForeColorPicker.SelectedColor;
         }
 
         Binding bing_sub;
@@ -3029,6 +3060,10 @@ namespace ACNginxConsole
             PushOut.To = SliderStoreSec.Minimum;
             PushOut.Duration = TimeSpan.FromSeconds(FocalDepthHover.HOVER_TIME);
             //Storyboard.SetTarget(PushOut, SliderStoreSec);
+            PushOut.EasingFunction = new ExponentialEase()
+            {
+                EasingMode = EasingMode.EaseOut
+            };
             Storyboard.SetTargetProperty(PushOut, new PropertyPath("(Slider.Value)"));
 
             PushOut_sb.Children.Add(PushOut);
@@ -3151,10 +3186,126 @@ namespace ACNginxConsole
             }
         }
 
+        //enum ColorAnimState { None, BackOnly, ForeOnly, Both };
+        //ColorAnimState CA_State = ColorAnimState.None;
+
         private void ButtonBackColorPicker_Click(object sender, RoutedEventArgs e)
         {
-            //可以改，那就写个霓虹色
+            //可以改
             //BackColorPicker.SelectedColor = Color.FromArgb(255, 255, 255, 255);
+            //CA_State = ColorAnimState.BackOnly;
+            //没想好
+        }
+
+
+
+        private void ButtonBackImg_Click(object sender, RoutedEventArgs e)
+        {
+            ImgFadeOutAnim(buttonBackImg, focaldephov.BackImg);
+        }
+
+        private void ButtonForeImg_Click(object sender, RoutedEventArgs e)
+        {
+            ImgFadeOutAnim(buttonForeImg, focaldephov.ForeImg);
+        }
+
+        private void BackImg_Storyboard_Remove(object sender, EventArgs e)
+        {
+            Img_Storyboard_Remove(buttonBackImg, focaldephov.BackImg);
+        }
+
+        private void ForeImg_Storyboard_Remove(object sender, EventArgs e)
+        {
+            Img_Storyboard_Remove(buttonForeImg, focaldephov.ForeImg);
+        }
+
+        Storyboard Img_sb = new Storyboard();
+        private void ImgFadeOutAnim(object senderbutton, object senderImg)
+        {
+            //FullFadeOut_sb = new Storyboard();
+
+            var sendb = senderbutton as Button;
+            var sends = senderImg as Image;
+            DoubleAnimation FullFadeOut = new DoubleAnimation();
+
+            if (sends.Opacity > 0)
+            {
+                FullFadeOut.From = sends.Opacity;
+                FullFadeOut.To = 0;
+                FullFadeOut.EasingFunction = new BackEase()
+                {
+                    Amplitude = 0.3,
+                    EasingMode = EasingMode.EaseOut,
+                };
+            }
+            else
+            {
+                FullFadeOut.From = sends.Opacity;
+                FullFadeOut.To = 1;
+                FullFadeOut.EasingFunction = new BackEase()
+                {
+                    Amplitude = 0.3,
+                    EasingMode = EasingMode.EaseIn,
+                };
+            }
+
+            FullFadeOut.Duration = TimeSpan.FromSeconds(1);//或许考虑一个其他量
+
+            //Storyboard.SetTarget(FullFadeOut, SliderStoreSec);
+            Storyboard.SetTargetProperty(FullFadeOut, new PropertyPath("(Image.Opacity)"));
+
+            Img_sb.Children.Add(FullFadeOut);
+            if (sends == focaldephov.BackImg)
+                Img_sb.Completed += BackImg_Storyboard_Remove;
+            else
+                Img_sb.Completed += ForeImg_Storyboard_Remove;
+
+            Img_sb.Begin(sends, HandoffBehavior.SnapshotAndReplace, true);
+
+            sendb.IsEnabled = false;
+        }
+
+        private void Img_Storyboard_Remove(object senderbutton, object senderImg)
+        {
+            var sendb = senderbutton as Button;
+            var sends = senderImg as Image;
+
+            var opacs_temp = sends.Opacity;
+            Img_sb.Remove(sends);
+            sends.Opacity = opacs_temp;
+            sendb.IsEnabled = true;
+
+            //动画结束后对按钮态转换
+            if (opacs_temp == 0)
+            {
+                sendb.Background = bluefore;
+                sendb.Foreground = blueback;
+            }
+            else
+            {
+                sendb.Background = blueback;
+                sendb.Foreground = bluefore;
+            }
+        }
+
+        private void DanmuPlain_Selected(object sender, RoutedEventArgs e)
+        {
+            FocalDepthHover.DM_Style = FocalDepthHover.DanmuStyle.Plain;
+        }
+
+        private void DanmuBubble_Selected(object sender, RoutedEventArgs e)
+        {
+            FocalDepthHover.DM_Style = FocalDepthHover.DanmuStyle.Bubble;
+        }
+
+        private void DanmuBubbleFloat_Selected(object sender, RoutedEventArgs e)
+        {
+            FocalDepthHover.DM_Style = FocalDepthHover.DanmuStyle.BubbleFloat;
+        }
+
+        private void DanmuBubbleCorner_Selected(object sender, RoutedEventArgs e)
+        {
+            FocalDepthHover.DM_Style = FocalDepthHover.DanmuStyle.BubbleCorner;
         }
     }
 }

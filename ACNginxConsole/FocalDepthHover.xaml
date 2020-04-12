@@ -6,12 +6,38 @@
         xmlns:local="clr-namespace:ACNginxConsole"
         xmlns:ColorPicker="clr-namespace:ColorPicker;assembly=ColorPicker" x:Class="ACNginxConsole.FocalDepthHover"
         mc:Ignorable="d"
-        Title="FocalDepthHover" Height="450" Width="800" WindowStyle="None" ResizeMode="NoResize" FontFamily="/ACNginxConsole;component/#RTWS YueGothic Trial Regular" AllowsTransparency="True" Loaded="Window_Loaded" Background="Black">
+        Title="FocalDepthHover" Height="450" Width="800" WindowStyle="None" ResizeMode="NoResize" FontFamily="/ACNginxConsole;component/#RTWS YueGothic Trial Regular" AllowsTransparency="True" Loaded="Window_Loaded" Background="Black" Opacity="0">
+    <Window.Resources>
+        <SolidColorBrush x:Key="BubbleFore" Color="#FFE2E6EE"/>
+        <SolidColorBrush x:Key="BubbleBack" Color="Black"/>
+        <Style TargetType="Label" x:Key="tipLable">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Label}">
+                        <Grid>
+                            <Border CornerRadius="8" BorderBrush="{StaticResource BubbleFore}" BorderThickness="1.8" VerticalAlignment="Top" Margin="8.5,0,0,0" Background="{DynamicResource BubbleBack}" HorizontalAlignment="Left" Padding="20,10,30,15">
+                                <ContentPresenter />
+                            </Border>
+                            <Canvas Width="10" Height="10" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,10,0,0" Background="Transparent">
+                                <Path Stroke="{StaticResource BubbleFore}" StrokeThickness="1.8" Fill="{StaticResource BubbleBack}">
+                                    <Path.Data>
+                                        <PathGeometry Figures="M 10.5,5 L 10.5,5,0,13  L 0,13,10.5,21"/>
+                                    </Path.Data>
+                                </Path>
+                            </Canvas>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    
     <Grid x:Name="grid">
         <Image x:Name="BackImg"/>
         <Canvas x:Name="GridCanvas"/>
         <Canvas x:Name="ThumbCanvas"/>
         <Image x:Name="ForeImg"/>
+        
     </Grid>
 
 </Window>
