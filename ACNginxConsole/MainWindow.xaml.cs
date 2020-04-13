@@ -651,6 +651,33 @@ namespace ACNginxConsole
 
             button7.Visibility = Visibility.Hidden;
 
+            DanmakuContentExp.IsExpanded = false;
+            DanmuOverallExp.IsExpanded = false;
+            DanmuStyleExp.IsExpanded = false;
+            DanmuSetting.IsEnabled = false;
+
+            foreach (FontFamily font in Fonts.SystemFontFamilies)
+            {
+                ComboBoxItem FontItem = new ComboBoxItem();
+                FontItem.Content = font.Source;
+                FontItem.FontFamily = font;
+                ComboBoxFont.Items.Add(FontItem);
+            }
+
+            //加载弹幕设置
+            textBoxRegex.Text = Properties.Settings.Default.Regex;
+            BackColorPicker.SelectedColor = Properties.Settings.Default.WinBack;
+            ForeColorPicker.SelectedColor = Properties.Settings.Default.DanmuFore;
+            ComboBoxDanmuStyle.SelectedIndex = Properties.Settings.Default.DanmuStyle;
+            SliderHovTime.Value = Properties.Settings.Default.HoverTime;
+            SliderTextSize.Value = Properties.Settings.Default.MaxFontSize;
+            SliderLayer.Value = Properties.Settings.Default.LayerNum;
+            SliderBlur.Value = Properties.Settings.Default.MaxBlur;
+            SliderFactor.Value = Properties.Settings.Default.ScaleFac;
+            SliderRatio.Value = Properties.Settings.Default.InitTop;
+            ComboBoxFont.Text = Properties.Settings.Default.ForeFont;
+            ColorComboBoxBubble.SelectedColor = Properties.Settings.Default.BubbleColor;
+
         }
 
         #region 主页
@@ -925,6 +952,7 @@ namespace ACNginxConsole
                     textBoxSourceName.Text = "流" + configcount;
                 }
 
+                
             }
 
         }
@@ -2506,8 +2534,6 @@ namespace ACNginxConsole
         //private Thread releaseThread;
         DanmakuLoader danmu = new DanmakuLoader();
 
-        int CurrentColorTime = 0;   //到三周期的最小公倍数时循环
-
         private void dispatcherTimerDanmaku_Tick(object sender, EventArgs e)
         {
             lock (_danmakuQueue)
@@ -2523,11 +2549,19 @@ namespace ACNginxConsole
                     if (_danmakuQueue.Any())
                     {
                         var danmaku = _danmakuQueue.Dequeue();
-                        if (danmaku.MsgType == MsgTypeEnum.Comment && enable_regex)
+                        try
                         {
-                            if (FilterRegex.IsMatch(danmaku.CommentText)) continue;
+                            if (danmaku.MsgType == MsgTypeEnum.Comment && enable_regex)
+                            {
+                                if (FilterRegex.IsMatch(danmaku.CommentText)) continue;
+
+                            }
+                        }
+                        catch
+                        {
 
                         }
+                        
 
                         if (danmaku.MsgType == MsgTypeEnum.Comment && ignorespam_enabled)
                         {
@@ -2587,34 +2621,6 @@ namespace ACNginxConsole
                 }
 
             }
-
-
-            //搞颜色
-
-            //double cycle_r = 2 * Math.PI / 10;
-            //double cycle_b = 2 * Math.PI / 15;
-            //double cycle_g = 2 * Math.PI / 20;
-            //int cycle = 120;
-            //byte r, g, b;
-
-            //switch (CA_State)
-            //{
-            //    case ColorAnimState.None:
-            //        break;
-            //    case ColorAnimState.BackOnly:
-            //        CurrentColorTime = (CurrentColorTime > cycle ? 0 : CurrentColorTime + 1);
-            //        r = (byte)((1 + Math.Sin((cycle_r * CurrentColorTime) + Math.Asin(BackColorPicker.SelectedColor.R))) / 2 * 256);
-            //        g = (byte)((1 + Math.Sin((cycle_g * CurrentColorTime) + Math.Asin(BackColorPicker.SelectedColor.G))) / 2 * 256);
-            //        b = (byte)((1 + Math.Sin((cycle_b * CurrentColorTime) + Math.Asin(BackColorPicker.SelectedColor.B))) / 2 * 256);
-            //        BackColorPicker.SelectedColor = Color.FromArgb(255, r, g, b);
-            //        break;
-            //    case ColorAnimState.ForeOnly:
-
-            //        break;
-            //    case ColorAnimState.Both:
-            //        //需要考虑反色
-            //        break;
-            //}
 
         }
 
@@ -2812,6 +2818,7 @@ namespace ACNginxConsole
         }
 
         public static bool d_ok;
+        Storyboard WinShrink = new Storyboard();
 
         private void ButtonDanmakuEntry_Click(object sender, RoutedEventArgs e)
         {
@@ -2822,10 +2829,55 @@ namespace ACNginxConsole
             danmuEntry.ShowDialog();
             if (d_ok == true)
             {
-                SideBar();
+                if (RightCol.Width.Value.Equals(0))
+                {
+                    WinShrinkAction(RightCol_Last + 15);
+                    SideBar();
+                }
                 Hide_Monitor();
             }
 
+        }
+
+        private void WinShrinkAction(double ToValue)
+        {
+            DoubleAnimation WinShrinkAnim = new DoubleAnimation()
+            {
+                From = this.Width,
+                To = ToValue,
+                Duration = TimeSpan.FromSeconds(1),
+            };
+            Storyboard.SetTarget(WinShrinkAnim, this);
+            Storyboard.SetTargetProperty(WinShrink, new PropertyPath("(Window.Width)"));
+            WinShrink.Children.Add(WinShrinkAnim);
+            WinShrink.Completed += WinShrinkAnimation_Completed;
+            WinShrink.Begin(this, HandoffBehavior.SnapshotAndReplace, true);
+
+        }
+
+        private void WinShrinkAnimation_Completed(object sender, EventArgs e)
+        {
+            double tmp_width = this.Width;
+            WinShrink.Remove(this);
+            this.Width = tmp_width;
+        }
+
+        private void ButtonDanmuSetting_Click(object sender, RoutedEventArgs e)
+        {
+            var blueshallow = new SolidColorBrush(Color.FromArgb(255, 117, 210, 246));
+            if(this.Width<= RightCol.Width.Value + 15)
+            {
+                WinShrinkAction(820);
+                tabControl.SelectedIndex = 5;           //转至设置选项卡
+                buttonDanmuSetting.Background = blueshallow;
+            }
+            else if(tabControl.SelectedIndex == 5)
+            {
+                WinShrinkAction(RightCol_Last + 15);
+                buttonDanmuSetting.Background = blueback;
+            }
+            else
+                tabControl.SelectedIndex = 5;           //转至设置选项卡
         }
 
         private void Hide_Monitor()
@@ -2875,6 +2927,12 @@ namespace ACNginxConsole
             focaldephov.Show();
             //focaldephov.Opacity = 1;
             //OpacSlider.Value = 1;
+
+            DanmakuContentExp.IsExpanded = true;
+            DanmuOverallExp.IsExpanded = true;
+            DanmuStyleExp.IsExpanded = true;
+            DanmuSetting.IsEnabled = true;
+
             FadeOutAnim(buttonWinTrans, OpacSlider);
         }
 
@@ -2883,6 +2941,12 @@ namespace ACNginxConsole
             //TODO:淡出计时
             //focaldephov.Opacity = 0;
             //OpacSlider.Value = 0;
+
+            DanmakuContentExp.IsExpanded = false;
+            DanmuOverallExp.IsExpanded = false;
+            DanmuStyleExp.IsExpanded = false;
+            DanmuSetting.IsEnabled = false;
+
             FadeOutAnim(buttonWinTrans, OpacSlider);
             this.Topmost = false;
         }
@@ -2908,6 +2972,7 @@ namespace ACNginxConsole
         {
             Properties.Settings.Default.StoreTime = EXPIRE_TIME;
             Properties.Settings.Default.Save();
+            GC.Collect();
             Application.Current.Shutdown();
         }
 
@@ -2933,28 +2998,29 @@ namespace ACNginxConsole
 
         private void BackColorPicker_SelectedColorChanged(object sender, RoutedPropertyChangedEventArgs<Color> e)
         {
-            if (focaldephov.IsLoaded)
-                focaldephov.Background = new SolidColorBrush(BackColorPicker.SelectedColor);
+
+            focaldephov.Background = new SolidColorBrush(BackColorPicker.SelectedColor);
+            Properties.Settings.Default.WinBack = BackColorPicker.SelectedColor;
         }
 
         private void OpacSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            if (focaldephov.IsLoaded)
-                focaldephov.Opacity = OpacSlider.Value;
+            focaldephov.Opacity = OpacSlider.Value;
+            
         }
 
         private void ForeColorPicker_SelectedColorChanged(object sender, RoutedPropertyChangedEventArgs<Color> e)
         {
             (focaldephov.FindResource("BubbleFore") as SolidColorBrush).Color = ForeColorPicker.SelectedColor;
             //FocalDepthHover.ForeColor = ForeColorPicker.SelectedColor;
+            Properties.Settings.Default.DanmuFore = ForeColorPicker.SelectedColor;
         }
 
         Binding bing_sub;
         private void BackNone_Selected(object sender, RoutedEventArgs e)
         {
             bing_sub = new Binding();
-            if (focaldephov.IsLoaded)
-                focaldephov.BackImg.SetBinding(Image.SourceProperty, bing_sub);
+            focaldephov.BackImg.SetBinding(Image.SourceProperty, bing_sub);
         }
 
         private VlcVideoSourceProvider sourceProvider_local;
@@ -3013,10 +3079,61 @@ namespace ACNginxConsole
             }
         }
 
+        string PlayStream_local;
+        private void BackVid_Selected(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Forms.OpenFileDialog openFileDialog = new System.Windows.Forms.OpenFileDialog();
+            openFileDialog.Title = "选择背景视频";
+            openFileDialog.Filter = "mp4|*.mp4|mov|*.mov";
+            openFileDialog.FileName = string.Empty;
+            openFileDialog.FilterIndex = 1;
+            openFileDialog.RestoreDirectory = true;
+            openFileDialog.DefaultExt = "mp4";
+            System.Windows.Forms.DialogResult result = openFileDialog.ShowDialog();
+            if (result == System.Windows.Forms.DialogResult.Cancel)
+            {   //这BUG无伤大雅 不修了
+                ComboBoxBackImg.SelectedIndex = 0;
+                //ComboBoxBackImg.SelectedValue = BackNone;
+            }
+            else
+            {
+                //focaldephov.BackImg.Source = new ImageSourceConverter().ConvertFromString(openFileDialog.FileName) as ImageSource;
+                PlayStream_local = openFileDialog.FileName;
+                bing_sub = new Binding();
+                var currentAssembly = Assembly.GetEntryAssembly();
+                var currentDirectory = new FileInfo(currentAssembly.Location).DirectoryName;
+                // Default installation path of VideoLAN.LibVLC.Windows
+                var libDirectory = new DirectoryInfo(System.IO.Path.Combine(currentDirectory, "libvlc\\" + (IntPtr.Size == 4 ? "win-x86" : "win-x64")));
+
+                this.sourceProvider_local = new VlcVideoSourceProvider(this.Dispatcher);
+                this.sourceProvider_local.CreatePlayer(libDirectory, "--file-logging", "-vvv", "--logfile=Logs.log");
+                var mediaOptions = new[]
+                {"input-repeat=65535"};     //近乎无穷的循环
+
+                this.sourceProvider_local.MediaPlayer.Play(new Uri(PlayStream_local), mediaOptions);
+                this.sourceProvider_local.MediaPlayer.Log += new EventHandler<VlcMediaPlayerLogEventArgs>(MediaPlayer_Log);
+                this.sourceProvider_local.MediaPlayer.Manager.SetFullScreen(this.sourceProvider_local.MediaPlayer.Manager.CreateMediaPlayer(), true);
+                this.sourceProvider_local.MediaPlayer.Audio.IsMute = true;    //这个版本中被静音
+                                                                              //音量接口：this.sourceProvider_local.MediaPlayer.Audio.Volume，本版本暂时不用
+                this.sourceProvider_local.MediaPlayer.EncounteredError += new EventHandler<VlcMediaPlayerEncounteredErrorEventArgs>(MediaPlayer_ErrorEncountered);
+
+                //bing_sub = new Binding();
+                bing_sub.Source = sourceProvider_local;
+                bing_sub.Path = new PropertyPath("VideoSource");
+                //输出图片
+                focaldephov.BackImg.SetBinding(Image.SourceProperty, bing_sub);
+            }
+        }
+
+
+        private void BackVid_Unselected(object sender, RoutedEventArgs e)
+        {
+            sourceProvider_local.Dispose();
+        }
+
         private void OpacSliderFore_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            if (focaldephov.IsLoaded)
-                focaldephov.GridCanvas.Opacity = OpacSliderFore.Value;
+            focaldephov.GridCanvas.Opacity = OpacSliderFore.Value;
         }
 
         Binding bing_fore;
@@ -3024,8 +3141,7 @@ namespace ACNginxConsole
         private void ForeNone_Selected(object sender, RoutedEventArgs e)
         {
             bing_fore = new Binding();
-            if (focaldephov.IsLoaded)
-                focaldephov.ForeImg.SetBinding(Image.SourceProperty, bing_fore);
+            focaldephov.ForeImg.SetBinding(Image.SourceProperty, bing_fore);
         }
 
         private void ForePic_Selected(object sender, RoutedEventArgs e)
@@ -3048,6 +3164,64 @@ namespace ACNginxConsole
             }
         }
 
+        private VlcVideoSourceProvider sourceProvider_fore;
+        Binding bing_sub_fore;
+
+        private void ForeVid_Selected(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Forms.OpenFileDialog openFileDialog = new System.Windows.Forms.OpenFileDialog();
+            openFileDialog.Title = "选择前景视频";
+            openFileDialog.Filter = "mp4|*.mp4|mov|*.mov";
+            openFileDialog.FileName = string.Empty;
+            openFileDialog.FilterIndex = 1;
+            openFileDialog.RestoreDirectory = true;
+            openFileDialog.DefaultExt = "mp4";
+            System.Windows.Forms.DialogResult result = openFileDialog.ShowDialog();
+            if (result == System.Windows.Forms.DialogResult.Cancel)
+            {   //这BUG无伤大雅 不修了
+                ComboBoxBackImg.SelectedIndex = 0;
+                //ComboBoxBackImg.SelectedValue = BackNone;
+            }
+            else
+            {
+                //focaldephov.BackImg.Source = new ImageSourceConverter().ConvertFromString(openFileDialog.FileName) as ImageSource;
+                string PlayStream = openFileDialog.FileName;
+                var currentAssembly = Assembly.GetEntryAssembly();
+                var currentDirectory = new FileInfo(currentAssembly.Location).DirectoryName;
+                // Default installation path of VideoLAN.LibVLC.Windows
+                var libDirectory = new DirectoryInfo(System.IO.Path.Combine(currentDirectory, "libvlc\\" + (IntPtr.Size == 4 ? "win-x86" : "win-x64")));
+
+                this.sourceProvider_fore = new VlcVideoSourceProvider(this.Dispatcher);
+                this.sourceProvider_fore.CreatePlayer(libDirectory, "--file-logging", "-vvv", "--logfile=Logs.log");
+                var mediaOptions = new[]
+                {"input-repeat=65535"};
+
+                this.sourceProvider_fore.MediaPlayer.EndReached += MediaPlayer_EndReached_Fore;
+                this.sourceProvider_fore.MediaPlayer.Play(new Uri(PlayStream), mediaOptions);
+                this.sourceProvider_fore.MediaPlayer.Log += new EventHandler<VlcMediaPlayerLogEventArgs>(MediaPlayer_Log);
+                this.sourceProvider_fore.MediaPlayer.Manager.SetFullScreen(this.sourceProvider_fore.MediaPlayer.Manager.CreateMediaPlayer(), true);
+                this.sourceProvider_fore.MediaPlayer.Audio.IsMute = true;    //这个版本中被静音
+                                                                              //音量接口：this.sourceProvider_fore.MediaPlayer.Audio.Volume，本版本暂时不用
+                this.sourceProvider_fore.MediaPlayer.EncounteredError += new EventHandler<VlcMediaPlayerEncounteredErrorEventArgs>(MediaPlayer_ErrorEncountered);
+
+                bing_sub_fore = new Binding();
+                bing_sub_fore.Source = sourceProvider_fore;
+                bing_sub_fore.Path = new PropertyPath("VideoSource");
+                //输出图片
+                focaldephov.BackImg.SetBinding(Image.SourceProperty, bing_sub_fore);
+            }
+        }
+
+        private void MediaPlayer_EndReached_Fore(object sender, VlcMediaPlayerEndReachedEventArgs e)
+        {
+            this.sourceProvider_fore.MediaPlayer.Time = 0;
+            this.sourceProvider_fore.MediaPlayer.Play();
+        }
+
+        private void ForeVid_Unselected(object sender, RoutedEventArgs e)
+        {
+            sourceProvider_fore.Dispose();
+        }
 
         #endregion
 
@@ -3186,19 +3360,6 @@ namespace ACNginxConsole
             }
         }
 
-        //enum ColorAnimState { None, BackOnly, ForeOnly, Both };
-        //ColorAnimState CA_State = ColorAnimState.None;
-
-        private void ButtonBackColorPicker_Click(object sender, RoutedEventArgs e)
-        {
-            //可以改
-            //BackColorPicker.SelectedColor = Color.FromArgb(255, 255, 255, 255);
-            //CA_State = ColorAnimState.BackOnly;
-            //没想好
-        }
-
-
-
         private void ButtonBackImg_Click(object sender, RoutedEventArgs e)
         {
             ImgFadeOutAnim(buttonBackImg, focaldephov.BackImg);
@@ -3291,21 +3452,131 @@ namespace ACNginxConsole
         private void DanmuPlain_Selected(object sender, RoutedEventArgs e)
         {
             FocalDepthHover.DM_Style = FocalDepthHover.DanmuStyle.Plain;
+            focaldephov.CornerRefreshTimer.Stop();
         }
 
         private void DanmuBubble_Selected(object sender, RoutedEventArgs e)
         {
             FocalDepthHover.DM_Style = FocalDepthHover.DanmuStyle.Bubble;
+            focaldephov.CornerRefreshTimer.Stop();
         }
 
         private void DanmuBubbleFloat_Selected(object sender, RoutedEventArgs e)
         {
             FocalDepthHover.DM_Style = FocalDepthHover.DanmuStyle.BubbleFloat;
+            focaldephov.CornerRefreshTimer.Stop();
         }
 
         private void DanmuBubbleCorner_Selected(object sender, RoutedEventArgs e)
         {
             FocalDepthHover.DM_Style = FocalDepthHover.DanmuStyle.BubbleCorner;
+            focaldephov.CornerRefreshTimer.Start();
         }
+
+        private void SliderHovTime_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            FocalDepthHover.HOVER_TIME = SliderHovTime.Value;
+            FocalDepthHover.SettingModified = true;
+            Properties.Settings.Default.HoverTime = SliderHovTime.Value;
+        }
+
+        private void SliderTextSize_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            FocalDepthHover.FocalPt_inSize = SliderTextSize.Value;
+            FocalDepthHover.SettingModified = true;
+            Properties.Settings.Default.MaxFontSize = SliderTextSize.Value;
+        }
+
+        private void SliderLayer_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            FocalDepthHover.LAYER_NUM = (int)SliderLayer.Value;
+            FocalDepthHover.SettingModified = true;
+            Properties.Settings.Default.LayerNum = (int)SliderLayer.Value;
+        }
+
+        private void SliderBlur_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            FocalDepthHover.BLUR_MAX = SliderBlur.Value;
+            FocalDepthHover.SettingModified = true;
+            Properties.Settings.Default.MaxBlur = SliderBlur.Value;
+        }
+
+        private void SliderFactor_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            FocalDepthHover.DECR_FAC = SliderFactor.Value;
+            FocalDepthHover.SettingModified = true;
+            Properties.Settings.Default.ScaleFac = SliderFactor.Value;
+        }
+
+        private void SliderRatio_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            FocalDepthHover.INIT_TOP = SliderRatio.Value;
+            FocalDepthHover.SettingModified = true;
+            Properties.Settings.Default.InitTop = SliderRatio.Value;
+        }
+
+        // 关闭接口
+        //private void ButtonFromFront_Click(object sender, RoutedEventArgs e)
+        //{
+        //    if (FocalDepthHover.From_Front)
+        //    {
+        //        ButtonFromFront.Background = bluefore;
+        //        ButtonFromFront.BorderBrush = blueback;
+        //        FocalDepthHover.From_Front = false;
+        //    }
+        //    else
+        //    {
+        //        ButtonFromFront.Background = blueback;
+        //        ButtonFromFront.BorderBrush = bluefore;
+        //        FocalDepthHover.From_Front = true;
+        //    }
+        //    FocalDepthHover.SettingModified = true;
+        //}
+
+        private void ComboBoxFont_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var FontStr = ComboBoxFont.SelectedValue.ToString().Replace("System.Windows.Controls.ComboBoxItem: ", "");
+            FocalDepthHover.ForeFont = 
+                new FontFamily(FontStr);
+            FocalDepthHover.SettingModified = true;
+            Properties.Settings.Default.ForeFont = FontStr;
+        }
+
+        private void ColorComboBoxBubble_SelectedColorChanged(object sender, RoutedPropertyChangedEventArgs<Color> e)
+        {
+            (focaldephov.FindResource("BubbleBack") as SolidColorBrush).Color 
+                = ColorComboBoxBubble.SelectedColor;
+            Properties.Settings.Default.BubbleColor = ColorComboBoxBubble.SelectedColor;
+        }
+
+        private void TextBoxRegex_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            //改变按钮态
+            buttonRegex.Background = bluefore;
+            buttonRegex.Foreground = blueback;
+            enable_regex = false;
+
+        }
+
+        private void ButtonRegex_Click(object sender, RoutedEventArgs e)
+        {
+            if (enable_regex)
+            {
+                buttonRegex.Background = bluefore;
+                buttonRegex.Foreground = blueback;
+                enable_regex = false;
+            }
+            else {
+                buttonRegex.Background = blueback;
+                buttonRegex.Foreground = bluefore;
+                enable_regex = true;
+                //提交正则表达式
+                regex = textBoxRegex.Text;
+                FilterRegex = new Regex(regex);
+                Properties.Settings.Default.Regex = textBoxRegex.Text;
+            }
+        }
+
+        
     }
 }
