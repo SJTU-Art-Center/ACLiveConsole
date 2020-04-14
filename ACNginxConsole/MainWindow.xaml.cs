@@ -60,6 +60,7 @@ using static System.Windows.Forms.Screen;
 using System.IO;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Net;
 using System.Windows.Media.Animation;
 using System.Collections.ObjectModel;
@@ -403,7 +404,8 @@ namespace ACNginxConsole
                 {
                     if (Properties.Settings.Default.CloseYouget == false)
                     {
-                        //该方案暂时失效，可能需要大改。转写自you-get
+                        //await BililiveAPI.GetPlayUrlAsync(bililive_roomid);
+
                         System.Net.WebClient client = new WebClient();
                         //byte[] page = client.DownloadData(website);
                         //string content = System.Text.Encoding.UTF8.GetString(page);
@@ -646,7 +648,7 @@ namespace ACNginxConsole
             textBoxStoreSec.Text= (Properties.Settings.Default.StoreTime * 0.5).ToString();
             SliderStoreSec.Value = (double)(Properties.Settings.Default.StoreTime * 0.5);
 
-            Hide_Monitor();
+            //Hide_Monitor();
             listBoxDanmaku.MaxHeight = this.Height - 50;
 
             button7.Visibility = Visibility.Hidden;
@@ -677,6 +679,8 @@ namespace ACNginxConsole
             SliderRatio.Value = Properties.Settings.Default.InitTop;
             ComboBoxFont.Text = Properties.Settings.Default.ForeFont;
             ColorComboBoxBubble.SelectedColor = Properties.Settings.Default.BubbleColor;
+
+            LabelDanmu.Visibility = Visibility.Hidden;
 
         }
 
@@ -938,7 +942,7 @@ namespace ACNginxConsole
             else
             {
                 ErrorReset();
-                Show_Monitor();
+                //Show_Monitor();
 
                 if (editor == 1)
                 {
@@ -2255,29 +2259,37 @@ namespace ACNginxConsole
         private void selectItem(byte selec)
         {
             selectedItem = selec;
+            comboBoxSource.SelectedIndex = -1;
             expander1.IsEnabled = true;
-            comboBoxSource.IsEnabled = true;
             buttonSolo.IsEnabled = true;
             MonitoringChanged();
         }
 
         private void ButtonLU_Click(object sender, RoutedEventArgs e)
         {
+            LabelDanmu.Visibility = Visibility.Hidden;
+            comboBoxSource.IsEnabled = true;
             selectItem(1);
         }
 
         private void ButtonRU_Click(object sender, RoutedEventArgs e)
         {
+            LabelDanmu.Visibility = Visibility.Hidden;
+            comboBoxSource.IsEnabled = true;
             selectItem(2);
         }
 
         private void ButtonLD_Click(object sender, RoutedEventArgs e)
         {
+            LabelDanmu.Visibility = Visibility.Hidden;
+            comboBoxSource.IsEnabled = true;
             selectItem(3);
         }
 
         private void ButtonRD_Click(object sender, RoutedEventArgs e)
         {
+            LabelDanmu.Visibility = Visibility.Visible;
+            comboBoxSource.IsEnabled = false;
             selectItem(4);
         }
 
@@ -2287,7 +2299,6 @@ namespace ACNginxConsole
             BorderRU.BorderBrush.Opacity = (selectedItem == 2 ? 1 : 0);
             BorderLD.BorderBrush.Opacity = (selectedItem == 3 ? 1 : 0);
             BorderRD.BorderBrush.Opacity = (selectedItem == 4 ? 1 : 0);
-            comboBoxSource.SelectedIndex = -1;
         }
 
         /* 暂时没有搞清楚*/
@@ -2425,6 +2436,11 @@ namespace ACNginxConsole
 
         private void ButtonSolo_Click(object sender, RoutedEventArgs e)
         {
+            LiveSolo();
+        }
+
+        private void LiveSolo()
+        {
             Storyboard Soloanim = this.FindResource("SoloAnimation") as Storyboard;
 
             int shrinkcol, shrinkrow;
@@ -2438,7 +2454,7 @@ namespace ACNginxConsole
             }
 
             int state;
-            if (buttonLD.IsEnabled)
+            if (buttonRD.IsEnabled)
             {
                 state = 0;
                 SoloImg.Opacity = 1;
@@ -2452,12 +2468,15 @@ namespace ACNginxConsole
             (Soloanim.Children[0] as GridLengthAnimation).To = new GridLength(state, GridUnitType.Star);
             Soloanim.Children[1].SetValue(Storyboard.TargetNameProperty, "Row" + shrinkrow);
             (Soloanim.Children[1] as GridLengthAnimation).To = new GridLength(state, GridUnitType.Star);
+            //Soloanim.Children[2].SetValue(Storyboard.TargetNameProperty, "Col" + (1-shrinkcol));
+            //(Soloanim.Children[2] as GridLengthAnimation).To = new GridLength(1-state, GridUnitType.Star);
+            //Soloanim.Children[3].SetValue(Storyboard.TargetNameProperty, "Row" + (1-shrinkrow));
+            //(Soloanim.Children[3] as GridLengthAnimation).To = new GridLength(1-state, GridUnitType.Star);
             Soloanim.Begin();
             buttonLU.IsEnabled = !buttonLU.IsEnabled;
             buttonRU.IsEnabled = !buttonRU.IsEnabled;
             buttonLD.IsEnabled = !buttonLD.IsEnabled;
             buttonRD.IsEnabled = !buttonRD.IsEnabled;
-
         }
 
         //bool monred = false;
@@ -2622,6 +2641,8 @@ namespace ACNginxConsole
 
             }
 
+            CreateBitmapFromVisual();
+
         }
 
         bool DanmakuSwitch = false;
@@ -2707,6 +2728,7 @@ namespace ACNginxConsole
                         //TODO：淡入
                         Open_DanmakuWindow();
 
+
                     }
                     else
                     {
@@ -2724,6 +2746,39 @@ namespace ACNginxConsole
             }
 
         }
+
+        const int IMAGE_DPI = 96;
+
+        private void CreateBitmapFromVisual()
+        {
+            Visual target = focaldephov;
+            
+            if (target == null)
+            {
+                return;
+            }
+
+            Rect bounds = new Rect(new Point(focaldephov.Left, focaldephov.Top),
+                new Size(focaldephov.Width, focaldephov.Height));
+
+            //Rect bounds = VisualTreeHelper.GetDescendantBounds(target);
+
+            RenderTargetBitmap renderTarget = new RenderTargetBitmap((Int32)bounds.Width, (Int32)bounds.Height, IMAGE_DPI, IMAGE_DPI, PixelFormats.Pbgra32);
+
+            DrawingVisual visual = new DrawingVisual();
+
+            using (DrawingContext context = visual.RenderOpen())
+            {
+                VisualBrush visualBrush = new VisualBrush(target);
+                context.DrawRectangle(visualBrush, null, new Rect(new Point(), bounds.Size));
+            }
+
+            renderTarget.Render(visual);
+
+            LiveRD.Source = renderTarget;
+
+        }
+
 
         static bool AutoDanmaku = true;
         private void ButtonAutoDanmaku_Click(object sender, RoutedEventArgs e)
@@ -2834,7 +2889,9 @@ namespace ACNginxConsole
                     WinShrinkAction(RightCol_Last + 15);
                     SideBar();
                 }
-                Hide_Monitor();
+                //Hide_Monitor();
+                selectItem(4);
+                LabelDanmu.Visibility = Visibility.Visible;
             }
 
         }
@@ -2878,20 +2935,6 @@ namespace ACNginxConsole
             }
             else
                 tabControl.SelectedIndex = 5;           //转至设置选项卡
-        }
-
-        private void Hide_Monitor()
-        {
-            label7.Visibility = Visibility.Collapsed;
-            ViewboxMonitor.Visibility = Visibility.Collapsed;
-            MonitorBtn.Visibility = Visibility.Collapsed;
-        }
-
-        private void Show_Monitor()
-        {
-            label7.Visibility = Visibility.Visible;
-            ViewboxMonitor.Visibility = Visibility.Visible;
-            MonitorBtn.Visibility = Visibility.Visible;
         }
 
         public static int Add_DanmakuConfig(string website = "")
@@ -3577,6 +3620,8 @@ namespace ACNginxConsole
             }
         }
 
+        
+       
         
     }
 }
