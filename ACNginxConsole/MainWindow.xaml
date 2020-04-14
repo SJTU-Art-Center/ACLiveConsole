@@ -281,7 +281,7 @@
                         <Label x:Name="labell2" Content="只有在有数据流时结果才是准确的。" Height="25" Margin="0,38,40,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="282.5"/>
                         <Button x:Name="button6" Content="清除所有设置" HorizontalAlignment="Left" Margin="23,0,0,46" Width="170" Click="Button6_Click" Height="20" VerticalAlignment="Bottom"/>
                         <Button x:Name="button7" Content="确认" HorizontalAlignment="Left" Margin="198,0,0,46" Width="42" Click="Button7_Click" Height="20" VerticalAlignment="Bottom"/>
-                        <StackPanel Margin="24,10,66,71" CanVerticallyScroll="True" ScrollViewer.CanContentScroll="True">
+                        <StackPanel Margin="24,10,24,71" CanVerticallyScroll="True" ScrollViewer.CanContentScroll="True">
                             <CheckBox x:Name="checkBoxtest" Content="测试时不使用ffmpeg" HorizontalAlignment="Left" VerticalAlignment="Top" Width="147" Checked="CheckBoxtest_Checked" Unchecked="CheckBoxtest_Unchecked" Margin="0,5,0,0"/>
                             <CheckBox x:Name="checkBox2" Content="解决程序冲突时不再次启动推流" HorizontalAlignment="Left" VerticalAlignment="Top" Width="203" Checked="CheckBox2_Checked" Unchecked="CheckBox2_Unchecked" Margin="0,5,0,0"/>
                             <CheckBox x:Name="checkBoxFullRange" Content="全局调试模式(较慢)" Checked="CheckBox_Checked" HorizontalAlignment="Left" Width="130" VerticalAlignment="Top" Unchecked="CheckBoxFullRange_Unchecked" Margin="0,5,0,0"/>
@@ -506,6 +506,7 @@
                             </Button>
                         </StackPanel>
                         <ComboBox Grid.Column="1" x:Name="comboBoxSource" DisplayMemberPath="SourceName" SelectionChanged="ComboBoxSource_SelectionChanged" ToolTip="监视源" Margin="0" RenderTransformOrigin="0.503,0.55" Height="20" IsEnabled="False"/>
+                        <Label x:Name="LabelDanmu" Grid.Column="1" Content="弹幕公屏" Padding="0" Margin="5,2,0,0"/>
                     </Grid>
                     <Grid x:Name="DanmakuSider" Margin="0,15,0,0" Background="#FF75D2F6" Height="27">
                         <Grid.ColumnDefinitions>
@@ -516,7 +517,7 @@
                         </Grid.ColumnDefinitions>
                         <Button x:Name="buttonDanmakuSwitch" Grid.Column="0" Content="启动弹幕" Width="70" Background="White" Foreground="#FF77D3F5" BorderBrush="#FF01BBE2" Click="ButtonDanmakuSwitch_Click" />
                         <Button Grid.Column="1" x:Name="buttonAutoDanmaku" Content="自动" Background="#FF01BCE1" Foreground="White" BorderBrush="#FF01BCE1" Width="40" Click="ButtonAutoDanmaku_Click"/>
-                        <Button x:Name="buttonDanmuSetting" Grid.Column="3" Background="#FF01BCE1" BorderBrush="#FF01BCE1" Click="ButtonDanmuSetting_Click">
+                        <Button x:Name="buttonDanmuSetting" Grid.Column="3" Background="#FF01BCE1" BorderBrush="#FF01BCE1" Click="ButtonDanmuSetting_Click" ToolTip="弹幕设置">
                             <Image Source="gear_16xLG.png" RenderTransformOrigin="0.5,0.5" >
                                 <Image.RenderTransform>
                                     <TransformGroup>
