@@ -599,7 +599,7 @@ namespace ACNginxConsole
 
             labelVer.Content = "版本: " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() + "\n";
             labelVer.Content += "© Art Center 2019 - 2020, All Rights Reserved." + "\n";
-            labelVer.Content += "Based on Open Source Project: Nginx, ffmpeg, VLC, bililive-dm";
+            labelVer.Content += "Based on Open Source Projects: Nginx, ffmpeg, VLC, bililive-dm";
 
             if (Environment.MachineName.Equals(Properties.Settings.Default.LastComputer))
                 Unlock();
@@ -643,11 +643,6 @@ namespace ACNginxConsole
             danmu.ReceivedDanmaku += b_ReceivedDanmaku;
             //b.ReceivedRoomCount += b_ReceivedRoomCount;
 
-            FilterRegex = new Regex(regex);
-
-            textBoxStoreSec.Text= (Properties.Settings.Default.StoreTime * 0.5).ToString();
-            SliderStoreSec.Value = (double)(Properties.Settings.Default.StoreTime * 0.5);
-
             //Hide_Monitor();
             listBoxDanmaku.MaxHeight = this.Height - 50;
 
@@ -666,10 +661,20 @@ namespace ACNginxConsole
                 ComboBoxFont.Items.Add(FontItem);
             }
 
+            LabelDanmu.Visibility = Visibility.Hidden;
+
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
             //加载弹幕设置
+            textBoxStoreSec.Text = (Properties.Settings.Default.StoreTime * 0.5).ToString();
+            SliderStoreSec.Value = (double)(Properties.Settings.Default.StoreTime * 0.5);
             textBoxRegex.Text = Properties.Settings.Default.Regex;
             BackColorPicker.SelectedColor = Properties.Settings.Default.WinBack;
+            focaldephov.WinBack.Color = BackColorPicker.SelectedColor;
             ForeColorPicker.SelectedColor = Properties.Settings.Default.DanmuFore;
+            (focaldephov.FindResource("BubbleFore") as SolidColorBrush).Color = ForeColorPicker.SelectedColor;
             ComboBoxDanmuStyle.SelectedIndex = Properties.Settings.Default.DanmuStyle;
             SliderHovTime.Value = Properties.Settings.Default.HoverTime;
             SliderTextSize.Value = Properties.Settings.Default.MaxFontSize;
@@ -679,9 +684,8 @@ namespace ACNginxConsole
             SliderRatio.Value = Properties.Settings.Default.InitTop;
             ComboBoxFont.Text = Properties.Settings.Default.ForeFont;
             ColorComboBoxBubble.SelectedColor = Properties.Settings.Default.BubbleColor;
-
-            LabelDanmu.Visibility = Visibility.Hidden;
-
+            (focaldephov.FindResource("BubbleBack") as SolidColorBrush).Color = ColorComboBoxBubble.SelectedColor;
+            FilterRegex = new Regex(regex);
         }
 
         #region 主页
@@ -2922,15 +2926,15 @@ namespace ACNginxConsole
         private void ButtonDanmuSetting_Click(object sender, RoutedEventArgs e)
         {
             var blueshallow = new SolidColorBrush(Color.FromArgb(255, 117, 210, 246));
-            if(this.Width<= RightCol.Width.Value + 15)
+            if(this.Width<= RightCol.Width.Value + 30)
             {
-                WinShrinkAction(820);
+                WinShrinkAction(RightCol.Width.Value + 537);
                 tabControl.SelectedIndex = 5;           //转至设置选项卡
                 buttonDanmuSetting.Background = blueshallow;
             }
             else if(tabControl.SelectedIndex == 5)
             {
-                WinShrinkAction(RightCol_Last + 15);
+                WinShrinkAction(RightCol.Width.Value + 15);
                 buttonDanmuSetting.Background = blueback;
             }
             else
@@ -2967,7 +2971,17 @@ namespace ACNginxConsole
         private void Open_DanmakuWindow()
         {
             this.Topmost = true;
-            focaldephov.Show();
+            if(!focaldephov.IsActive)
+                
+            try
+            {
+                focaldephov.Show();
+            }
+            catch
+            {
+                focaldephov = new FocalDepthHover();
+            }
+            
             //focaldephov.Opacity = 1;
             //OpacSlider.Value = 1;
 
@@ -3014,6 +3028,15 @@ namespace ACNginxConsole
         private void Window_Closed(object sender, EventArgs e)
         {
             Properties.Settings.Default.StoreTime = EXPIRE_TIME;
+            Properties.Settings.Default.HoverTime = SliderHovTime.Value;
+            Properties.Settings.Default.MaxFontSize = SliderTextSize.Value;
+            Properties.Settings.Default.LayerNum = (int)SliderLayer.Value;
+            Properties.Settings.Default.MaxBlur = SliderBlur.Value;
+            Properties.Settings.Default.ScaleFac = SliderFactor.Value;
+            Properties.Settings.Default.InitTop = SliderRatio.Value;
+            Properties.Settings.Default.ForeFont = ComboBoxFont.SelectedValue.ToString().Replace("System.Windows.Controls.ComboBoxItem: ", "");
+            Properties.Settings.Default.BubbleColor = ColorComboBoxBubble.SelectedColor;
+            Properties.Settings.Default.Regex = textBoxRegex.Text;
             Properties.Settings.Default.Save();
             GC.Collect();
             Application.Current.Shutdown();
@@ -3042,7 +3065,8 @@ namespace ACNginxConsole
         private void BackColorPicker_SelectedColorChanged(object sender, RoutedPropertyChangedEventArgs<Color> e)
         {
 
-            focaldephov.Background = new SolidColorBrush(BackColorPicker.SelectedColor);
+            //focaldephov.Background = new SolidColorBrush(BackColorPicker.SelectedColor);
+            focaldephov.WinBack.Color = BackColorPicker.SelectedColor;
             Properties.Settings.Default.WinBack = BackColorPicker.SelectedColor;
         }
 
@@ -3265,8 +3289,6 @@ namespace ACNginxConsole
         {
             sourceProvider_fore.Dispose();
         }
-
-        #endregion
 
         Storyboard PushOut_sb = new Storyboard();
         
@@ -3520,42 +3542,42 @@ namespace ACNginxConsole
         {
             FocalDepthHover.HOVER_TIME = SliderHovTime.Value;
             FocalDepthHover.SettingModified = true;
-            Properties.Settings.Default.HoverTime = SliderHovTime.Value;
+            
         }
 
         private void SliderTextSize_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             FocalDepthHover.FocalPt_inSize = SliderTextSize.Value;
             FocalDepthHover.SettingModified = true;
-            Properties.Settings.Default.MaxFontSize = SliderTextSize.Value;
+            
         }
 
         private void SliderLayer_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             FocalDepthHover.LAYER_NUM = (int)SliderLayer.Value;
             FocalDepthHover.SettingModified = true;
-            Properties.Settings.Default.LayerNum = (int)SliderLayer.Value;
+            
         }
 
         private void SliderBlur_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             FocalDepthHover.BLUR_MAX = SliderBlur.Value;
             FocalDepthHover.SettingModified = true;
-            Properties.Settings.Default.MaxBlur = SliderBlur.Value;
+            
         }
 
         private void SliderFactor_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             FocalDepthHover.DECR_FAC = SliderFactor.Value;
             FocalDepthHover.SettingModified = true;
-            Properties.Settings.Default.ScaleFac = SliderFactor.Value;
+            
         }
 
         private void SliderRatio_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             FocalDepthHover.INIT_TOP = SliderRatio.Value;
             FocalDepthHover.SettingModified = true;
-            Properties.Settings.Default.InitTop = SliderRatio.Value;
+            
         }
 
         // 关闭接口
@@ -3582,14 +3604,14 @@ namespace ACNginxConsole
             FocalDepthHover.ForeFont = 
                 new FontFamily(FontStr);
             FocalDepthHover.SettingModified = true;
-            Properties.Settings.Default.ForeFont = FontStr;
+            
         }
 
         private void ColorComboBoxBubble_SelectedColorChanged(object sender, RoutedPropertyChangedEventArgs<Color> e)
         {
             (focaldephov.FindResource("BubbleBack") as SolidColorBrush).Color 
                 = ColorComboBoxBubble.SelectedColor;
-            Properties.Settings.Default.BubbleColor = ColorComboBoxBubble.SelectedColor;
+            
         }
 
         private void TextBoxRegex_TextChanged(object sender, TextChangedEventArgs e)
@@ -3616,12 +3638,13 @@ namespace ACNginxConsole
                 //提交正则表达式
                 regex = textBoxRegex.Text;
                 FilterRegex = new Regex(regex);
-                Properties.Settings.Default.Regex = textBoxRegex.Text;
+                
             }
         }
 
-        
-       
+
+        #endregion
+
         
     }
 }

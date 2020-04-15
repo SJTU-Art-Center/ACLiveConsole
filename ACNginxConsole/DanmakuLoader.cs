@@ -1,6 +1,6 @@
 // 该文件摘自 bilibili-dm, CopyLiu, WTFPL    
 // 并进行了简化修改和 bug 修改。
-// Ver: 1.1.1.22, Apr 2020.
+// Ver: 1.1.1.28, Apr 2020.
 
 using System;
 using System.Diagnostics;
@@ -51,7 +51,7 @@ namespace BiliDMLib
 
     public class DanmakuLoader
     {
-        private string[] defaulthosts = new string[] {"livecmt-2.bilibili.com", "livecmt-1.bilibili.com"};
+        private string[] defaulthosts = new string[] { "livecmt-2.bilibili.com", "livecmt-1.bilibili.com" };
         private string ChatHost = "chat.bilibili.com";
         private int ChatPort = 2243; // TCP协议默认端口疑似修改到 2243
         private TcpClient Client;
@@ -65,10 +65,10 @@ namespace BiliDMLib
         public event LogMessageEvt LogMessage;
         private bool debuglog = true;
         private short protocolversion = 2;
-        private static int lastroomid ;
+        private static int lastroomid;
         private static string lastserver;
-        private static HttpClient httpClient=new HttpClient(){Timeout = TimeSpan.FromSeconds(5)};
-//        private object shit_lock=new object();//ReceiveMessageLoop 似乎好像大概會同時運行兩個的bug, 但是不修了, 鎖上算了
+        private static HttpClient httpClient = new HttpClient() { Timeout = TimeSpan.FromSeconds(5) };
+        //        private object shit_lock=new object();//ReceiveMessageLoop 似乎好像大概會同時運行兩個的bug, 但是不修了, 鎖上算了
 
         public async Task<bool> ConnectAsync(int roomId)
         {
@@ -76,19 +76,19 @@ namespace BiliDMLib
             {
                 if (this.Connected) throw new InvalidOperationException();
                 var channelId = roomId;
-//
-//                var request = WebRequest.Create(RoomInfoUrl + roomId + ".json");
-//                var response = request.GetResponse();
-//
-//                int channelId;
-//                using (var stream = response.GetResponseStream())
-//                using (var sr = new StreamReader(stream))
-//                {
-//                    var json = await sr.ReadToEndAsync();
-//                    Debug.WriteLine(json);
-//                    dynamic jo = JObject.Parse(json);
-//                    channelId = (int) jo.list[0].cid;
-//                }
+                //
+                //                var request = WebRequest.Create(RoomInfoUrl + roomId + ".json");
+                //                var response = request.GetResponse();
+                //
+                //                int channelId;
+                //                using (var stream = response.GetResponseStream())
+                //                using (var sr = new StreamReader(stream))
+                //                {
+                //                    var json = await sr.ReadToEndAsync();
+                //                    Debug.WriteLine(json);
+                //                    dynamic jo = JObject.Parse(json);
+                //                    channelId = (int) jo.list[0].cid;
+                //                }
                 var token = "";
                 if (channelId != lastroomid)
                 {
@@ -96,15 +96,15 @@ namespace BiliDMLib
                     {
                         var req = await httpClient.GetStringAsync(CIDInfoUrl + channelId);
                         var roomobj = JObject.Parse(req);
-                        token = roomobj["data"]["token"]+"";
-                        ChatHost = roomobj["data"]["host"]+"";
+                        token = roomobj["data"]["token"] + "";
+                        ChatHost = roomobj["data"]["host"] + "";
 
                         ChatPort = roomobj["data"]["port"].Value<int>();
                         if (string.IsNullOrEmpty(ChatHost))
                         {
                             throw new Exception();
                         }
-                  
+
                     }
                     catch (WebException ex)
                     {
@@ -115,13 +115,13 @@ namespace BiliDMLib
                         {
                             // 直播间不存在（HTTP 404）
                             var msg = "该直播间疑似不存在，弹幕姬只支持使用原房间号连接";
-                            LogMessage?.Invoke(this, new LogMessageArgs() {message = msg});
+                            LogMessage?.Invoke(this, new LogMessageArgs() { message = msg });
                         }
                         else
                         {
                             // B站服务器响应错误
                             var msg = "B站服务器响应弹幕服务器地址出错，尝试使用常见地址连接";
-                            LogMessage?.Invoke(this, new LogMessageArgs() {message = msg});
+                            LogMessage?.Invoke(this, new LogMessageArgs() { message = msg });
                         }
                     }
                     catch (Exception)
@@ -129,7 +129,7 @@ namespace BiliDMLib
                         // 其他错误（XML解析错误？）
                         ChatHost = defaulthosts[new Random().Next(defaulthosts.Length)];
                         var msg = "获取弹幕服务器地址时出现未知错误，尝试使用常见地址连接";
-                        LogMessage?.Invoke(this, new LogMessageArgs() {message = msg});
+                        LogMessage?.Invoke(this, new LogMessageArgs() { message = msg });
                     }
 
 
@@ -142,17 +142,17 @@ namespace BiliDMLib
 
                 var ipaddrss = await System.Net.Dns.GetHostAddressesAsync(ChatHost);
                 var random = new Random();
-                var idx=random.Next(ipaddrss.Length);
-                await  Client.ConnectAsync(ipaddrss[idx], ChatPort);
+                var idx = random.Next(ipaddrss.Length);
+                await Client.ConnectAsync(ipaddrss[idx], ChatPort);
 
                 NetStream = Stream.Synchronized(Client.GetStream());
 
 
-                if (await SendJoinChannel(channelId,token))
+                if (await SendJoinChannel(channelId, token))
                 {
                     Connected = true;
-                    _=this.HeartbeatLoop();
-                    _=this.ReceiveMessageLoop();
+                    _ = this.HeartbeatLoop();
+                    _ = this.ReceiveMessageLoop();
                     lastserver = ChatHost;
                     lastroomid = roomId;
                     return true;
@@ -168,7 +168,7 @@ namespace BiliDMLib
 
         private async Task ReceiveMessageLoop()
         {
-          
+
             try
             {
                 var stableBuffer = new byte[16];
@@ -176,7 +176,7 @@ namespace BiliDMLib
                 while (this.Connected)
                 {
                     await NetStream.ReadBAsync(stableBuffer, 0, 16);
-                    var protocol=DanmakuProtocol.FromBuffer(stableBuffer);
+                    var protocol = DanmakuProtocol.FromBuffer(stableBuffer);
                     if (protocol.PacketLength < 16)
                     {
                         throw new NotSupportedException("协议失败: (L:" + protocol.PacketLength + ")");
@@ -186,10 +186,9 @@ namespace BiliDMLib
                     {
                         continue; // 没有内容了
                     }
-                    if (buffer.Length < payloadlength) // 不够长再申请
-                    {
-                        buffer = new byte[payloadlength];
-                    }
+
+                    buffer = new byte[payloadlength];
+
                     await NetStream.ReadBAsync(buffer, 0, payloadlength);
                     if (protocol.Version == 2 && protocol.Action == 5) // 处理deflate消息
                     {
@@ -208,14 +207,14 @@ namespace BiliDMLib
                                     await deflate.ReadBAsync(danmakubuffer, 0, payloadlength);
                                     ProcessDanmaku(protocol.Action, danmakubuffer);
                                 }
-                              
+
                             }
                             catch (Exception e)
                             {
-                                
+
                             }
 
-                         
+
                         }
                     }
                     else
@@ -236,17 +235,17 @@ namespace BiliDMLib
 
             }
 
-            
+
         }
 
-        private  void ProcessDanmaku(int action, byte[] buffer)
+        private void ProcessDanmaku(int action, byte[] buffer)
         {
             switch (action)
             {
                 case 3: // (OpHeartbeatReply)
                     {
                         var viewer = EndianBitConverter.BigEndian.ToUInt32(buffer, 0); //观众人数
-                        Console.WriteLine(viewer);
+                        // Console.WriteLine(viewer);
                         ReceivedRoomCount?.Invoke(this, new ReceivedRoomCountArgs() { UserCount = viewer });
                         break;
                     }
@@ -329,7 +328,7 @@ namespace BiliDMLib
                 NetStream = null;
                 if (Disconnected != null)
                 {
-                    Disconnected(this, new DisconnectEvtArgs() {Error = Error});
+                    Disconnected(this, new DisconnectEvtArgs() { Error = Error });
                 }
             }
 
@@ -376,16 +375,16 @@ namespace BiliDMLib
             }
         }
 
-        private async Task<bool> SendJoinChannel(int channelId,string token)
+        private async Task<bool> SendJoinChannel(int channelId, string token)
         {
-            
-            var packetModel = new {roomid = channelId, uid = 0, protover = 2, token=token, platform="danmuji"};
+
+            var packetModel = new { roomid = channelId, uid = 0, protover = 2, token = token, platform = "danmuji" };
             var playload = JsonConvert.SerializeObject(packetModel);
-             await SendSocketDataAsync(7, playload);
+            await SendSocketDataAsync(7, playload);
             return true;
         }
 
-     
+
 
         public DanmakuLoader()
         {
@@ -426,16 +425,16 @@ namespace BiliDMLib
 
         public static DanmakuProtocol FromBuffer(byte[] buffer)
         {
-            if (buffer.Length < 16) { throw new ArgumentException();}
+            if (buffer.Length < 16) { throw new ArgumentException(); }
             return new DanmakuProtocol()
             {
-                PacketLength = EndianBitConverter.BigEndian.ToInt32(buffer,0),
+                PacketLength = EndianBitConverter.BigEndian.ToInt32(buffer, 0),
                 HeaderLength = EndianBitConverter.BigEndian.ToInt16(buffer, 4),
                 Version = EndianBitConverter.BigEndian.ToInt16(buffer, 6),
                 Action = EndianBitConverter.BigEndian.ToInt32(buffer, 8),
                 Parameter = EndianBitConverter.BigEndian.ToInt32(buffer, 12),
             };
         }
-    }
 
+    }
 }

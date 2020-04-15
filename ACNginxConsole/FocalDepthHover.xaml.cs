@@ -393,6 +393,7 @@ namespace ACNginxConsole
                 Canvas.SetTop(layer.Layer_Thumb, tempTop);
 
                 temp_ts *= DECR_FAC;
+                temp_ts = temp_ts < 1 ? 1 : temp_ts;
                 tempTop -= temp_ts / 0.75 + 10;
             }
 
@@ -423,5 +424,6 @@ namespace ACNginxConsole
             }
 
         }
+
     }
 }

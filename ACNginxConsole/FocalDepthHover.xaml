@@ -6,7 +6,10 @@
         xmlns:local="clr-namespace:ACNginxConsole"
         xmlns:ColorPicker="clr-namespace:ColorPicker;assembly=ColorPicker" x:Class="ACNginxConsole.FocalDepthHover"
         mc:Ignorable="d"
-        Title="FocalDepthHover" Height="450" Width="800" WindowStyle="None" ResizeMode="NoResize" FontFamily="/ACNginxConsole;component/#RTWS YueGothic Trial Regular" AllowsTransparency="True" Loaded="Window_Loaded" Background="Black" Opacity="0">
+        Title="FocalDepthHover" Height="450" Width="800" WindowStyle="None" ResizeMode="NoResize" FontFamily="/ACNginxConsole;component/#RTWS YueGothic Trial Regular" AllowsTransparency="True" Loaded="Window_Loaded" Opacity="0">
+    <Window.Background>
+        <SolidColorBrush x:Name="WinBack" Color="Black"/>
+    </Window.Background>
     <Window.Resources>
         <SolidColorBrush x:Key="BubbleFore" Color="#FFE2E6EE"/>
         <SolidColorBrush x:Key="BubbleBack" Color="Black"/>
