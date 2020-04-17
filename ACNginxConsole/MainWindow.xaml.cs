@@ -2857,6 +2857,7 @@ namespace ACNginxConsole
                 else
                 {
                     EXPIRE_TIME = Storesec * 2;
+                    Properties.Settings.Default.StoreTime = EXPIRE_TIME;
 
                     if (SliderStoreSec != null)
                     {
@@ -2866,6 +2867,7 @@ namespace ACNginxConsole
                         else
                         {
                             SliderStoreSec.Value = (double)Storesec;
+                            
                         }
                     }
 
@@ -3027,16 +3029,6 @@ namespace ACNginxConsole
 
         private void Window_Closed(object sender, EventArgs e)
         {
-            Properties.Settings.Default.StoreTime = EXPIRE_TIME;
-            Properties.Settings.Default.HoverTime = SliderHovTime.Value;
-            Properties.Settings.Default.MaxFontSize = SliderTextSize.Value;
-            Properties.Settings.Default.LayerNum = (int)SliderLayer.Value;
-            Properties.Settings.Default.MaxBlur = SliderBlur.Value;
-            Properties.Settings.Default.ScaleFac = SliderFactor.Value;
-            Properties.Settings.Default.InitTop = SliderRatio.Value;
-            Properties.Settings.Default.ForeFont = ComboBoxFont.SelectedValue.ToString().Replace("System.Windows.Controls.ComboBoxItem: ", "");
-            Properties.Settings.Default.BubbleColor = ColorComboBoxBubble.SelectedColor;
-            Properties.Settings.Default.Regex = textBoxRegex.Text;
             Properties.Settings.Default.Save();
             GC.Collect();
             Application.Current.Shutdown();
@@ -3068,12 +3060,13 @@ namespace ACNginxConsole
             //focaldephov.Background = new SolidColorBrush(BackColorPicker.SelectedColor);
             focaldephov.WinBack.Color = BackColorPicker.SelectedColor;
             Properties.Settings.Default.WinBack = BackColorPicker.SelectedColor;
+
         }
 
         private void OpacSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             focaldephov.Opacity = OpacSlider.Value;
-            
+            Properties.Settings.Default.WinOpac = OpacSlider.Value;
         }
 
         private void ForeColorPicker_SelectedColorChanged(object sender, RoutedPropertyChangedEventArgs<Color> e)
@@ -3201,6 +3194,7 @@ namespace ACNginxConsole
         private void OpacSliderFore_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             focaldephov.GridCanvas.Opacity = OpacSliderFore.Value;
+            Properties.Settings.Default.DanmuOpac = OpacSlider.Value;
         }
 
         Binding bing_fore;
@@ -3542,13 +3536,14 @@ namespace ACNginxConsole
         {
             FocalDepthHover.HOVER_TIME = SliderHovTime.Value;
             FocalDepthHover.SettingModified = true;
-            
+            Properties.Settings.Default.HoverTime = SliderHovTime.Value;
         }
 
         private void SliderTextSize_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             FocalDepthHover.FocalPt_inSize = SliderTextSize.Value;
             FocalDepthHover.SettingModified = true;
+            Properties.Settings.Default.MaxFontSize = SliderTextSize.Value;
             
         }
 
@@ -3556,28 +3551,32 @@ namespace ACNginxConsole
         {
             FocalDepthHover.LAYER_NUM = (int)SliderLayer.Value;
             FocalDepthHover.SettingModified = true;
-            
+            Properties.Settings.Default.LayerNum = (int)SliderLayer.Value;
+
         }
 
         private void SliderBlur_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             FocalDepthHover.BLUR_MAX = SliderBlur.Value;
             FocalDepthHover.SettingModified = true;
-            
+            Properties.Settings.Default.MaxBlur = SliderBlur.Value;
+           
         }
 
         private void SliderFactor_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             FocalDepthHover.DECR_FAC = SliderFactor.Value;
             FocalDepthHover.SettingModified = true;
-            
+            Properties.Settings.Default.ScaleFac = SliderFactor.Value;
         }
 
         private void SliderRatio_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             FocalDepthHover.INIT_TOP = SliderRatio.Value;
             FocalDepthHover.SettingModified = true;
+            Properties.Settings.Default.InitTop = SliderRatio.Value;
             
+
         }
 
         // 关闭接口
@@ -3604,6 +3603,7 @@ namespace ACNginxConsole
             FocalDepthHover.ForeFont = 
                 new FontFamily(FontStr);
             FocalDepthHover.SettingModified = true;
+            Properties.Settings.Default.ForeFont = FontStr;
             
         }
 
@@ -3611,6 +3611,7 @@ namespace ACNginxConsole
         {
             (focaldephov.FindResource("BubbleBack") as SolidColorBrush).Color 
                 = ColorComboBoxBubble.SelectedColor;
+            Properties.Settings.Default.BubbleColor = ColorComboBoxBubble.SelectedColor;
             
         }
 
@@ -3620,7 +3621,7 @@ namespace ACNginxConsole
             buttonRegex.Background = bluefore;
             buttonRegex.Foreground = blueback;
             enable_regex = false;
-
+            
         }
 
         private void ButtonRegex_Click(object sender, RoutedEventArgs e)
@@ -3638,7 +3639,7 @@ namespace ACNginxConsole
                 //提交正则表达式
                 regex = textBoxRegex.Text;
                 FilterRegex = new Regex(regex);
-                
+                Properties.Settings.Default.Regex = textBoxRegex.Text;
             }
         }
 

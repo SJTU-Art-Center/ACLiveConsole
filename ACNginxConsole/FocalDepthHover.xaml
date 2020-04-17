@@ -40,7 +40,6 @@
         <Canvas x:Name="GridCanvas"/>
         <Canvas x:Name="ThumbCanvas"/>
         <Image x:Name="ForeImg"/>
-        
     </Grid>
 
 </Window>

@@ -16,6 +16,7 @@ using System.Windows.Threading;
 using System.Windows.Media.Effects;
 using static System.Windows.Forms.Screen;
 using System.ComponentModel;
+//using System.Windows.Forms;
 
 namespace ACNginxConsole
 {
@@ -134,6 +135,10 @@ namespace ACNginxConsole
             CornerRefreshTimer.Tick += CornerRefreshTimer_Tick;
         }
 
+        double myright_c;
+        double mybottom_c;
+        System.Windows.Controls.Primitives.Thumb corner_thumb;
+
         private void CornerRefreshTimer_Tick(object sender, EventArgs e)
         {
             if (danmakuLabels.Any())
@@ -144,9 +149,6 @@ namespace ACNginxConsole
 
                 label.Style = this.FindResource("tipLable") as Style;
                 GridCanvas.Children.Add(label);
-                double myright_c = INIT_TOP * this.Width;
-                double mybottom_c = INIT_TOP * this.Height;
-
                 Canvas.SetBottom(label, mybottom_c);
                 Canvas.SetRight(label, myright_c);
 
@@ -197,6 +199,16 @@ namespace ACNginxConsole
                 storyboard_Corner.Completed += new EventHandler(Storyboard_over);
                 storyboard_Corner.Begin();
             }
+        }
+
+        //二维移动
+        private void Corner_thumb_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+        {
+            var thumb = sender as System.Windows.Controls.Primitives.Thumb;
+            myright_c = Canvas.GetRight(thumb) - e.HorizontalChange;
+            mybottom_c = Canvas.GetBottom(thumb) - e.VerticalChange;
+            Canvas.SetRight(thumb, myright_c);
+            Canvas.SetBottom(thumb, mybottom_c);
         }
 
         int current_order;  //层
@@ -386,6 +398,7 @@ namespace ACNginxConsole
                 layer.Layer_Thumb.Height = temp_ts / 0.75;
                 layer.Layer_Thumb.Opacity = 0;
                 layer.Layer_Thumb.DragDelta += ThumbLayer_DragDelta;
+                layer.Layer_Thumb.Cursor = System.Windows.Input.Cursors.Hand;
 
                 hoverLayers.Add(layer);
                 ThumbCanvas.Children.Add(layer.Layer_Thumb);
@@ -403,7 +416,28 @@ namespace ACNginxConsole
             {
                 this.FontFamily = ForeFont;
             }
-            
+
+            myright_c = INIT_TOP * this.Width;
+            mybottom_c = INIT_TOP * this.Height;
+            if (DM_Style == DanmuStyle.BubbleCorner)
+            {
+                //清除原本的Thumb，避免干扰，层还是被生成的
+                for (int i = 0; i < hoverLayers.Count; ++i)
+                {
+                    ThumbCanvas.Children.Remove(hoverLayers.ElementAt(i).Layer_Thumb);
+                }
+                ThumbCanvas.Children.Remove(corner_thumb);
+                corner_thumb = new System.Windows.Controls.Primitives.Thumb();
+                corner_thumb.Width = this.Width / 4;
+                corner_thumb.Height = this.Height / 3;
+                corner_thumb.Opacity = 0;
+                corner_thumb.DragDelta += Corner_thumb_DragDelta;
+                corner_thumb.Cursor = System.Windows.Input.Cursors.Hand;
+                ThumbCanvas.Children.Add(corner_thumb);
+                Canvas.SetRight(corner_thumb, myright_c);
+                Canvas.SetBottom(corner_thumb, mybottom_c);
+            }
+
         }
 
         //只需要进行纵向移动
