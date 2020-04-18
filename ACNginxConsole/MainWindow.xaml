@@ -7,7 +7,7 @@
         xmlns:local="clr-namespace:ACNginxConsole"
         xmlns:loval="clr-namespace:Vlc.DotNet.Wpf;assembly=Vlc.DotNet.Wpf"
         mc:Ignorable="d"
-        Title="AC Live Console" Height="621" Width="771.798" Closed="Window_Closed" SizeChanged="Window_SizeChanged" Loaded="Window_Loaded">
+        Title="AC Live Console" Height="621" Width="830.348" Closed="Window_Closed" SizeChanged="Window_SizeChanged" Loaded="Window_Loaded">
 
     <Window.Resources>
         <colorPicker:ColorToStringConverter x:Key="ColorToStringConverter"/>
@@ -67,22 +67,23 @@
                 </TabItem>
                 <TabItem x:Name="tabItemConfig" Header="配置" Width="70">
                     <Grid Background="#FFE5E5E5">
-                        <TextBox x:Name="textBoxAdd" Margin="205.75,53,203.75,0" Height="20.25" VerticalAlignment="Top" TextChanged="TextBoxAdd_TextChanged_1" Visibility="Hidden"/>
-                        <Label x:Name="labelAdd" Content="推流地址" HorizontalAlignment="Left" Height="24.25" Margin="145.25,49,0,0" VerticalAlignment="Top" Width="60" Visibility="Hidden" />
-                        <TextBox x:Name="textBoxCode" Height="20.25" Margin="205.75,87.5,203.75,0" VerticalAlignment="Top" TextChanged="TextBoxCode_TextChanged_1" Visibility="Hidden"/>
-                        <Label x:Name="labelCode" Content="推流密钥" HorizontalAlignment="Left" Height="35.25" Margin="145.25,84.5,0,0" VerticalAlignment="Top" Visibility="Hidden"/>
-                        <TextBox x:Name="textBoxMan" Height="48" Margin="205.75,119.75,203.75,0" TextWrapping="Wrap" VerticalAlignment="Top" Visibility="Hidden"/>
-                        <Label x:Name="labelMan" Content="自定义" HorizontalAlignment="Left" Height="27" Margin="145.25,119.75,0,0" VerticalAlignment="Top" Width="60" Visibility="Hidden"/>
+                        <TextBox x:Name="textBoxAdd" Margin="206,53,306.5,0" Height="20" VerticalAlignment="Top" TextChanged="TextBoxAdd_TextChanged_1"/>
+                        <Label x:Name="labelAdd" Content="推流地址" HorizontalAlignment="Left" Height="24.25" Margin="145.25,49,0,0" VerticalAlignment="Top" Width="60"/>
+                        <TextBox x:Name="textBoxCode" Height="20" Margin="206,88,306.5,0" VerticalAlignment="Top" TextChanged="TextBoxCode_TextChanged_1"/>
+                        <Label x:Name="labelCode" Content="推流密钥" HorizontalAlignment="Left" Height="35" Margin="145,83,0,0" VerticalAlignment="Top"/>
+                        <TextBox x:Name="textBoxMan" Height="48" Margin="206,120,306.5,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                        <Label x:Name="labelMan" Content="自定义" HorizontalAlignment="Left" Height="27" Margin="145,117,0,0" VerticalAlignment="Top" Width="60"/>
                         <RadioButton x:Name="radioButtonB" Content="B站" HorizontalAlignment="Left" Height="20.25" Margin="14.5,55,0,0" VerticalAlignment="Top" Width="104.25" Checked="RadioButton_Checked"/>
-                        <RadioButton x:Name="radioButtonWeibo" Content="微博" HorizontalAlignment="Left" Height="20.25" Margin="14.5,90.5,0,0" VerticalAlignment="Top" Width="104.25" Checked="RadioButtonWeibo_Checked_1"/>
-                        <RadioButton x:Name="radioButtonMan" Content="自定义" HorizontalAlignment="Left" Height="30.75" Margin="14.5,124.75,0,0" VerticalAlignment="Top" Width="104.25" Checked="RadioButtonMan_Checked_1"/>
+                        <RadioButton x:Name="radioButtonWeibo" Content="微博" HorizontalAlignment="Left" Height="20" Margin="14,88,0,0" VerticalAlignment="Top" Width="105" Checked="RadioButtonWeibo_Checked_1"/>
+                        <RadioButton x:Name="radioButtonMan" Content="自定义" HorizontalAlignment="Left" Height="16" Margin="14,120,0,0" VerticalAlignment="Top" Width="105" Checked="RadioButtonMan_Checked_1"/>
+                        <RadioButton x:Name="radioButtonLAN" Content="局域网" HorizontalAlignment="Left" Height="19" Margin="14,154,0,0" VerticalAlignment="Top" Width="106" Checked="radioButtonLAN_Checked"/>
                         <Label x:Name="label5" Content="推流平台" HorizontalAlignment="Left" Height="27" Margin="14.5,13.5,0,0" VerticalAlignment="Top" Width="118" Background="#FFCC261F" Foreground="White"/>
-                        <Label x:Name="label6" Content="推流地址" Height="27" Margin="145.25,13.5,203.75,0" VerticalAlignment="Top" Background="#FFF2EC29" Foreground="Black"/>
-                        <Label x:Name="labelWhite" Content="推流写入" Height="27" Margin="0,13.5,10,0" VerticalAlignment="Top" Background="White" HorizontalAlignment="Right" Width="180.5"/>
-                        <Button x:Name="buttonPlus" Content="+1流" Height="48" Margin="0,119.75,10.5,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="180" Click="ButtonPlus_Click" Visibility="Hidden"/>
+                        <Label x:Name="label6" Content="推流地址" Height="26" Margin="145,14,306.5,0" VerticalAlignment="Top" Background="#FFF2EC29" Foreground="Black"/>
+                        <Label x:Name="labelWhite" Content="推流写入" Height="26" Margin="0,14,9.5,0" VerticalAlignment="Top" Background="White" HorizontalAlignment="Right" Width="286"/>
+                        <Button x:Name="buttonPlus" Content="+1流" Height="48" Margin="0,120,10.5,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="279" Click="ButtonPlus_Click"/>
                         <Label x:Name="label3" Content="准备写入" Height="24" Margin="14.5,189,10,0" VerticalAlignment="Top" Background="#FF949494" Foreground="White"/>
 
-                        <Button x:Name="buttonWrite" Content="转换" Margin="0,0,10,10" HorizontalAlignment="Right" Width="126.5" Height="45" VerticalAlignment="Bottom" Visibility="Visible" Click="ButtonWrite_Click"/>
+                        <Button x:Name="buttonWrite" Content="转换并写入" Margin="0,0,10,10" HorizontalAlignment="Right" Width="126.5" Height="45" VerticalAlignment="Bottom" Visibility="Visible" Click="ButtonWrite_Click"/>
                         <Label x:Name="label4" Content="option.txt" HorizontalAlignment="Left" Margin="14.5,0,0,10" Width="74.75" Height="32.5" VerticalAlignment="Bottom"/>
 
                         <Image x:Name="ErrorImage" Margin="89.25,0,0,21.5" Source="109_AllAnnotations_Error_16x16_72.png" Stretch="Fill" Height="16" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="16"/>
@@ -92,8 +93,8 @@
                         <Image x:Name="ErrorImageCode" HorizontalAlignment="Right" Height="16" Margin="0,90.5,174.5,0" Source="109_AllAnnotations_Error_16x16_72.png" Stretch="Fill" VerticalAlignment="Top" Width="16" Visibility="Hidden"/>
                         <Label x:Name="labelErrorCode" Content="串流码不能为空！" HorizontalAlignment="Right" Height="28.738" Margin="0,86,49.75,0" VerticalAlignment="Top" Width="120" Visibility="Hidden"/>
                         <Image x:Name="CheckImage" Margin="88.75,0,0,21.5" Source="109_AllAnnotations_Default_16x16_72.png" Stretch="Fill" HorizontalAlignment="Left" Width="16" Height="16" VerticalAlignment="Bottom"/>
-                        <Label x:Name="labelSourceName" Content="流名称" HorizontalAlignment="Right" Height="25.25" Margin="0,49,126.5,0" VerticalAlignment="Top" Width="67" RenderTransformOrigin="0.239,0.594" Visibility="Hidden"/>
-                        <TextBox x:Name="textBoxSourceName" Height="20" Margin="0,53,10,0" TextWrapping="Wrap" Text="流0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="124" Visibility="Hidden"/>
+                        <Label x:Name="labelSourceName" Content="流名称" HorizontalAlignment="Right" Height="25" Margin="0,49,228.5,0" VerticalAlignment="Top" Width="67" RenderTransformOrigin="0.239,0.594" />
+                        <TextBox x:Name="textBoxSourceName" Height="20" Margin="0,53,9.5,0" TextWrapping="Wrap" Text="流0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="222"/>
                         <Slider x:Name="sliderEditor" Height="23" Margin="0,0,253.5,10" VerticalAlignment="Bottom" Maximum="1" HorizontalAlignment="Right" Width="67.5" ValueChanged="SliderEditor_ValueChanged" Cursor="" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="1"/>
                         <Label x:Name="labelEditor" Content="编辑器转换" Margin="0,0,253.5,33" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="70"/>
                         <Grid Margin="14.5,223.5,10,64">
@@ -144,11 +145,20 @@
                             </Grid>
                         </Grid>
 
-                        <Label x:Name="labelWebsite" Content="直播网址" Height="34" Margin="0,85,130,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="64" Visibility="Hidden"/>
-                        <TextBox x:Name="textBoxWebsite" Margin="0,88,32,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="102" Height="20" TextWrapping="WrapWithOverflow" Visibility="Hidden"/>
-                        <Button x:Name="buttonlWHelp" Height="20" Margin="0,88,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="22" Click="ButtonlWHelp_Click" Visibility="Hidden" ToolTip="获取有关播流网址的帮助">
+                        <Label x:Name="labelWebsite" Content="直播网址" Height="34" Margin="0,83,231.5,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="64"/>
+                        <TextBox x:Name="textBoxWebsite" Margin="0,88,31.5,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="200" Height="20" TextWrapping="WrapWithOverflow"/>
+                        <Button x:Name="buttonlWHelp" Height="20" Margin="0,88,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="22" Click="ButtonlWHelp_Click" ToolTip="获取有关播流网址的帮助">
                             <Image Source="StatusAnnotations_Help_and_inconclusive_16xLG_color.png" />
                         </Button>
+                        <Grid x:Name="GridLANTip" Height="68" Margin="145,47,306.5,0" VerticalAlignment="Top" Background="#FFE5E5E5">
+                            <RadioButton x:Name="radioButtonSender" Content="发送" HorizontalAlignment="Left" Height="19" Margin="0,7,0,0" VerticalAlignment="Top" Width="47" Checked="radioButtonSender_Checked"/>
+                            <RadioButton x:Name="radioButtonReceiver" Content="接收" HorizontalAlignment="Left" Height="18" Margin="0,40,0,0" VerticalAlignment="Top" Width="54" Checked="radioButtonReceiver_Checked"/>
+                            <TextBlock x:Name="textBlockTip" Height="47" Margin="59,6,0,0" TextWrapping="Wrap" Text="请把播流地址传给直播主机。" VerticalAlignment="Top"/>
+                            <Image x:Name="ImgDownArrow" Margin="0,0,6,7" Source="arrow_Down_color_32xLG.png" Stretch="Fill" Height="28" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="28"/>
+                            <Image x:Name="ImgRightArrow" Margin="0,0,6,7" Source="arrow_Forward_color_32xLG.png" Stretch="Fill" Height="28" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="28"/>
+
+                        </Grid>
+
 
                     </Grid>
                 </TabItem>

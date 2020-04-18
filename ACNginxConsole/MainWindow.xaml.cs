@@ -350,7 +350,8 @@ namespace ACNginxConsole
                     case -1: this.Type = "本地"; break;
                     case 0: this.Type = "B站"; break;
                     case 1: this.Type = "微博"; break;
-                    default: this.Type = "自定义"; break;
+                    case 2: this.Type = "自定义"; break;
+                    case 3: this.Type = "局域网"; break;
                 }
                 this.SourceName = sourceName;
                 this.StreamCode = streamCode;
@@ -663,6 +664,21 @@ namespace ACNginxConsole
 
             LabelDanmu.Visibility = Visibility.Hidden;
 
+            textBoxAdd.Visibility = Visibility.Hidden;
+            labelAdd.Visibility = Visibility.Hidden;
+            textBoxCode.Visibility = Visibility.Hidden;
+            labelCode.Visibility = Visibility.Hidden;
+            textBoxMan.Visibility = Visibility.Hidden;
+            labelMan.Visibility = Visibility.Hidden;
+            labelWebsite.Visibility = Visibility.Hidden;
+            textBoxWebsite.Visibility = Visibility.Hidden;
+            buttonlWHelp.Visibility = Visibility.Hidden;
+            labelSourceName.Visibility = Visibility.Hidden;
+            textBoxSourceName.Visibility = Visibility.Hidden;
+            buttonPlus.Visibility = Visibility.Hidden;
+
+            GridLANTip.Visibility = Visibility.Hidden;
+
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -803,6 +819,8 @@ namespace ACNginxConsole
             textBoxSourceName.IsReadOnly = false;
             textBoxWebsite.IsReadOnly = false;
 
+            GridLANTip.Visibility = Visibility.Hidden;
+
             RefreshOutput();
         }
 
@@ -836,6 +854,8 @@ namespace ACNginxConsole
             textBoxMan.IsReadOnly = false;
             textBoxSourceName.IsReadOnly = false;
             textBoxWebsite.IsReadOnly = false;
+
+            GridLANTip.Visibility = Visibility.Hidden;
 
             RefreshOutput();
         }
@@ -874,10 +894,14 @@ namespace ACNginxConsole
                 sourceType = 1;
                 //textBoxMan.Text = "push " + pushCode + ";";
             }
-            else
+            else if (radioButtonMan.IsChecked == true)
             {
                 sourceType = 2;
                 //pushCode = textBoxMan.Text;
+            }
+            else if (radioButtonLAN.IsChecked == true)
+            {
+                sourceType = 3;
             }
 
         }
@@ -910,7 +934,7 @@ namespace ACNginxConsole
         {
 
             string Errorstring = "";
-            if (radioButtonMan.IsChecked == false)
+            if (radioButtonMan.IsChecked == false && radioButtonLAN.IsChecked == false)
             {
                 if (textBoxAdd.Text == "")
                 {
@@ -1023,7 +1047,7 @@ namespace ACNginxConsole
 
             if (editor != 1)
             {
-                textBoxOpt.Focus();
+                //textBoxOpt.Focus();
                 //进行数据表录入
                 textBoxOpt.Text = "";
                 for (int i = 1; i < configcount; i++)
@@ -1036,30 +1060,28 @@ namespace ACNginxConsole
                 //changed = false;
                 recover_trans();
             }
+
+            //正常写入
+            if (textBoxOpt.Text == "")
+            {
+                ErrorImage.Visibility = Visibility.Visible;
+                labelError.Content = "写入不能为空！";
+                labelError.Visibility = Visibility.Visible;
+            }
             else
             {
-                //正常写入
-                if (textBoxOpt.Text == "")
+                try
                 {
-                    ErrorImage.Visibility = Visibility.Visible;
-                    labelError.Content = "写入不能为空！";
+                    File.WriteAllText("option.txt", textBoxOpt.Text);
+                    CheckImage.Visibility = Visibility.Visible;
+                    labelError.Content = "写入成功！";
                     labelError.Visibility = Visibility.Visible;
                 }
-                else
+                catch
                 {
-                    try
-                    {
-                        File.WriteAllText("option.txt", textBoxOpt.Text);
-                        CheckImage.Visibility = Visibility.Visible;
-                        labelError.Content = "写入成功！";
-                        labelError.Visibility = Visibility.Visible;
-                    }
-                    catch
-                    {
-                        ErrorImage.Visibility = Visibility.Visible;
-                        labelError.Content = "写入错误！";
-                        labelError.Visibility = Visibility.Visible;
-                    }
+                    ErrorImage.Visibility = Visibility.Visible;
+                    labelError.Content = "写入错误！";
+                    labelError.Visibility = Visibility.Visible;
                 }
             }
         }
@@ -1159,7 +1181,7 @@ namespace ACNginxConsole
             else
             {   //数据表模式
                 buttonRead.Visibility = Visibility.Hidden;
-                buttonWrite.Content = "转换";
+                buttonWrite.Content = "转换并写入";
             }
 
         }
@@ -1290,7 +1312,7 @@ namespace ACNginxConsole
                 System.IO.File.Copy(@".\logs\error.log", @".\logs\errorcomp1.log", true);
 
                 Testlabel.Content = "打开 Nginx...";
-                Process.Start("Nginx.exe");
+                StartLive();
                 TestProgress.Value += 10;
 
 
@@ -1305,7 +1327,7 @@ namespace ACNginxConsole
 
                 button1.IsEnabled = false;
 
-                Process.Start("Nginx.exe", "-s stop");//关闭
+                EndLive();//关闭
 
                 dispatcherTimerBling.Stop();
 
@@ -1330,7 +1352,7 @@ namespace ACNginxConsole
                     button1.IsEnabled = false;
 
 
-                    Process.Start("Nginx.exe", "-s stop").WaitForExit();//关闭
+                    EndLive();//关闭
 
                     Testlabel.Content = "建立测试后档案...";
                     System.IO.File.Copy(@".\logs\error.log", @".\logs\errorcomp2.log", true);
@@ -1387,7 +1409,7 @@ namespace ACNginxConsole
                     label.Foreground = Brushes.White;
                     IsGreenTest = true;
 
-                    Process.Start("Nginx.exe", "-s stop");//关闭
+                    EndLive();//关闭
 
                     button.IsEnabled = true;
 
@@ -1534,7 +1556,7 @@ namespace ACNginxConsole
 
             dispatcherTimer.Stop();
 
-            Process.Start("Nginx.exe", "-s stop");//关闭
+            EndLive();//关闭
 
             Testlabel.Content = "已经中止测试";
             TestProgress.Foreground = Brushes.Red;
@@ -1639,12 +1661,26 @@ namespace ACNginxConsole
 
         private void Button_StartLive_Click(object sender, RoutedEventArgs e)
         {
-            Process.Start("Start_Nginx.bat");
+            StartLive();
         }
 
         private void Button_EndLive_Click(object sender, RoutedEventArgs e)
         {
             EndLive();
+        }
+
+        private void StartLive()
+        {
+            Process.Start("Start_Nginx.bat");
+
+            foreach(ConfigItem item in configdata)
+            {
+                if (item.Type == "局域网")
+                {
+                    Process.Start("Start_Server.bat");
+                    break;
+                }
+            }
         }
 
         private void EndLive(bool nginxs = true)
@@ -1665,6 +1701,9 @@ namespace ACNginxConsole
                 }
 
             }
+
+            Process.Start("nginx-server\\nginx.exe", "-s stop").WaitForExit();//关闭
+
         }
 
         private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -1961,9 +2000,9 @@ namespace ACNginxConsole
 
         private void Button3_Click(object sender, RoutedEventArgs e)
         {
-            Process.Start("Nginx.exe", "-s stop").WaitForExit();//关闭
+            EndLive();//关闭
 
-            Process.Start("Start_Nginx.bat");
+            StartLive();
 
             EGY1_Reset();
         }
@@ -2040,7 +2079,7 @@ namespace ACNginxConsole
                     {
                         labelLive.Content += "，准备开始推流...";
 
-                        Process.Start("Start_Nginx.bat");
+                        StartLive();
 
                     }
                     dispatcherTimerRefresh.Start();
@@ -3644,8 +3683,54 @@ namespace ACNginxConsole
         }
 
 
+
         #endregion
 
-        
+        #region 局域网
+        private void radioButtonLAN_Checked(object sender, RoutedEventArgs e)
+        {
+            ManualConfig();
+            radioButtonSender.IsChecked = true;
+            GridLANTip.Visibility = Visibility.Visible;
+        }
+
+
+
+        #endregion
+
+        private void radioButtonSender_Checked(object sender, RoutedEventArgs e)
+        {
+            textBlockTip.Text = "点击 +1流 后，请把播流地址传给直播主机。";
+            //读取本机IP
+            string strName = System.Net.Dns.GetHostName();
+            IPHostEntry IPs = Dns.GetHostEntry(strName);
+            string _ip = "";
+            foreach (IPAddress ip in IPs.AddressList)
+                if (ip.AddressFamily.ToString() == "InterNetwork")
+                    _ip = ip.ToString();
+            Debug.WriteLine(_ip);
+            textBoxMan.Text = "rtmp://" + _ip + "/live";
+            textBoxWebsite.Text = "rtmp://" + _ip + "/live";
+            ImgDownArrow.Visibility = Visibility.Visible;
+            ImgRightArrow.Visibility = Visibility.Hidden;
+            textBoxSourceName.Text = "局域网播流";
+            labelMan.Visibility = Visibility.Visible;
+            textBoxMan.Visibility = Visibility.Visible;
+            textBoxMan.IsReadOnly = true;
+            textBoxWebsite.IsReadOnly = true;
+        }
+
+        private void radioButtonReceiver_Checked(object sender, RoutedEventArgs e)
+        {
+            textBlockTip.Text = "请输入分机的播流地址，然后 +1流 。";
+            textBoxWebsite.Text = "";
+            textBoxMan.Text = "";
+            ImgDownArrow.Visibility = Visibility.Hidden;
+            ImgRightArrow.Visibility = Visibility.Visible;
+            labelMan.Visibility = Visibility.Hidden;
+            textBoxMan.Visibility = Visibility.Hidden;
+            textBoxSourceName.Text = "流" + configcount;
+            textBoxWebsite.IsReadOnly = false;
+        }
     }
 }
