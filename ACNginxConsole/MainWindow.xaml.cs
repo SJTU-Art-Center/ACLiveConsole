@@ -2097,6 +2097,7 @@ namespace ACNginxConsole
             }
             else
             {
+
                 if (System.Diagnostics.Process.GetProcessesByName("nginx").ToList().Count > 0)
                 {
                     try
@@ -2112,7 +2113,7 @@ namespace ACNginxConsole
                     }
                     catch (Exception ex)
                     {
-                        throw ex;
+                        labelLive.Content = "解决程序冲突异常：" + ex.Message;
                     }
 
                 }
@@ -2349,7 +2350,13 @@ namespace ACNginxConsole
                 {
                     Monitors.ElementAt(i).SourceProvider.Dispose();
                 }
-
+                Monitors.Clear();
+                LabelLU.Visibility = Visibility.Hidden;
+                LabelRU.Visibility = Visibility.Hidden;
+                LabelLD.Visibility = Visibility.Hidden;
+                ComboSettingLoad = true;
+                comboBoxSource.SelectedIndex = -1;
+                ComboSettingLoad = false;
                 buttonHelp.Content = "启动监视";
             }
             imageProtection.Visibility = Visibility.Hidden;
