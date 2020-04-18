@@ -12,8 +12,11 @@
 // For more information, please visit:
 // https://github.com/LogCreative/ACLiveConsole.
 
+// Ver 3.8.0.0 by Li Zilong
+// LAN
+
 // Ver 3.5.0.0 by Li Zilong
-// Unreleased.
+// DBS
 
 // Ver 3.0.0.0 by Li Zilong
 // Source Code Release Date: 2020/3/8
@@ -1285,6 +1288,48 @@ namespace ACNginxConsole
             System.Diagnostics.Process.Start("https://github.com/LogCreative/ACLiveConsole/wiki/%E5%A6%82%E4%BD%95%E8%8E%B7%E5%8F%96%E6%92%AD%E6%B5%81%E5%9C%B0%E5%9D%80");
         }
 
+        private void radioButtonLAN_Checked(object sender, RoutedEventArgs e)
+        {
+            ManualConfig();
+            radioButtonSender.IsChecked = true;
+            GridLANTip.Visibility = Visibility.Visible;
+        }
+
+        private void radioButtonSender_Checked(object sender, RoutedEventArgs e)
+        {
+            textBlockTip.Text = "点击 +1流 后，请把播流地址传给直播主机。";
+            //读取本机IP
+            string strName = System.Net.Dns.GetHostName();
+            IPHostEntry IPs = Dns.GetHostEntry(strName);
+            string _ip = "";
+            foreach (IPAddress ip in IPs.AddressList)
+                if (ip.AddressFamily.ToString() == "InterNetwork")
+                    _ip = ip.ToString();
+            Debug.WriteLine(_ip);
+            textBoxMan.Text = "rtmp://" + _ip + "/live";
+            textBoxWebsite.Text = "rtmp://" + _ip + "/live";
+            ImgDownArrow.Visibility = Visibility.Visible;
+            ImgRightArrow.Visibility = Visibility.Hidden;
+            textBoxSourceName.Text = "局域网播流";
+            labelMan.Visibility = Visibility.Visible;
+            textBoxMan.Visibility = Visibility.Visible;
+            textBoxMan.IsReadOnly = true;
+            textBoxWebsite.IsReadOnly = true;
+        }
+
+        private void radioButtonReceiver_Checked(object sender, RoutedEventArgs e)
+        {
+            textBlockTip.Text = "请输入分机的播流地址，然后 +1流 。";
+            textBoxWebsite.Text = "";
+            textBoxMan.Text = "";
+            ImgDownArrow.Visibility = Visibility.Hidden;
+            ImgRightArrow.Visibility = Visibility.Visible;
+            labelMan.Visibility = Visibility.Hidden;
+            textBoxMan.Visibility = Visibility.Hidden;
+            textBoxSourceName.Text = "流" + configcount;
+            textBoxWebsite.IsReadOnly = false;
+        }
+
         #endregion
 
         #region 测试
@@ -2264,6 +2309,28 @@ namespace ACNginxConsole
                 }
 
                 buttonHelp.Content = "关闭监视";
+
+                //监视器初始化
+                var currentAssembly = Assembly.GetEntryAssembly();
+                var currentDirectory = new FileInfo(currentAssembly.Location).DirectoryName;
+                // Default installation path of VideoLAN.LibVLC.Windows
+                var libDirectory = new DirectoryInfo(System.IO.Path.Combine(currentDirectory, "libvlc\\" + (IntPtr.Size == 4 ? "win-x86" : "win-x64")));
+
+
+                Monitors = new List<Monitor>();
+                for(int i = 0; i < 3; ++i)
+                {
+                    Monitor monitor = new Monitor();
+
+                    monitor.SourceProvider = new VlcVideoSourceProvider(this.Dispatcher);
+                    monitor.SourceProvider.CreatePlayer(libDirectory, "--file-logging", "-vvv", "--logfile=Logs.log");
+                    monitor.SourceProvider.MediaPlayer.Log += new EventHandler<VlcMediaPlayerLogEventArgs>(MediaPlayer_Log);
+                    monitor.SourceProvider.MediaPlayer.Manager.SetFullScreen(monitor.SourceProvider.MediaPlayer.Manager.CreateMediaPlayer(), true);
+                    monitor.Volume = 0;
+                    monitor.SourceProvider.MediaPlayer.EncounteredError += new EventHandler<VlcMediaPlayerEncounteredErrorEventArgs>(MediaPlayer_ErrorEncountered);
+
+                    Monitors.Add(monitor);
+                }
             }
             else
             {
@@ -2278,6 +2345,10 @@ namespace ACNginxConsole
                 expandRightCol.Begin(RightCol, HandoffBehavior.SnapshotAndReplace, true);
 
                 //关闭所有媒体。
+                for (int i = 0; i < 3; ++i)
+                {
+                    Monitors.ElementAt(i).SourceProvider.Dispose();
+                }
 
                 buttonHelp.Content = "启动监视";
             }
@@ -2301,38 +2372,55 @@ namespace ACNginxConsole
         byte selectedItem = 0;
         private void selectItem(byte selec)
         {
+            ComboSettingLoad = true;
             selectedItem = selec;
-            comboBoxSource.SelectedIndex = -1;
-            expander1.IsEnabled = true;
+            if (selec < 4)
+            {
+                LabelDanmu.Visibility = Visibility.Hidden;
+                comboBoxSource.IsEnabled = true;
+                if (Monitors.ElementAt(selec-1).PlayId <= comboBoxSource.Items.Count - 1)
+                {
+                    comboBoxSource.SelectedIndex = Monitors.ElementAt(selec-1).PlayId;
+                   
+                    if (DanmakuSwitch && BackLive.IsSelected)
+                    {
+                        focaldephov.BackImg.SetBinding(Image.SourceProperty, Monitors.ElementAt(selectedItem - 1).Bing);
+                    }
+                }
+                else
+                {
+                    comboBoxSource.SelectedIndex = -1;
+                }
+            }
+            else
+            {
+                LabelDanmu.Visibility = Visibility.Visible;
+                comboBoxSource.IsEnabled = false;
+                comboBoxSource.SelectedIndex = -1;
+                focaldephov.BackImg.SetBinding(Image.SourceProperty, new Binding());
+            }
             buttonSolo.IsEnabled = true;
             MonitoringChanged();
+            ComboSettingLoad = false;
         }
 
         private void ButtonLU_Click(object sender, RoutedEventArgs e)
         {
-            LabelDanmu.Visibility = Visibility.Hidden;
-            comboBoxSource.IsEnabled = true;
             selectItem(1);
         }
 
         private void ButtonRU_Click(object sender, RoutedEventArgs e)
         {
-            LabelDanmu.Visibility = Visibility.Hidden;
-            comboBoxSource.IsEnabled = true;
             selectItem(2);
         }
 
         private void ButtonLD_Click(object sender, RoutedEventArgs e)
         {
-            LabelDanmu.Visibility = Visibility.Hidden;
-            comboBoxSource.IsEnabled = true;
             selectItem(3);
         }
 
         private void ButtonRD_Click(object sender, RoutedEventArgs e)
         {
-            LabelDanmu.Visibility = Visibility.Visible;
-            comboBoxSource.IsEnabled = false;
             selectItem(4);
         }
 
@@ -2360,86 +2448,135 @@ namespace ACNginxConsole
             Monitoring.RowDefinitions[1].Height = new GridLength(1, GridUnitType.Star);
         }
 
-        private VlcVideoSourceProvider sourceProvider;
+        // Reframed. 
+
+        private List<Monitor> Monitors;
+
+        /// <summary>
+        /// 监视器类
+        /// </summary>
+        private class Monitor
+        {
+            private int playId;
+            private string playStream;
+            private VlcVideoSourceProvider sourceProvider;
+            private int volume;
+            private double opacity;
+            private Binding bing;
+
+            public int PlayId
+            {
+                get { return playId; }
+                set { playId = value; }
+            }
+
+            public string PlayStream
+            {
+                get { return playStream; }
+                set
+                {
+                    playStream = value;
+                }
+            }
+
+            public VlcVideoSourceProvider SourceProvider
+            {
+                get { return sourceProvider; }
+                set
+                {
+                    sourceProvider = value;
+                }
+            }
+
+            public int Volume
+            {
+                get { return volume; }
+                set
+                {
+                    volume = value;
+                    sourceProvider.MediaPlayer.Audio.Volume = volume;
+                }
+            }
+
+            public double Opacity
+            {
+                get { return opacity; }
+                set
+                {
+                    opacity = value;
+                }
+            }
+
+            public Binding Bing
+            {
+                get { return bing; }
+                set
+                {
+                    bing = value;
+                }
+            }
+
+            public Monitor()
+            {
+                PlayId = 10;
+                Bing = new Binding();
+            }
+            //需要在主进程初始化
+        }
+
+        bool ComboSettingLoad = false;
         private void ComboBoxSource_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            string PlayStream = null;
-            if (comboBoxSource.SelectedIndex != -1)
+            if (!ComboSettingLoad)
             {
-                PlayStream = configdata[comboBoxSource.SelectedIndex].LiveViewingSite.ToString();
-            }
-            else
-            {
-                if (expander1.IsExpanded == false && textboxManStreaming.Text != "")
+                if (selectedItem < 4)
                 {
-                    PlayStream = textboxManStreaming.Text;
-                    textboxManStreaming.Text = "";
-                }
-                else
-                {
-                    textboxManStreaming.Text = "";
-                    PlayStream = null;
-                }
-            }
-
-            if (PlayStream != null)
-            {
-                try
-                {
-                    var currentAssembly = Assembly.GetEntryAssembly();
-                    var currentDirectory = new FileInfo(currentAssembly.Location).DirectoryName;
-                    // Default installation path of VideoLAN.LibVLC.Windows
-                    var libDirectory = new DirectoryInfo(System.IO.Path.Combine(currentDirectory, "libvlc\\" + (IntPtr.Size == 4 ? "win-x86" : "win-x64")));
-
-                    this.sourceProvider = new VlcVideoSourceProvider(this.Dispatcher);
-                    this.sourceProvider.CreatePlayer(libDirectory, "--file-logging", "-vvv", "--logfile=Logs.log");
-                    var mediaOptions = new[]
-                    {
-                    " :network-caching=2000"
-                    };
-
-                    this.sourceProvider.MediaPlayer.Play(PlayStream, mediaOptions);
-                    this.sourceProvider.MediaPlayer.Log += new EventHandler<VlcMediaPlayerLogEventArgs>(MediaPlayer_Log);
-                    this.sourceProvider.MediaPlayer.Manager.SetFullScreen(this.sourceProvider.MediaPlayer.Manager.CreateMediaPlayer(), true);
-                    this.sourceProvider.MediaPlayer.Audio.IsMute = true;    //这个版本中被静音
-                                                                            //音量接口：this.sourceProvider.MediaPlayer.Audio.Volume，本版本暂时不用
-                    if (configdata[comboBoxSource.SelectedIndex].Type == "本地")
-                    {
-                        //设置为主监视器
-                        this.sourceProvider.MediaPlayer.EncounteredError += new EventHandler<VlcMediaPlayerEncounteredErrorEventArgs>(MediaPlayer_ErrorEncountered);
-                    }
-                    Binding bing = new Binding();
-                    bing.Source = sourceProvider;
-                    bing.Path = new PropertyPath("VideoSource");
-                    //输出图片
-                    string SourceName = null;
                     if (comboBoxSource.SelectedIndex != -1)
                     {
-                        SourceName = configdata[comboBoxSource.SelectedIndex].SourceName.ToString();
+                        Monitors.ElementAt(selectedItem - 1).PlayStream = configdata[comboBoxSource.SelectedIndex].LiveViewingSite.ToString();
+                        Monitors.ElementAt(selectedItem - 1).PlayId = comboBoxSource.SelectedIndex;
                     }
-                    else
+                    if (Monitors.ElementAt(selectedItem - 1).PlayStream != null)
                     {
-                        SourceName = "自定义";
-                    }
-                    switch (selectedItem)
-                    {
-                        case 1: LabelLU.Content = "左上:" + SourceName; LiveLU.SetBinding(Image.SourceProperty, bing); break;
-                        case 2: LabelRU.Content = "右上:" + SourceName; LiveRU.SetBinding(Image.SourceProperty, bing); break;
-                        case 3: LabelLD.Content = "左下:" + SourceName; LiveLD.SetBinding(Image.SourceProperty, bing); break;
-                        case 4: LabelRD.Content = "右下:" + SourceName; LiveRD.SetBinding(Image.SourceProperty, bing); break;
-                    }
+                        try
+                        {
+                            Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.Play(
+                                Monitors.ElementAt(selectedItem - 1).PlayStream, " :network-caching=2000");
 
-
-                }
-                catch (Exception ex)
-                {
-                    SideBar();  //关闭
-                    imageProtection.Visibility = Visibility.Visible;
-                    labelProtection.Content = "保护：" + ex.Message;
-                    labelProtection.Visibility = Visibility.Visible;
-                    //并且考虑传递错误信息 ex
+                            Monitors.ElementAt(selectedItem - 1).Bing = new Binding();
+                            Monitors.ElementAt(selectedItem - 1).Bing.Source = Monitors.ElementAt(selectedItem - 1).SourceProvider;
+                            Monitors.ElementAt(selectedItem - 1).Bing.Path = new PropertyPath("VideoSource");
+                            //输出图片
+                            string SourceName = null;
+                            if (comboBoxSource.SelectedIndex != -1)
+                            {
+                                SourceName = configdata[comboBoxSource.SelectedIndex].SourceName.ToString();
+                            }
+                            else
+                            {
+                                SourceName = "自定义";
+                            }
+                            switch (selectedItem)
+                            {
+                                case 1: LabelLU.Content = "左上:" + SourceName; LiveLU.SetBinding(Image.SourceProperty, Monitors.ElementAt(selectedItem - 1).Bing); break;
+                                case 2: LabelRU.Content = "右上:" + SourceName; LiveRU.SetBinding(Image.SourceProperty, Monitors.ElementAt(selectedItem - 1).Bing); break;
+                                case 3: LabelLD.Content = "左下:" + SourceName; LiveLD.SetBinding(Image.SourceProperty, Monitors.ElementAt(selectedItem - 1).Bing); break;
+                                case 4: LabelRD.Content = "右下:" + SourceName; LiveRD.SetBinding(Image.SourceProperty, Monitors.ElementAt(selectedItem - 1).Bing); break;
+                            }
+                            selectItem(selectedItem);
+                        }
+                        catch (Exception ex)
+                        {
+                            SideBar();  //关闭
+                            imageProtection.Visibility = Visibility.Visible;
+                            labelProtection.Content = "保护：" + ex.Message;
+                            labelProtection.Visibility = Visibility.Visible;
+                            //并且考虑传递错误信息 ex
+                        }
+                    }
                 }
             }
+
 
         }
 
@@ -3068,6 +3205,15 @@ namespace ACNginxConsole
 
         private void Window_Closed(object sender, EventArgs e)
         {
+            if (!RightCol.Width.Value.Equals(0))
+            {
+                //此时已经被初始化
+                //关闭所有媒体。
+                for (int i = 0; i < 3; ++i)
+                {
+                    Monitors.ElementAt(i).SourceProvider.Dispose();
+                }
+            }
             Properties.Settings.Default.Save();
             GC.Collect();
             Application.Current.Shutdown();
@@ -3122,39 +3268,14 @@ namespace ACNginxConsole
             focaldephov.BackImg.SetBinding(Image.SourceProperty, bing_sub);
         }
 
-        private VlcVideoSourceProvider sourceProvider_local;
         private void BackLive_Selected(object sender, RoutedEventArgs e)
         {
-            string PlayStream = configdata[0].LiveViewingSite.ToString();
-            var currentAssembly = Assembly.GetEntryAssembly();
-            var currentDirectory = new FileInfo(currentAssembly.Location).DirectoryName;
-            // Default installation path of VideoLAN.LibVLC.Windows
-            var libDirectory = new DirectoryInfo(System.IO.Path.Combine(currentDirectory, "libvlc\\" + (IntPtr.Size == 4 ? "win-x86" : "win-x64")));
-
-            this.sourceProvider_local = new VlcVideoSourceProvider(this.Dispatcher);
-            this.sourceProvider_local.CreatePlayer(libDirectory, "--file-logging", "-vvv", "--logfile=Logs.log");
-            var mediaOptions = new[]
-            {
-                    " :network-caching=2000"
-            };
-
-            this.sourceProvider_local.MediaPlayer.Play(PlayStream, mediaOptions);
-            this.sourceProvider_local.MediaPlayer.Log += new EventHandler<VlcMediaPlayerLogEventArgs>(MediaPlayer_Log);
-            this.sourceProvider_local.MediaPlayer.Manager.SetFullScreen(this.sourceProvider_local.MediaPlayer.Manager.CreateMediaPlayer(), true);
-            this.sourceProvider_local.MediaPlayer.Audio.IsMute = true;    //这个版本中被静音
-                                                                          //音量接口：this.sourceProvider_local.MediaPlayer.Audio.Volume，本版本暂时不用
-            this.sourceProvider_local.MediaPlayer.EncounteredError += new EventHandler<VlcMediaPlayerEncounteredErrorEventArgs>(MediaPlayer_ErrorEncountered);
-
-            bing_sub = new Binding();
-            bing_sub.Source = sourceProvider_local;
-            bing_sub.Path = new PropertyPath("VideoSource");
-            //输出图片
-            focaldephov.BackImg.SetBinding(Image.SourceProperty, bing_sub);
+            selectItem(selectedItem);
         }
 
         private void BackLive_Unselected(object sender, RoutedEventArgs e)
         {
-            sourceProvider_local.Dispose();
+            
         }
 
         private void BackPic_Selected(object sender, RoutedEventArgs e)
@@ -3179,6 +3300,7 @@ namespace ACNginxConsole
         }
 
         string PlayStream_local;
+        VlcVideoSourceProvider sourceProvider_local;
         private void BackVid_Selected(object sender, RoutedEventArgs e)
         {
             System.Windows.Forms.OpenFileDialog openFileDialog = new System.Windows.Forms.OpenFileDialog();
@@ -3684,53 +3806,92 @@ namespace ACNginxConsole
 
 
 
-        #endregion
-
-        #region 局域网
-        private void radioButtonLAN_Checked(object sender, RoutedEventArgs e)
-        {
-            ManualConfig();
-            radioButtonSender.IsChecked = true;
-            GridLANTip.Visibility = Visibility.Visible;
-        }
-
-
 
         #endregion
 
-        private void radioButtonSender_Checked(object sender, RoutedEventArgs e)
+        private void ListSelecChange(int ind)
         {
-            textBlockTip.Text = "点击 +1流 后，请把播流地址传给直播主机。";
-            //读取本机IP
-            string strName = System.Net.Dns.GetHostName();
-            IPHostEntry IPs = Dns.GetHostEntry(strName);
-            string _ip = "";
-            foreach (IPAddress ip in IPs.AddressList)
-                if (ip.AddressFamily.ToString() == "InterNetwork")
-                    _ip = ip.ToString();
-            Debug.WriteLine(_ip);
-            textBoxMan.Text = "rtmp://" + _ip + "/live";
-            textBoxWebsite.Text = "rtmp://" + _ip + "/live";
-            ImgDownArrow.Visibility = Visibility.Visible;
-            ImgRightArrow.Visibility = Visibility.Hidden;
-            textBoxSourceName.Text = "局域网播流";
-            labelMan.Visibility = Visibility.Visible;
-            textBoxMan.Visibility = Visibility.Visible;
-            textBoxMan.IsReadOnly = true;
-            textBoxWebsite.IsReadOnly = true;
+            if (ind<= listBoxDanmaku.Items.Count-1)
+            {
+                if ((listBoxDanmaku.Items[ind] as ListBoxItem).IsSelected)
+                    listBoxDanmaku.SelectedItems.Remove(listBoxDanmaku.Items[ind]);
+                else
+                    listBoxDanmaku.SelectedItems.Add(listBoxDanmaku.Items[ind]);
+            }
         }
 
-        private void radioButtonReceiver_Checked(object sender, RoutedEventArgs e)
+        private void StackPanelRightCol_KeyDown(object sender, KeyEventArgs e)
         {
-            textBlockTip.Text = "请输入分机的播流地址，然后 +1流 。";
-            textBoxWebsite.Text = "";
-            textBoxMan.Text = "";
-            ImgDownArrow.Visibility = Visibility.Hidden;
-            ImgRightArrow.Visibility = Visibility.Visible;
-            labelMan.Visibility = Visibility.Hidden;
-            textBoxMan.Visibility = Visibility.Hidden;
-            textBoxSourceName.Text = "流" + configcount;
-            textBoxWebsite.IsReadOnly = false;
+            StackPanelRightCol.Focus();
+            //侧栏快捷键
+            switch (e.Key)
+            {
+                case Key.Q: selectItem(1); break;
+                case Key.W: selectItem(2); break;
+                case Key.E: selectItem(3); break;
+                case Key.R: selectItem(4); break;
+                case Key.S: LiveSolo(); break;
+                case Key.D1: ListSelecChange(0); break;
+                case Key.D2: ListSelecChange(1); break;
+                case Key.D3: ListSelecChange(2); break;
+                case Key.D4: ListSelecChange(3); break;
+                case Key.D5: ListSelecChange(4); break;
+                case Key.D6: ListSelecChange(5); break;
+                case Key.D7: ListSelecChange(6); break;
+                case Key.D8: ListSelecChange(7); break;
+                case Key.D9: ListSelecChange(8); break;
+                case Key.M:
+                    switch (selectedItem)
+                    {
+                        case 1: 
+                            Monitors.ElementAt(selectedItem - 1).Volume = 0;
+                            ProgressLU.Value = 0;
+                            break;
+                        case 2:
+                            Monitors.ElementAt(selectedItem - 1).Volume = 0;
+                            ProgressRU.Value = 0;
+                            break;
+                        case 3:
+                            Monitors.ElementAt(selectedItem - 1).Volume = 0;
+                            ProgressLD.Value = 0;
+                            break;
+                    }
+                    break;
+                case Key.Down:
+                    switch (selectedItem)
+                    {
+                        case 1:
+                            Monitors.ElementAt(selectedItem - 1).Volume -= 2;
+                            ProgressLU.Value = Monitors.ElementAt(selectedItem - 1).Volume;
+                            break;
+                        case 2:
+                            Monitors.ElementAt(selectedItem - 1).Volume -= 2;
+                            ProgressRU.Value = Monitors.ElementAt(selectedItem - 1).Volume;
+                            break;
+                        case 3:
+                            Monitors.ElementAt(selectedItem - 1).Volume -= 2;
+                            ProgressLD.Value = Monitors.ElementAt(selectedItem - 1).Volume;
+                            break;
+                    }
+                    break;
+                case Key.Up:
+                    switch (selectedItem)
+                    {
+                        case 1:
+                            Monitors.ElementAt(selectedItem - 1).Volume += 2;
+                            ProgressLU.Value = Monitors.ElementAt(selectedItem - 1).Volume;
+                            break;
+                        case 2:
+                            Monitors.ElementAt(selectedItem - 1).Volume += 2;
+                            ProgressRU.Value = Monitors.ElementAt(selectedItem - 1).Volume;
+                            break;
+                        case 3:
+                            Monitors.ElementAt(selectedItem - 1).Volume += 2;
+                            ProgressLD.Value = Monitors.ElementAt(selectedItem - 1).Volume;
+                            break;
+                    }
+                    break;
+            }
         }
     }
 }
