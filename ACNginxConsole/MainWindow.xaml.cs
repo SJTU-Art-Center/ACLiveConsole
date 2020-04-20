@@ -73,6 +73,7 @@ using Vlc.DotNet.Wpf;
 using BiliDMLib;
 using BilibiliDM_PluginFramework;
 using Newtonsoft.Json.Linq;
+using FFmpegDemo;
 
 namespace ACNginxConsole
 {
@@ -621,6 +622,18 @@ namespace ACNginxConsole
                 checkBoxtest.IsChecked = false;
                 Warning_Clear();
             }
+
+            if (Properties.Settings.Default.LowMoni.Equals(true))
+            {
+                checkBoxLowMoni.IsChecked = true;
+                Rec2.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                checkBoxLowMoni.IsChecked = false;
+                Rec2.Visibility = Visibility.Hidden;
+            }
+
 
             checkBox2.IsChecked = Properties.Settings.Default.Norestart;
             checkBoxFullRange.IsChecked = Properties.Settings.Default.fulltest;
@@ -2211,10 +2224,11 @@ namespace ACNginxConsole
         private void Warning_show()
         {
             Properties.Settings.Default.NUffmpeg = true;
-            WarPic.Visibility = Visibility.Visible;
+            //WarPic.Visibility = Visibility.Visible;
+            //Rec1.Visibility = Visibility.Visible;
+            //labell1.Visibility = Visibility.Visible;
+            //labell2.Visibility = Visibility.Visible;
             Rec1.Visibility = Visibility.Visible;
-            labell1.Visibility = Visibility.Visible;
-            labell2.Visibility = Visibility.Visible;
         }
 
         /// <summary>
@@ -2223,10 +2237,11 @@ namespace ACNginxConsole
         private void Warning_Clear()
         {
             Properties.Settings.Default.NUffmpeg = false;
-            WarPic.Visibility = Visibility.Hidden;
+            //WarPic.Visibility = Visibility.Hidden;
+            //Rec1.Visibility = Visibility.Hidden;
+            //labell1.Visibility = Visibility.Hidden;
+            //labell2.Visibility = Visibility.Hidden;
             Rec1.Visibility = Visibility.Hidden;
-            labell1.Visibility = Visibility.Hidden;
-            labell2.Visibility = Visibility.Hidden;
         }
 
         private void CheckBox2_Checked(object sender, RoutedEventArgs e)
@@ -2329,6 +2344,9 @@ namespace ACNginxConsole
                     monitor.Volume = 0;
                     monitor.SourceProvider.MediaPlayer.EncounteredError += new EventHandler<VlcMediaPlayerEncounteredErrorEventArgs>(MediaPlayer_ErrorEncountered);
 
+                    //不论如何先初始化
+                    monitor.TstRtmp = new tstRtmp();
+
                     Monitors.Add(monitor);
                 }
             }
@@ -2348,6 +2366,8 @@ namespace ACNginxConsole
                 for (int i = 0; i < 3; ++i)
                 {
                     Monitors.ElementAt(i).SourceProvider.Dispose();
+                    Monitors.ElementAt(i).TstRtmp.Stop();
+                    Monitors.ElementAt(i).ThPlayer = null;
                 }
                 Monitors.Clear();
                 LabelLU.Content = "";
@@ -2466,9 +2486,11 @@ namespace ACNginxConsole
             private int playId;
             private string playStream;
             private VlcVideoSourceProvider sourceProvider;
+            private tstRtmp testRtmp;
             private int volume;
             private double opacity;
             private Binding bing;
+            private Thread thPlayer;
 
             public int PlayId
             {
@@ -2491,6 +2513,24 @@ namespace ACNginxConsole
                 set
                 {
                     sourceProvider = value;
+                }
+            }
+
+            public tstRtmp TstRtmp
+            {
+                get { return testRtmp; }
+                set
+                {
+                    testRtmp = value;
+                }
+            }
+
+            public Thread ThPlayer
+            {
+                get { return thPlayer; }
+                set
+                {
+                    thPlayer = value;
                 }
             }
 
@@ -2522,6 +2562,67 @@ namespace ACNginxConsole
                 }
             }
 
+            /// <summary>
+            /// 播放线程执行方法
+            /// </summary>
+            public unsafe void DeCoding()
+            {
+                try
+                {
+                    Bing.Source = TstRtmp.bs;
+                    TstRtmp.Start(PlayStream);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex);
+                }
+                finally
+                {
+                    Console.WriteLine("DeCoding exit");
+                    TstRtmp.Stop();
+
+                    ThPlayer = null;
+                }
+                //try
+                //{
+                //    Console.WriteLine("DeCoding run...");
+                //    System.Drawing.Bitmap oldBmp = null;
+
+
+                //    // 更新图片显示
+                //    tstRtmp.ShowBitmap show = (bmp) =>
+                //    {
+                //        this.Invoke(new MethodInvoker(() =>
+                //        {
+                //            this.pic.Image = bmp;
+                //            if (oldBmp != null)
+                //            {
+                //                oldBmp.Dispose();
+                //            }
+                //            oldBmp = bmp;
+                //        }));
+                //    };
+                //    rtmp.Start(show, txtUrl.Text.Trim());
+
+                //}
+                //catch (Exception ex)
+                //{
+                //    Console.WriteLine(ex);
+                //}
+                //finally
+                //{
+                //    Console.WriteLine("DeCoding exit");
+                //    rtmp.Stop();
+
+                //    thPlayer = null;
+                //    this.Invoke(new MethodInvoker(() =>
+                //    {
+                //        btnStart.Text = "开始播放";
+                //        btnStart.Enabled = true;
+                //    }));
+                //}
+            }
+
             public Monitor()
             {
                 PlayId = 10;
@@ -2546,37 +2647,47 @@ namespace ACNginxConsole
                     {
                         try
                         {
-                            var mediaOptions = new[]
-                            {
+                            if (checkBoxLowMoni.IsChecked.Equals(false))
+                            {   //传统 VLC 入口
+                                var mediaOptions = new[]
+                                {
                                 "--network-caching=1000",
                                 "--live-caching=300",
                                 "--no-rtsp-tcp"
-                            };
+                                };
 
-                            Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.Play(
-                                Monitors.ElementAt(selectedItem - 1).PlayStream, mediaOptions);
+                                Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.Play(
+                                    Monitors.ElementAt(selectedItem - 1).PlayStream, mediaOptions);
 
-                            Monitors.ElementAt(selectedItem - 1).Bing = new Binding();
-                            Monitors.ElementAt(selectedItem - 1).Bing.Source = Monitors.ElementAt(selectedItem - 1).SourceProvider;
-                            Monitors.ElementAt(selectedItem - 1).Bing.Path = new PropertyPath("VideoSource");
-                            //输出图片
-                            string SourceName = null;
-                            if (comboBoxSource.SelectedIndex != -1)
-                            {
-                                SourceName = configdata[comboBoxSource.SelectedIndex].SourceName.ToString();
+                                Monitors.ElementAt(selectedItem - 1).Bing = new Binding();
+                                Monitors.ElementAt(selectedItem - 1).Bing.Source = Monitors.ElementAt(selectedItem - 1).SourceProvider;
+                                Monitors.ElementAt(selectedItem - 1).Bing.Path = new PropertyPath("VideoSource");
+                                //输出图片
+                                string SourceName = null;
+                                if (comboBoxSource.SelectedIndex != -1)
+                                {
+                                    SourceName = configdata[comboBoxSource.SelectedIndex].SourceName.ToString();
+                                }
+                                else
+                                {
+                                    SourceName = "自定义";
+                                }
+                                switch (selectedItem)
+                                {
+                                    case 1: LabelLU.Content = "左上:" + SourceName; LiveLU.SetBinding(Image.SourceProperty, Monitors.ElementAt(selectedItem - 1).Bing); break;
+                                    case 2: LabelRU.Content = "右上:" + SourceName; LiveRU.SetBinding(Image.SourceProperty, Monitors.ElementAt(selectedItem - 1).Bing); break;
+                                    case 3: LabelLD.Content = "左下:" + SourceName; LiveLD.SetBinding(Image.SourceProperty, Monitors.ElementAt(selectedItem - 1).Bing); break;
+                                    case 4: LabelRD.Content = "右下:" + SourceName; LiveRD.SetBinding(Image.SourceProperty, Monitors.ElementAt(selectedItem - 1).Bing); break;
+                                }
+                                selectItem(selectedItem);
                             }
                             else
                             {
-                                SourceName = "自定义";
+                                Monitors.ElementAt(selectedItem - 1).TstRtmp.Stop();
+                                Monitors.ElementAt(selectedItem - 1).ThPlayer = new Thread(Monitors.ElementAt(selectedItem - 1).DeCoding);
+                                Monitors.ElementAt(selectedItem - 1).ThPlayer.IsBackground = true;
+                                Monitors.ElementAt(selectedItem - 1).ThPlayer.Start();
                             }
-                            switch (selectedItem)
-                            {
-                                case 1: LabelLU.Content = "左上:" + SourceName; LiveLU.SetBinding(Image.SourceProperty, Monitors.ElementAt(selectedItem - 1).Bing); break;
-                                case 2: LabelRU.Content = "右上:" + SourceName; LiveRU.SetBinding(Image.SourceProperty, Monitors.ElementAt(selectedItem - 1).Bing); break;
-                                case 3: LabelLD.Content = "左下:" + SourceName; LiveLD.SetBinding(Image.SourceProperty, Monitors.ElementAt(selectedItem - 1).Bing); break;
-                                case 4: LabelRD.Content = "右下:" + SourceName; LiveRD.SetBinding(Image.SourceProperty, Monitors.ElementAt(selectedItem - 1).Bing); break;
-                            }
-                            selectItem(selectedItem);
                         }
                         catch (Exception ex)
                         {
@@ -3225,6 +3336,8 @@ namespace ACNginxConsole
                 for (int i = 0; i < 3; ++i)
                 {
                     Monitors.ElementAt(i).SourceProvider.Dispose();
+                    Monitors.ElementAt(i).TstRtmp.Stop();
+                    Monitors.ElementAt(i).ThPlayer = null;
                 }
             }
             Properties.Settings.Default.Save();
@@ -3905,6 +4018,23 @@ namespace ACNginxConsole
                     }
                     break;
             }
+        }
+
+        private void checkBoxLowMoni_Checked(object sender, RoutedEventArgs e)
+        {
+            Rec2.Visibility = Visibility.Visible;
+            Properties.Settings.Default.LowMoni = true;
+        }
+
+        private void checkBoxLowMoni_Unchecked(object sender, RoutedEventArgs e)
+        {
+            Rec2.Visibility = Visibility.Hidden;
+            Properties.Settings.Default.LowMoni = false;
+        }
+
+        private void ButtonTextFore_Click(object sender, RoutedEventArgs e)
+        {
+            focaldephov.Topmost = true;
         }
     }
 }
