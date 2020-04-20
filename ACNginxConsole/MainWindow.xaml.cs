@@ -73,7 +73,6 @@ using Vlc.DotNet.Wpf;
 using BiliDMLib;
 using BilibiliDM_PluginFramework;
 using Newtonsoft.Json.Linq;
-using BililiveRecorder.Core;
 
 namespace ACNginxConsole
 {
@@ -2351,9 +2350,9 @@ namespace ACNginxConsole
                     Monitors.ElementAt(i).SourceProvider.Dispose();
                 }
                 Monitors.Clear();
-                LabelLU.Visibility = Visibility.Hidden;
-                LabelRU.Visibility = Visibility.Hidden;
-                LabelLD.Visibility = Visibility.Hidden;
+                LabelLU.Content = "";
+                LabelRU.Content = "";
+                LabelLD.Content = "";
                 ComboSettingLoad = true;
                 comboBoxSource.SelectedIndex = -1;
                 ComboSettingLoad = false;
@@ -2547,8 +2546,15 @@ namespace ACNginxConsole
                     {
                         try
                         {
+                            var mediaOptions = new[]
+                            {
+                                "--network-caching=1000",
+                                "--live-caching=300",
+                                "--no-rtsp-tcp"
+                            };
+
                             Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.Play(
-                                Monitors.ElementAt(selectedItem - 1).PlayStream, " :network-caching=2000");
+                                Monitors.ElementAt(selectedItem - 1).PlayStream, mediaOptions);
 
                             Monitors.ElementAt(selectedItem - 1).Bing = new Binding();
                             Monitors.ElementAt(selectedItem - 1).Bing.Source = Monitors.ElementAt(selectedItem - 1).SourceProvider;
