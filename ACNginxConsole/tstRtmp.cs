@@ -1,4 +1,5 @@
 ﻿
+using ACNginxConsole;
 using FFmpeg.AutoGen;
 using System;
 using System.Drawing;
@@ -16,8 +17,8 @@ namespace FFmpegDemo
         /// 显示图片委托
         /// </summary>
         /// <param name="bitmap"></param>
-        //public delegate void ShowBitmap(Bitmap bitmap);
-        public BitmapSource bs;
+        public delegate void ShowD3D(IntPtr data);
+        //public BitmapSource bs;
         /// <summary>
         /// 执行控制变量
         /// </summary>
@@ -28,7 +29,7 @@ namespace FFmpegDemo
         /// <param name="show">解码完成回调函数</param>
         /// <param name="url">播放地址，也可以是本地文件地址</param>
         public unsafe void Start(
-            //ShowBitmap show, 
+            ShowD3D show, 
             string url)
         {
             CanRun = true;
@@ -206,17 +207,17 @@ namespace FFmpegDemo
                 }
 
                 // 封装Bitmap图片
-                var bitmap = new Bitmap(width, height, dstLinesize[0], PixelFormat.Format24bppRgb, convertedFrameBufferPtr);
-                bs = Imaging.CreateBitmapSourceFromHBitmap(bitmap.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                //var bitmap = new Bitmap(width, height, dstLinesize[0], PixelFormat.Format24bppRgb, convertedFrameBufferPtr);
+                //bs = Imaging.CreateBitmapSourceFromHBitmap(bitmap.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
                 
                 // 回调
-                //show(bitmap);
+                show(convertedFrameBufferPtr);
                 //bitmap.Save(AppDomain.CurrentDomain.BaseDirectory + "\\264\\frame.buffer."+ frameNumber + ".jpg", ImageFormat.Jpeg);
                 
                 frameNumber++;
             }
             //播放完置空播放图片 
-            //show(null);
+            show(IntPtr.Zero);
             
 
             #endregion
@@ -254,5 +255,6 @@ namespace FFmpegDemo
         {
             CanRun = false;
         }
+
     }
 }

@@ -74,6 +74,7 @@ using BiliDMLib;
 using BilibiliDM_PluginFramework;
 using Newtonsoft.Json.Linq;
 using FFmpegDemo;
+using System.Windows.Interop;
 
 namespace ACNginxConsole
 {
@@ -2567,22 +2568,23 @@ namespace ACNginxConsole
             /// </summary>
             public unsafe void DeCoding()
             {
-                try
-                {
-                    Bing.Source = TstRtmp.bs;
-                    TstRtmp.Start(PlayStream);
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine(ex);
-                }
-                finally
-                {
-                    Console.WriteLine("DeCoding exit");
-                    TstRtmp.Stop();
+                //try
+                //{
+                //    Bing.Source = TstRtmp.bs;
+                //    TstRtmp.Start(PlayStream);
+                //}
+                //catch (Exception ex)
+                //{
+                //    Debug.WriteLine(ex);
+                //}
+                //finally
+                //{
+                //    Console.WriteLine("DeCoding exit");
+                //    TstRtmp.Stop();
 
-                    ThPlayer = null;
-                }
+                //    ThPlayer = null;
+                //}
+
                 //try
                 //{
                 //    Console.WriteLine("DeCoding run...");
@@ -4036,5 +4038,24 @@ namespace ACNginxConsole
         {
             focaldephov.Topmost = true;
         }
+
+        private void RenderD3D(IntPtr surface, D3DImage d3dImage)
+        {
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                if (d3dImage.IsFrontBufferAvailable && surface != IntPtr.Zero)
+                {
+                    var showRect = new Int32Rect(0, 0, d3dImage.PixelWidth, d3dImage.PixelHeight);
+                    d3dImage.Lock();
+                    d3dImage.SetBackBuffer(D3DResourceType.IDirect3DSurface9, surface);
+
+                    d3dImage.AddDirtyRect(showRect);
+                    d3dImage.Unlock();
+                }
+
+            }));
+
+        }
+
     }
 }
