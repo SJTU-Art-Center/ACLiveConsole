@@ -696,6 +696,8 @@ namespace ACNginxConsole
 
             GridLANTip.Visibility = Visibility.Hidden;
 
+            buttonExtPlayer.IsEnabled = false;
+
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -2346,8 +2348,11 @@ namespace ACNginxConsole
                     monitor.Volume = 0;
                     monitor.SourceProvider.MediaPlayer.EncounteredError += new EventHandler<VlcMediaPlayerEncounteredErrorEventArgs>(MediaPlayer_ErrorEncountered);
 
-                    //不论如何先初始化
-                    monitor.TstRtmp = new tstRtmp();
+                    if (checkBoxLowMoni.IsChecked.Equals(true))
+                    {
+                        //不论如何先初始化
+                        monitor.TstRtmp = new tstRtmp();
+                    }
 
                     Monitors.Add(monitor);
                 }
@@ -2368,8 +2373,13 @@ namespace ACNginxConsole
                 for (int i = 0; i < 3; ++i)
                 {
                     Monitors.ElementAt(i).SourceProvider.Dispose();
-                    Monitors.ElementAt(i).TstRtmp.Stop();
-                    Monitors.ElementAt(i).ThPlayer = null;
+                    if (checkBoxLowMoni.IsChecked.Equals(true))
+                    {
+                        Monitors.ElementAt(i).TstRtmp.Stop();
+                        Monitors.ElementAt(i).ThPlayer = null;
+                    }
+                    
+
                 }
                 Monitors.Clear();
                 LabelLU.Content = "";
@@ -2429,6 +2439,7 @@ namespace ACNginxConsole
             }
             buttonSolo.IsEnabled = true;
             MonitoringChanged();
+            buttonExtPlayer.IsEnabled = Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.IsPlaying().Equals(true);
             ComboSettingLoad = false;
         }
 
@@ -2494,7 +2505,7 @@ namespace ACNginxConsole
             private Binding bing;
             private Thread thPlayer;
             private BitmapSource bs;
-            private WriteableBitmap ws;
+            private WriteableBitmap wb;
 
             public int PlayId
             {
@@ -2547,12 +2558,12 @@ namespace ACNginxConsole
                 }
             }
 
-            public WriteableBitmap Ws
+            public WriteableBitmap Wb
             {
-                get { return ws; }
+                get { return wb; }
                 set
                 {
-                    ws = value;
+                    wb = value;
                 }
             }
 
@@ -2584,7 +2595,108 @@ namespace ACNginxConsole
                 }
             }
 
-            
+            /// <summary>
+            /// 播放线程执行方法
+            /// </summary>
+            public unsafe void DeCoding()
+            {
+                try
+                {
+                    //System.Drawing.Bitmap oldBmp = null;
+                    //WriteableBitmap oldwb = null;
+                    //tstRtmp.ShowBitmap show = (wb) => {
+                    //    this.Dispatcher.Invoke(new Action(delegate
+                    //    {
+                    //Solution 1: Offcial Slow WAY
+                    //IntPtr ptr = bmp.GetHbitmap();
+                    //BitmapSource Bs = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
+                    //        ptr, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                    ////release resource
+                    //DeleteObject(ptr);
+                    //LiveLU.Source = Bs;
+
+                    //Solution 2: Memory Way
+                    //BitmapImage Bi = BitmapToBitmapImage(bmp);
+                    //LiveLU.Source = Bi;
+
+                    //LiveLU.Source = wb;
+
+                    //Solution 3: Ws way
+                    //if (oldBmp != null)
+                    //{
+                    //    oldBmp.Dispose();
+                    //}
+
+                    //oldBmp = bmp;
+
+                    //if (oldwb != null)
+                    //{
+                    //    oldwb.
+                    //}
+                    //    }), null);
+
+                    //};
+                    // 更新图片显示
+                    tstRtmp.ShowBitmap show = (width, height, stride, data) =>
+                    {
+                        //    //    this.Invoke(new MethodInvoker(() =>
+                        //    //    {
+                        //    //        this.pic.Image = bmp;
+                        //    //        if (oldBmp != null)
+                        //    //        {
+                        //    //            oldBmp.Dispose();
+                        //    //        }
+                        //    //        oldBmp = bmp;
+                        //    //    }));
+                        Wb = null;
+                        Int32Rect rec = Int32Rect.Empty;
+                        Application.Current.Dispatcher.Invoke(new Action(delegate {
+                            //this.LiveImg.Source = bmp;
+                            //IntPtr ptr = bmp.GetHbitmap();
+                            //BitmapSource Bs = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
+                            //        ptr, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                            ////release resource
+                            //DeleteObject(ptr);
+                            //this.LiveImg.Source = Bs;
+                            try
+                            {
+                                if (Wb == null)
+                                {
+                                    Wb = new WriteableBitmap(width, height, 96, 96, System.Windows.Media.PixelFormats.Bgr24, null);
+                                    rec = new Int32Rect(0, 0, width, height);
+                                }
+                                Wb.Lock();
+                                Wb.AddDirtyRect(rec);
+                                Wb.WritePixels(rec, data, width * height * 4, stride);
+                                //Debug.WriteLine(frameNumber);
+                                Wb.Unlock();
+
+                                //不传参了 效率太低
+                                //如果想要调试，请在主进程呼叫此方法，并且直接改变某个image的source。
+                            }
+                            catch
+                            {
+
+                            }
+                        }));
+
+                    };
+                    TstRtmp.Start(show,PlayStream);
+
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex);
+                }
+                finally
+                {
+                    Console.WriteLine("DeCoding exit");
+                    TstRtmp.Stop();
+
+                    ThPlayer = null;
+                }
+
+            }
 
             public Monitor()
             {
@@ -2594,49 +2706,30 @@ namespace ACNginxConsole
             //需要在主进程初始化
         }
 
-        [System.Runtime.InteropServices.DllImport("gdi32.dll")]
-        public static extern bool DeleteObject(IntPtr hObject);
+        //[System.Runtime.InteropServices.DllImport("gdi32.dll")]
+        //public static extern bool DeleteObject(IntPtr hObject);
 
-        /// <summary>
-        /// 播放线程执行方法
-        /// </summary>
-        public unsafe void DeCoding()
-        {
-            try
-            {
-                System.Drawing.Bitmap oldBmp = null;
-                tstRtmp.ShowBitmap show = (bmp) => {
-                    this.Dispatcher.Invoke(new Action(delegate
-                    {
-                        IntPtr ptr = bmp.GetHbitmap();
-                        BitmapSource Bs = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
-                                ptr, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-                        //release resource
-                        DeleteObject(ptr);
-                        LiveLU.Source = Bs;
-                        if (oldBmp != null)
-                        {
-                            oldBmp.Dispose();
-                        }
-                        oldBmp = bmp;
-                    }), null);
 
-                };
-                Monitors.ElementAt(0).TstRtmp.Start(show, Monitors.ElementAt(0).PlayStream);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex);
-            }
-            finally
-            {
-                Console.WriteLine("DeCoding exit");
-                Monitors.ElementAt(0).TstRtmp.Stop();
+        //public BitmapImage BitmapToBitmapImage(System.Drawing.Bitmap bitmap)
+        //{
+        //    using (MemoryStream stream = new MemoryStream())
+        //    {
+        //        bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+        //        stream.Position = 0;
+        //        BitmapImage result = new BitmapImage();
+        //        result.BeginInit();
+        //        result.CacheOption = BitmapCacheOption.OnLoad;
+        //        result.StreamSource = stream;
+        //        result.EndInit();
+        //        result.Freeze();
+        //        return result;
+        //    }
 
-                Monitors.ElementAt(0).ThPlayer = null;
-            }
+        //}
 
-        }
+        
+
+        
 
         bool ComboSettingLoad = false;
         private void ComboBoxSource_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -2675,6 +2768,7 @@ namespace ACNginxConsole
 
                                 Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.Play(
                                     Monitors.ElementAt(selectedItem - 1).PlayStream, mediaOptions);
+                                Monitors.ElementAt(selectedItem - 1).Volume = 0;
 
                                 Monitors.ElementAt(selectedItem - 1).Bing = new Binding();
                                 Monitors.ElementAt(selectedItem - 1).Bing.Source = Monitors.ElementAt(selectedItem - 1).SourceProvider;
@@ -2685,21 +2779,23 @@ namespace ACNginxConsole
                             else
                             {
                                 Monitors.ElementAt(selectedItem - 1).TstRtmp.Stop();
-                                Monitors.ElementAt(selectedItem - 1).Bing.Source = Monitors.ElementAt(selectedItem - 1).Bs;
+                                Monitors.ElementAt(selectedItem - 1).Bing.Source = Monitors.ElementAt(selectedItem - 1).Wb;
                                 Monitors.ElementAt(selectedItem - 1).Bing.Path = null;
                                 //Monitors.ElementAt(selectedItem - 1).ThPlayer = new Thread(Monitors.ElementAt(selectedItem - 1).DeCoding);
-                                Monitors.ElementAt(selectedItem - 1).ThPlayer = new Thread(DeCoding);
+                                Monitors.ElementAt(selectedItem - 1).ThPlayer = new Thread(Monitors.ElementAt(selectedItem - 1).DeCoding);
                                 Monitors.ElementAt(selectedItem - 1).ThPlayer.IsBackground = true;
                                 Monitors.ElementAt(selectedItem - 1).ThPlayer.Start();
                             }
                             switch (selectedItem)
                             {
-                                //case 1: LabelLU.Content = "左上:" + SourceName; LiveLU.SetBinding(Image.SourceProperty, Monitors.ElementAt(selectedItem - 1).Bing); break;
+                                case 1: LabelLU.Content = "左上:" + SourceName; LiveLU.SetBinding(Image.SourceProperty, Monitors.ElementAt(selectedItem - 1).Bing); break;
                                 case 2: LabelRU.Content = "右上:" + SourceName; LiveRU.SetBinding(Image.SourceProperty, Monitors.ElementAt(selectedItem - 1).Bing); break;
                                 case 3: LabelLD.Content = "左下:" + SourceName; LiveLD.SetBinding(Image.SourceProperty, Monitors.ElementAt(selectedItem - 1).Bing); break;
                                 case 4: LabelRD.Content = "右下:" + SourceName; LiveRD.SetBinding(Image.SourceProperty, Monitors.ElementAt(selectedItem - 1).Bing); break;
                             }
                             selectItem(selectedItem);
+                            buttonExtPlayer.IsEnabled = true;
+
                         }
                         catch (Exception ex)
                         {
@@ -3348,8 +3444,11 @@ namespace ACNginxConsole
                 for (int i = 0; i < 3; ++i)
                 {
                     Monitors.ElementAt(i).SourceProvider.Dispose();
-                    Monitors.ElementAt(i).TstRtmp.Stop();
-                    Monitors.ElementAt(i).ThPlayer = null;
+                    if (checkBoxLowMoni.IsChecked.Equals(true))
+                    {
+                        Monitors.ElementAt(i).TstRtmp.Stop();
+                        Monitors.ElementAt(i).ThPlayer = null;
+                    }
                 }
             }
             Properties.Settings.Default.Save();
@@ -4049,6 +4148,7 @@ namespace ACNginxConsole
             focaldephov.Topmost = true;
         }
 
+        // 暂时弃用
         private void RenderD3D(IntPtr surface, D3DImage d3dImage)
         {
             this.Dispatcher.BeginInvoke(new Action(() =>
@@ -4067,5 +4167,35 @@ namespace ACNginxConsole
 
         }
 
+        private void buttonExtPlayer_Click(object sender, RoutedEventArgs e)
+        {
+            //打开外置的ffplay窗口
+
+            Thread play = new Thread(new ThreadStart(() =>
+            {
+                Process.Start("ffplay.exe", "-fflags nobuffer \"" + 
+                    Monitors.ElementAt(selectedItem - 1).PlayStream + "\""//+ " -vol" + Monitors.ElementAt(selectedItem-1).Volume
+                    );
+                Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.Stop();
+            }));
+            play.IsBackground = true;
+            play.Start();
+
+            switch (selectedItem)
+            {
+                case 1: LabelLU.Content = "已经打开低延迟外置监视器"; break;
+                case 2: LabelRU.Content = "已经打开低延迟外置监视器"; break;
+                case 3: LabelLD.Content = "已经打开低延迟外置监视器"; break;
+                case 4: LabelRD.Content = "已经打开低延迟外置监视器"; break;
+            }
+            buttonExtPlayer.IsEnabled = false;
+
+            ComboSettingLoad = true;
+            comboBoxSource.SelectedIndex = -1;
+            ComboSettingLoad = false;
+
+            this.Topmost = true;
+        }
+        
     }
 }

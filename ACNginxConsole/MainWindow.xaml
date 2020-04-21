@@ -292,7 +292,7 @@
                                 <ColumnDefinition/>
                             </Grid.ColumnDefinitions>
                             <Image x:Name="WarPic" Source="StatusAnnotations_Warning_32xLG_color.png" Stretch="Fill" Width="32" Height="32" />
-                            <TextBlock x:Name="labell1" TextWrapping="Wrap" Text="       为保证测试准确性，请在测试开始后开启OBS推流。只有在有数据流时结果才是准确的。" Height="35" Grid.Column="1" Margin="5,0"/>
+                            <TextBlock x:Name="labell1" TextWrapping="Wrap" Text="       为保证测试准确性，请在测试开始后开启OBS推流。只有在有数据流时结果才是准确的。" Height="35" Grid.Column="1" Margin="5,7,5,3"/>
                         </Grid>
                         <Grid x:Name="Rec2" Background="#FFF4F4F5" HorizontalAlignment="Right" Height="45" Margin="0,70,10.5,0" VerticalAlignment="Top" Width="332">
                             <Grid.ColumnDefinitions>
@@ -314,7 +314,7 @@
                             <CheckBox x:Name="checkBoxCloseProtect" Content="关闭监视器保护模式" HorizontalAlignment="Left" Width="130" BorderThickness="1" Margin="0,5,0,0" Checked="CheckBoxCloseProtect_Checked" Unchecked="CheckBoxCloseProtect_Unchecked"/>
                             <CheckBox x:Name="checkBoxCloseSniffing" Content="关闭播流地址自动获取" HorizontalAlignment="Left" Margin="0,5,0,0" Width="147" Checked="CheckBoxCloseSniffing_Checked" Unchecked="CheckBoxCloseSniffing_Unchecked"/>
                             <CheckBox x:Name="checkBoxClosingAnim" Content="计时器关闭推流时播放Closing.mp4" HorizontalAlignment="Left" Height="16" Margin="0,5,0,0" Width="242"/>
-                            <CheckBox x:Name="checkBoxLowMoni" Content="使用低延迟监视器" Margin="0,5,0.5,0" Checked="checkBoxLowMoni_Checked" Unchecked="checkBoxLowMoni_Unchecked"/>
+                            <CheckBox x:Name="checkBoxLowMoni" Content="使用低延迟监视器（弃用）" Margin="0,5,0.5,0" Checked="checkBoxLowMoni_Checked" Unchecked="checkBoxLowMoni_Unchecked" IsEnabled="False" Visibility="Collapsed"/>
 
 
 
@@ -566,6 +566,9 @@
                             </Button>
                             <Button x:Name="buttonDismiss" Click="ButtonDismiss_Click" ToolTip="关闭警报">
                                 <Image x:Name="DismissImg" Source="RecordStop_16xLG.png" Opacity="0.5"/>
+                            </Button>
+                            <Button x:Name="buttonExtPlayer" ToolTip="打开低延迟外置监视器" Click="buttonExtPlayer_Click">
+                                <Image Source="OpenFileDialog_692.png" />
                             </Button>
                         </StackPanel>
                         <ComboBox Grid.Column="1" x:Name="comboBoxSource" DisplayMemberPath="SourceName" SelectionChanged="ComboBoxSource_SelectionChanged" ToolTip="监视源" Margin="0" RenderTransformOrigin="0.503,0.55" Height="20" IsEnabled="False"/>
