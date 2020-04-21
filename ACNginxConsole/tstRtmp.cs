@@ -17,7 +17,7 @@ namespace FFmpegDemo
         /// 显示图片委托
         /// </summary>
         /// <param name="bitmap"></param>
-        public delegate void ShowD3D(IntPtr data);
+        public delegate void ShowBitmap(Bitmap bitmap);
         //public BitmapSource bs;
         /// <summary>
         /// 执行控制变量
@@ -29,7 +29,7 @@ namespace FFmpegDemo
         /// <param name="show">解码完成回调函数</param>
         /// <param name="url">播放地址，也可以是本地文件地址</param>
         public unsafe void Start(
-            ShowD3D show, 
+            ShowBitmap show, 
             string url)
         {
             CanRun = true;
@@ -119,8 +119,9 @@ namespace FFmpegDemo
 
             // 得到编码器ID
             var codecId = codecContext.codec_id;
-            // 目标像素格式
-            var destinationPixFmt = AVPixelFormat.AV_PIX_FMT_BGR24;
+            // 目标像素格式，改为YUV
+            //var destinationPixFmt = AVPixelFormat.AV_PIX_FMT_BGR24;
+            var destinationPixFmt = AVPixelFormat.AV_PIX_FMT_YUV420P;
 
 
             // 某些264格式codecContext.pix_fmt获取到的格式是AV_PIX_FMT_NONE 统一都认为是YUV420P
@@ -197,8 +198,10 @@ namespace FFmpegDemo
                     if (pPacket->stream_index != pStream->index) continue;
 
                     //Console.WriteLine($@"frame: {frameNumber}");
-                    // YUV->RGB
+                    //// YUV->RGB
+                    //  YUV
                     ffmpeg.sws_scale(pConvertContext, pDecodedFrame->data, pDecodedFrame->linesize, 0, height, dstData, dstLinesize);
+                    
                 }
                 finally
                 {
@@ -207,17 +210,22 @@ namespace FFmpegDemo
                 }
 
                 // 封装Bitmap图片
-                //var bitmap = new Bitmap(width, height, dstLinesize[0], PixelFormat.Format24bppRgb, convertedFrameBufferPtr);
+                var bitmap = new Bitmap(width, height, dstLinesize[0], PixelFormat.Format24bppRgb, convertedFrameBufferPtr);
                 //bs = Imaging.CreateBitmapSourceFromHBitmap(bitmap.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-                
+
+                //convertedFrameBufferPtr 里面有YUV信息
+                //dstLinesize 有解码信息
+
+
                 // 回调
-                show(convertedFrameBufferPtr);
+                //show(convertedFrameBufferPtr);
+                show(bitmap);
                 //bitmap.Save(AppDomain.CurrentDomain.BaseDirectory + "\\264\\frame.buffer."+ frameNumber + ".jpg", ImageFormat.Jpeg);
-                
+
                 frameNumber++;
             }
             //播放完置空播放图片 
-            show(IntPtr.Zero);
+            show(null);
             
 
             #endregion
