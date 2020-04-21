@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker"
         xmlns:local="clr-namespace:ACNginxConsole"
-        xmlns:loval="clr-namespace:Vlc.DotNet.Wpf;assembly=Vlc.DotNet.Wpf"
+        xmlns:i="clr-namespace:System.Windows.Interop;assembly=PresentationCore"
         mc:Ignorable="d"
         Title="AC Live Console" Height="621" Width="830.348" Closed="Window_Closed" SizeChanged="Window_SizeChanged" Loaded="Window_Loaded">
 
@@ -285,10 +285,26 @@
                 </TabItem>
                 <TabItem x:Name="TabItemSetting" Header="设置" Width="70">
                     <Grid Background="#FFE5E5E5">
-                        <Rectangle x:Name="Rec1" Fill="#FFF4F4F5" HorizontalAlignment="Right" Height="44.5" Margin="0,20.5,10,0" Stroke="Black" VerticalAlignment="Top" Width="362"/>
-                        <Image x:Name="WarPic" Margin="0,26,327.5,0" Source="StatusAnnotations_Warning_32xLG_color.png" Stretch="Fill" HorizontalAlignment="Right" Width="32" Height="32" VerticalAlignment="Top"/>
-                        <Label x:Name="labell1" Content="为保证测试准确性，请在测试开始后开启OBS推流。" Height="23.5" Margin="0,23.187,18.5,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="282.5"/>
-                        <Label x:Name="labell2" Content="只有在有数据流时结果才是准确的。" Height="25" Margin="0,38,40,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="282.5"/>
+
+                        <Grid x:Name="Rec1" Background="#FFF4F4F5" HorizontalAlignment="Right" Height="45" Margin="0,20,10.5,0" VerticalAlignment="Top" Width="332">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="60"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Image x:Name="WarPic" Source="StatusAnnotations_Warning_32xLG_color.png" Stretch="Fill" Width="32" Height="32" />
+                            <TextBlock x:Name="labell1" TextWrapping="Wrap" Text="       为保证测试准确性，请在测试开始后开启OBS推流。只有在有数据流时结果才是准确的。" Height="35" Grid.Column="1" Margin="5,7,5,3"/>
+                        </Grid>
+                        <Grid x:Name="Rec2" Background="#FFF4F4F5" HorizontalAlignment="Right" Height="45" Margin="0,70,10.5,0" VerticalAlignment="Top" Width="332">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="60"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Image x:Name="WarPic2" Source="StatusAnnotations_Warning_32xLG_color.png" Stretch="Fill" Width="32" Height="32" />
+                            <TextBlock x:Name="labell2" TextWrapping="Wrap" Text="       低延迟监视器暂时不能播放声音(BETA)。请在共享屏幕时将OBS最小化以减少资源消耗。" Height="35" Grid.Column="1" Margin="5,0"/>
+                        </Grid>
+
+
+
                         <Button x:Name="button6" Content="清除所有设置" HorizontalAlignment="Left" Margin="23,0,0,46" Width="170" Click="Button6_Click" Height="20" VerticalAlignment="Bottom"/>
                         <Button x:Name="button7" Content="确认" HorizontalAlignment="Left" Margin="198,0,0,46" Width="42" Click="Button7_Click" Height="20" VerticalAlignment="Bottom"/>
                         <StackPanel Margin="24,10,24,71" CanVerticallyScroll="True" ScrollViewer.CanContentScroll="True">
@@ -298,6 +314,7 @@
                             <CheckBox x:Name="checkBoxCloseProtect" Content="关闭监视器保护模式" HorizontalAlignment="Left" Width="130" BorderThickness="1" Margin="0,5,0,0" Checked="CheckBoxCloseProtect_Checked" Unchecked="CheckBoxCloseProtect_Unchecked"/>
                             <CheckBox x:Name="checkBoxCloseSniffing" Content="关闭播流地址自动获取" HorizontalAlignment="Left" Margin="0,5,0,0" Width="147" Checked="CheckBoxCloseSniffing_Checked" Unchecked="CheckBoxCloseSniffing_Unchecked"/>
                             <CheckBox x:Name="checkBoxClosingAnim" Content="计时器关闭推流时播放Closing.mp4" HorizontalAlignment="Left" Height="16" Margin="0,5,0,0" Width="242"/>
+                            <CheckBox x:Name="checkBoxLowMoni" Content="使用低延迟监视器（弃用）" Margin="0,5,0.5,0" Checked="checkBoxLowMoni_Checked" Unchecked="checkBoxLowMoni_Unchecked" IsEnabled="False" Visibility="Collapsed"/>
 
 
 
@@ -363,7 +380,7 @@
                                                         <colorPicker:ColorSlider Grid.Row="1" x:Name="OpacSliderFore" Grid.Column="1" LeftColor="#00000000" RightColor="{Binding SelectedColor, ElementName=ForeColorPicker}" Value="1" Maximum="1" LargeChange="0.1" ValueChanged="OpacSliderFore_ValueChanged" Background="{DynamicResource CheckersBrush}" />
                                                         <Label x:Name="buttonBackColorPicker" Grid.Row="2" Content="窗口背景" VerticalAlignment="Center" Padding="5,3" HorizontalContentAlignment="Left" Foreground="#FFFEFDFA" Background="#FF6DC2F9" Height="25" VerticalContentAlignment="Center"/>
                                                         <colorPicker:ColorComboBox x:Name="BackColorPicker" Grid.Column="1" Grid.Row="2" SelectedColorChanged="BackColorPicker_SelectedColorChanged" SelectedColor="Black" />
-                                                        <Label Grid.Row="3" Content="字体前景" Padding="5,3" HorizontalContentAlignment="Left" Background="#FF6DC2F9" Foreground="#FFFEFDFA" VerticalContentAlignment="Center"/>
+                                                        <Button x:Name="buttonTextFore" Grid.Row="3" Content="字体前景" Padding="5,3" HorizontalContentAlignment="Left" Background="#FF6DC2F9" Foreground="#FFFEFDFA" VerticalContentAlignment="Center" Click="ButtonTextFore_Click" ToolTip="按下将弹幕公屏置顶。"/>
                                                         <colorPicker:ColorComboBox x:Name="ForeColorPicker" Grid.Row="3" Grid.Column="1" SelectedColor="White" SelectedColorChanged="ForeColorPicker_SelectedColorChanged"/>
                                                         <Button x:Name="buttonBackImg" Grid.Row="4" Content="背景源" Padding="5,3" HorizontalContentAlignment="Left" Foreground="#FFFEFDFA" Background="#FF6DC2F9" Click="ButtonBackImg_Click"/>
                                                         <ComboBox x:Name="ComboBoxBackImg" Grid.Row="4" Grid.Column="1" SelectedIndex="0" VerticalContentAlignment="Center">
@@ -462,6 +479,11 @@
                                     </Grid.ColumnDefinitions>
                                     <Label x:Name="LabelLU" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="48"/>
                                     <Image x:Name="LiveLU" Focusable="True" Margin="0"/>
+                                    <Image>
+                                        <Image.Source>
+                                            <i:D3DImage x:Name="LiveLUD3D"/>
+                                        </Image.Source>
+                                    </Image>
                                     <Grid Grid.Column="1" >
                                         <ProgressBar x:Name="ProgressLU" Value="0" Orientation="Vertical" ToolTip="↑↓调整音量 M静音"/>
                                     </Grid>
@@ -478,6 +500,11 @@
                                     </Grid.ColumnDefinitions>
                                     <Label x:Name="LabelRU" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="48"/>
                                     <Image x:Name="LiveRU"/>
+                                    <Image>
+                                        <Image.Source>
+                                            <i:D3DImage x:Name="LiveRUD3D"/>
+                                        </Image.Source>
+                                    </Image>
                                     <Grid Grid.Column="1" >
                                         <ProgressBar x:Name="ProgressRU" Value="0" Orientation="Vertical" ToolTip="↑↓调整音量 M静音"/>
                                     </Grid>
@@ -494,6 +521,11 @@
                                     </Grid.ColumnDefinitions>
                                     <Label x:Name="LabelLD" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="48"/>
                                     <Image x:Name="LiveLD"/>
+                                    <Image>
+                                        <Image.Source>
+                                            <i:D3DImage x:Name="LiveLDD3D"/>
+                                        </Image.Source>
+                                    </Image>
                                     <Grid Grid.Column="1" >
                                         <ProgressBar x:Name="ProgressLD" Value="0" Orientation="Vertical" ToolTip="↑↓调整音量 M静音"/>
                                     </Grid>
@@ -534,6 +566,9 @@
                             </Button>
                             <Button x:Name="buttonDismiss" Click="ButtonDismiss_Click" ToolTip="关闭警报">
                                 <Image x:Name="DismissImg" Source="RecordStop_16xLG.png" Opacity="0.5"/>
+                            </Button>
+                            <Button x:Name="buttonExtPlayer" ToolTip="打开低延迟外置监视器" Click="buttonExtPlayer_Click">
+                                <Image Source="OpenFileDialog_692.png" />
                             </Button>
                         </StackPanel>
                         <ComboBox Grid.Column="1" x:Name="comboBoxSource" DisplayMemberPath="SourceName" SelectionChanged="ComboBoxSource_SelectionChanged" ToolTip="监视源" Margin="0" RenderTransformOrigin="0.503,0.55" Height="20" IsEnabled="False"/>
