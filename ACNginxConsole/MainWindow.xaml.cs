@@ -75,6 +75,7 @@ using BilibiliDM_PluginFramework;
 using Newtonsoft.Json.Linq;
 using FFmpegDemo;
 using System.Windows.Interop;
+//using System.Windows.Forms;
 
 namespace ACNginxConsole
 {
@@ -2492,6 +2493,8 @@ namespace ACNginxConsole
             private double opacity;
             private Binding bing;
             private Thread thPlayer;
+            private BitmapSource bs;
+            private WriteableBitmap ws;
 
             public int PlayId
             {
@@ -2535,6 +2538,24 @@ namespace ACNginxConsole
                 }
             }
 
+            public BitmapSource Bs
+            {
+                get { return bs; }
+                set
+                {
+                    bs = value;
+                }
+            }
+
+            public WriteableBitmap Ws
+            {
+                get { return ws; }
+                set
+                {
+                    ws = value;
+                }
+            }
+
             public int Volume
             {
                 get { return volume; }
@@ -2563,67 +2584,7 @@ namespace ACNginxConsole
                 }
             }
 
-            /// <summary>
-            /// 播放线程执行方法
-            /// </summary>
-            public unsafe void DeCoding()
-            {
-                //try
-                //{
-                //    Bing.Source = TstRtmp.bs;
-                //    TstRtmp.Start(PlayStream);
-                //}
-                //catch (Exception ex)
-                //{
-                //    Debug.WriteLine(ex);
-                //}
-                //finally
-                //{
-                //    Console.WriteLine("DeCoding exit");
-                //    TstRtmp.Stop();
-
-                //    ThPlayer = null;
-                //}
-
-                //try
-                //{
-                //    Console.WriteLine("DeCoding run...");
-                //    System.Drawing.Bitmap oldBmp = null;
-
-
-                //    // 更新图片显示
-                //    tstRtmp.ShowBitmap show = (bmp) =>
-                //    {
-                //        this.Invoke(new MethodInvoker(() =>
-                //        {
-                //            this.pic.Image = bmp;
-                //            if (oldBmp != null)
-                //            {
-                //                oldBmp.Dispose();
-                //            }
-                //            oldBmp = bmp;
-                //        }));
-                //    };
-                //    rtmp.Start(show, txtUrl.Text.Trim());
-
-                //}
-                //catch (Exception ex)
-                //{
-                //    Console.WriteLine(ex);
-                //}
-                //finally
-                //{
-                //    Console.WriteLine("DeCoding exit");
-                //    rtmp.Stop();
-
-                //    thPlayer = null;
-                //    this.Invoke(new MethodInvoker(() =>
-                //    {
-                //        btnStart.Text = "开始播放";
-                //        btnStart.Enabled = true;
-                //    }));
-                //}
-            }
+            
 
             public Monitor()
             {
@@ -2631,6 +2592,50 @@ namespace ACNginxConsole
                 Bing = new Binding();
             }
             //需要在主进程初始化
+        }
+
+        [System.Runtime.InteropServices.DllImport("gdi32.dll")]
+        public static extern bool DeleteObject(IntPtr hObject);
+
+        /// <summary>
+        /// 播放线程执行方法
+        /// </summary>
+        public unsafe void DeCoding()
+        {
+            try
+            {
+                System.Drawing.Bitmap oldBmp = null;
+                tstRtmp.ShowBitmap show = (bmp) => {
+                    this.Dispatcher.Invoke(new Action(delegate
+                    {
+                        IntPtr ptr = bmp.GetHbitmap();
+                        BitmapSource Bs = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
+                                ptr, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                        //release resource
+                        DeleteObject(ptr);
+                        LiveLU.Source = Bs;
+                        if (oldBmp != null)
+                        {
+                            oldBmp.Dispose();
+                        }
+                        oldBmp = bmp;
+                    }), null);
+
+                };
+                Monitors.ElementAt(0).TstRtmp.Start(show, Monitors.ElementAt(0).PlayStream);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+            }
+            finally
+            {
+                Console.WriteLine("DeCoding exit");
+                Monitors.ElementAt(0).TstRtmp.Stop();
+
+                Monitors.ElementAt(0).ThPlayer = null;
+            }
+
         }
 
         bool ComboSettingLoad = false;
@@ -2649,6 +2654,16 @@ namespace ACNginxConsole
                     {
                         try
                         {
+                            //输出图片
+                            string SourceName = null;
+                            if (comboBoxSource.SelectedIndex != -1)
+                            {
+                                SourceName = configdata[comboBoxSource.SelectedIndex].SourceName.ToString();
+                            }
+                            else
+                            {
+                                SourceName = "自定义";
+                            }
                             if (checkBoxLowMoni.IsChecked.Equals(false))
                             {   //传统 VLC 入口
                                 var mediaOptions = new[]
@@ -2664,32 +2679,27 @@ namespace ACNginxConsole
                                 Monitors.ElementAt(selectedItem - 1).Bing = new Binding();
                                 Monitors.ElementAt(selectedItem - 1).Bing.Source = Monitors.ElementAt(selectedItem - 1).SourceProvider;
                                 Monitors.ElementAt(selectedItem - 1).Bing.Path = new PropertyPath("VideoSource");
-                                //输出图片
-                                string SourceName = null;
-                                if (comboBoxSource.SelectedIndex != -1)
-                                {
-                                    SourceName = configdata[comboBoxSource.SelectedIndex].SourceName.ToString();
-                                }
-                                else
-                                {
-                                    SourceName = "自定义";
-                                }
-                                switch (selectedItem)
-                                {
-                                    case 1: LabelLU.Content = "左上:" + SourceName; LiveLU.SetBinding(Image.SourceProperty, Monitors.ElementAt(selectedItem - 1).Bing); break;
-                                    case 2: LabelRU.Content = "右上:" + SourceName; LiveRU.SetBinding(Image.SourceProperty, Monitors.ElementAt(selectedItem - 1).Bing); break;
-                                    case 3: LabelLD.Content = "左下:" + SourceName; LiveLD.SetBinding(Image.SourceProperty, Monitors.ElementAt(selectedItem - 1).Bing); break;
-                                    case 4: LabelRD.Content = "右下:" + SourceName; LiveRD.SetBinding(Image.SourceProperty, Monitors.ElementAt(selectedItem - 1).Bing); break;
-                                }
-                                selectItem(selectedItem);
+                                
+                                
                             }
                             else
                             {
                                 Monitors.ElementAt(selectedItem - 1).TstRtmp.Stop();
-                                Monitors.ElementAt(selectedItem - 1).ThPlayer = new Thread(Monitors.ElementAt(selectedItem - 1).DeCoding);
+                                Monitors.ElementAt(selectedItem - 1).Bing.Source = Monitors.ElementAt(selectedItem - 1).Bs;
+                                Monitors.ElementAt(selectedItem - 1).Bing.Path = null;
+                                //Monitors.ElementAt(selectedItem - 1).ThPlayer = new Thread(Monitors.ElementAt(selectedItem - 1).DeCoding);
+                                Monitors.ElementAt(selectedItem - 1).ThPlayer = new Thread(DeCoding);
                                 Monitors.ElementAt(selectedItem - 1).ThPlayer.IsBackground = true;
                                 Monitors.ElementAt(selectedItem - 1).ThPlayer.Start();
                             }
+                            switch (selectedItem)
+                            {
+                                //case 1: LabelLU.Content = "左上:" + SourceName; LiveLU.SetBinding(Image.SourceProperty, Monitors.ElementAt(selectedItem - 1).Bing); break;
+                                case 2: LabelRU.Content = "右上:" + SourceName; LiveRU.SetBinding(Image.SourceProperty, Monitors.ElementAt(selectedItem - 1).Bing); break;
+                                case 3: LabelLD.Content = "左下:" + SourceName; LiveLD.SetBinding(Image.SourceProperty, Monitors.ElementAt(selectedItem - 1).Bing); break;
+                                case 4: LabelRD.Content = "右下:" + SourceName; LiveRD.SetBinding(Image.SourceProperty, Monitors.ElementAt(selectedItem - 1).Bing); break;
+                            }
+                            selectItem(selectedItem);
                         }
                         catch (Exception ex)
                         {
