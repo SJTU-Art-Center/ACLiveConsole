@@ -5,7 +5,6 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker"
         xmlns:local="clr-namespace:ACNginxConsole"
-        xmlns:i="clr-namespace:System.Windows.Interop;assembly=PresentationCore"
         mc:Ignorable="d"
         Title="AC Live Console" Height="621" Width="830.348" Closed="Window_Closed" SizeChanged="Window_SizeChanged" Loaded="Window_Loaded">
 
@@ -319,7 +318,7 @@
 
 
                             <Border Background="White" CornerRadius="10" Margin="0,5,0,0">
-                                <StackPanel  Margin="5">
+                                <StackPanel  Margin="10">
                                     <Grid Height="40" Background="{DynamicResource CheckersBrush}" Opacity="{Binding Value, ElementName=OpacSlider}" Margin="0,5,0,0">
                                         <Rectangle>
                                             <Rectangle.Fill>
@@ -479,11 +478,6 @@
                                     </Grid.ColumnDefinitions>
                                     <Label x:Name="LabelLU" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="48"/>
                                     <Image x:Name="LiveLU" Focusable="True" Margin="0"/>
-                                    <Image>
-                                        <Image.Source>
-                                            <i:D3DImage x:Name="LiveLUD3D"/>
-                                        </Image.Source>
-                                    </Image>
                                     <Grid Grid.Column="1" >
                                         <ProgressBar x:Name="ProgressLU" Value="0" Orientation="Vertical" ToolTip="↑↓调整音量 M静音"/>
                                     </Grid>
@@ -500,11 +494,6 @@
                                     </Grid.ColumnDefinitions>
                                     <Label x:Name="LabelRU" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="48"/>
                                     <Image x:Name="LiveRU"/>
-                                    <Image>
-                                        <Image.Source>
-                                            <i:D3DImage x:Name="LiveRUD3D"/>
-                                        </Image.Source>
-                                    </Image>
                                     <Grid Grid.Column="1" >
                                         <ProgressBar x:Name="ProgressRU" Value="0" Orientation="Vertical" ToolTip="↑↓调整音量 M静音"/>
                                     </Grid>
@@ -521,11 +510,6 @@
                                     </Grid.ColumnDefinitions>
                                     <Label x:Name="LabelLD" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="48"/>
                                     <Image x:Name="LiveLD"/>
-                                    <Image>
-                                        <Image.Source>
-                                            <i:D3DImage x:Name="LiveLDD3D"/>
-                                        </Image.Source>
-                                    </Image>
                                     <Grid Grid.Column="1" >
                                         <ProgressBar x:Name="ProgressLD" Value="0" Orientation="Vertical" ToolTip="↑↓调整音量 M静音"/>
                                     </Grid>
