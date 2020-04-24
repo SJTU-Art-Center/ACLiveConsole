@@ -1073,6 +1073,9 @@ namespace ACNginxConsole
                 {   //从第二个开始录入
                     if (configdata[i].StreamCode == "")
                         continue;   //跳过空项
+                    if (checkBoxSolo.IsChecked.Equals(true) && configdata[i].Type=="局域网" 
+                        && configdata[i].StreamCode == configdata[i].LiveViewingSite)
+                        continue;   //独立时，跳过局域网播流项
                     textBoxOpt.Text += "push " + configdata[i].StreamCode + ";" + "\r\n";
                 }
                 goodopt = textBoxOpt.Text;
@@ -1081,7 +1084,7 @@ namespace ACNginxConsole
             }
 
             //正常写入
-            if (textBoxOpt.Text == "")
+            if (textBoxOpt.Text == "" && checkBoxSolo.IsChecked.Equals(false))
             {
                 ErrorImage.Visibility = Visibility.Visible;
                 labelError.Content = "写入不能为空！";

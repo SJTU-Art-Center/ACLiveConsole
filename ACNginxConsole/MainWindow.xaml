@@ -157,6 +157,7 @@
                             <Image x:Name="ImgRightArrow" Margin="0,0,6,7" Source="arrow_Forward_color_32xLG.png" Stretch="Fill" Height="28" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="28"/>
 
                         </Grid>
+                        <CheckBox x:Name="checkBoxSolo" Content="接收端独立" Margin="0,0,124.5,17" HorizontalAlignment="Right" Width="107" Height="22" VerticalAlignment="Bottom" ToolTip="作为信号接收器但又需要分流直播时，请勾选此项。"/>
 
 
                     </Grid>
