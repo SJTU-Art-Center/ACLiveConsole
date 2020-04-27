@@ -454,11 +454,18 @@ namespace ACNginxConsole
 
                                         //解析到
                                         api_url = matches[0].Groups[0].ToString();
-                                        re = new Regex(@"\.flv");
-                                        string result = re.Replace(api_url, ".m3u8");
+                                        //re = new Regex(@"\.flv");
+                                        //string result = re.Replace(api_url, ".m3u8");
+
+                                        re = new Regex(@"(?<=live_)\w+");
+                                        matches = re.Matches(api_url);
+                                        api_url = matches[0].Groups[0].ToString();
+                                        string result = "https://cn-hbxy-cmcc-live-01.live-play.acgvideo.com/live-bvc/live_" + api_url + ".m3u8";
+
                                         System.Diagnostics.Debug.WriteLine(result);
                                         return result;
                                         //该方法暂时失效
+                                        //https://cn-hbxy-cmcc-live-01.live-play.acgvideo.com/live-bvc/live_
 
                                     }
                                     catch (Exception)
@@ -2425,6 +2432,8 @@ namespace ACNginxConsole
                    
                     if (DanmakuSwitch && BackLive.IsSelected)
                     {
+                        if (focaldephov.ForeImg.Opacity == 1)
+                            ImgFadeOutAnim(buttonForeImg, focaldephov.ForeImg);
                         focaldephov.BackImg.SetBinding(Image.SourceProperty, Monitors.ElementAt(selectedItem - 1).Bing);
                     }
                 }
@@ -2440,7 +2449,16 @@ namespace ACNginxConsole
                 LabelDanmu.Visibility = Visibility.Visible;
                 comboBoxSource.IsEnabled = false;
                 comboBoxSource.SelectedIndex = -1;
-                focaldephov.BackImg.SetBinding(Image.SourceProperty, new Binding());
+                if (DanmakuSwitch && BackLive.IsSelected)
+                {//切为前景图片
+                    if (focaldephov.ForeImg.Opacity == 0)
+                        ImgFadeOutAnim(buttonForeImg, focaldephov.ForeImg);
+                    focaldephov.BackImg.SetBinding(Image.SourceProperty, new Binding());
+                }
+                else
+                {
+                    focaldephov.BackImg.SetBinding(Image.SourceProperty, new Binding());
+                }
                 buttonExtPlayer.IsEnabled = false;
             }
             buttonSolo.IsEnabled = true;
@@ -2632,7 +2650,7 @@ namespace ACNginxConsole
 
             public Monitor()
             {
-                PlayId = 10;
+                PlayId = 1000;
                 Bing = new Binding();
             }
             //需要在主进程初始化
@@ -2766,6 +2784,21 @@ namespace ACNginxConsole
             Storyboard Soloanim = this.FindResource("SoloAnimation") as Storyboard;
 
             int shrinkcol, shrinkrow;
+
+            
+
+            double state;
+            if (buttonRD.IsEnabled)
+            {
+                state = 0;
+                SoloImg.Opacity = 1;
+            }
+            else
+            {
+                state = 0.5;
+                SoloImg.Opacity = 0.5;
+            }
+
             switch (selectedItem)
             {
                 case 1: shrinkcol = 1; shrinkrow = 1; break;
@@ -2775,26 +2808,20 @@ namespace ACNginxConsole
                 default: shrinkcol = 1; shrinkrow = 1; break;
             }
 
-            int state;
-            if (buttonRD.IsEnabled)
-            {
-                state = 0;
-                SoloImg.Opacity = 1;
-            }
-            else
-            {
-                state = 1;
-                SoloImg.Opacity = 0.5;
-            }
-            Soloanim.Children[0].SetValue(Storyboard.TargetNameProperty, "Col" + shrinkcol);
-            (Soloanim.Children[0] as GridLengthAnimation).To = new GridLength(state, GridUnitType.Star);
-            Soloanim.Children[1].SetValue(Storyboard.TargetNameProperty, "Row" + shrinkrow);
-            (Soloanim.Children[1] as GridLengthAnimation).To = new GridLength(state, GridUnitType.Star);
-            //Soloanim.Children[2].SetValue(Storyboard.TargetNameProperty, "Col" + (1-shrinkcol));
-            //(Soloanim.Children[2] as GridLengthAnimation).To = new GridLength(1-state, GridUnitType.Star);
-            //Soloanim.Children[3].SetValue(Storyboard.TargetNameProperty, "Row" + (1-shrinkrow));
-            //(Soloanim.Children[3] as GridLengthAnimation).To = new GridLength(1-state, GridUnitType.Star);
-            Soloanim.Begin();
+            Monitoring.ColumnDefinitions.ElementAt(shrinkcol).Width = new GridLength(state, GridUnitType.Star);
+            Monitoring.RowDefinitions.ElementAt(shrinkrow).Height = new GridLength(state, GridUnitType.Star);
+            Monitoring.ColumnDefinitions.ElementAt(1-shrinkcol).Width = new GridLength(1 - state, GridUnitType.Star);
+            Monitoring.RowDefinitions.ElementAt(1-shrinkrow).Height = new GridLength(1 - state, GridUnitType.Star);
+
+            //Soloanim.Children[0].SetValue(Storyboard.TargetNameProperty, "Col" + shrinkcol);
+            //(Soloanim.Children[0] as GridLengthAnimation).To = new GridLength(state, GridUnitType.Star);
+            //Soloanim.Children[1].SetValue(Storyboard.TargetNameProperty, "Row" + shrinkrow);
+            //(Soloanim.Children[1] as GridLengthAnimation).To = new GridLength(state, GridUnitType.Star);
+            //Soloanim.Children[2].SetValue(Storyboard.TargetNameProperty, "Col" + (1 - shrinkcol));
+            //(Soloanim.Children[2] as GridLengthAnimation).To = new GridLength(1 - state, GridUnitType.Star);
+            //Soloanim.Children[3].SetValue(Storyboard.TargetNameProperty, "Row" + (1 - shrinkrow));
+            //(Soloanim.Children[3] as GridLengthAnimation).To = new GridLength(1 - state, GridUnitType.Star);
+            //Soloanim.Begin();
             buttonLU.IsEnabled = !buttonLU.IsEnabled;
             buttonRU.IsEnabled = !buttonRU.IsEnabled;
             buttonLD.IsEnabled = !buttonLD.IsEnabled;
@@ -3431,6 +3458,8 @@ namespace ACNginxConsole
             {
                 //此时已经被初始化
                 //关闭所有媒体。
+                if (BackLive.IsSelected.Equals(true))
+                    focaldephov.BackImg.Source = null;
                 for (int i = 0; i < 3; ++i)
                 {
                     Monitors.ElementAt(i).SourceProvider.Dispose();

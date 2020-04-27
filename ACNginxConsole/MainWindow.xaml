@@ -6,7 +6,7 @@
         xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker"
         xmlns:local="clr-namespace:ACNginxConsole"
         mc:Ignorable="d"
-        Title="AC Live Console" Height="621" Width="830.348" Closed="Window_Closed" SizeChanged="Window_SizeChanged" Loaded="Window_Loaded">
+        Title="AC Live Console" Height="631.5" Width="830.348" Closed="Window_Closed" SizeChanged="Window_SizeChanged" Loaded="Window_Loaded">
 
     <Window.Resources>
         <colorPicker:ColorToStringConverter x:Key="ColorToStringConverter"/>
@@ -19,6 +19,8 @@
         <Storyboard x:Key="SoloAnimation">
             <local:GridLengthAnimation x:Name="ColAnim" Storyboard.TargetProperty="Width" Duration="0:0:1"/>
             <local:GridLengthAnimation x:Name="RowAnim" Storyboard.TargetProperty="Height" Duration="0:0:1"/>
+            <local:GridLengthAnimation x:Name="ColAnim2" Storyboard.TargetProperty="Width" Duration="0:0:1"/>
+            <local:GridLengthAnimation x:Name="RowAnim2" Storyboard.TargetProperty="Height" Duration="0:0:1"/>
         </Storyboard>
         <DrawingBrush x:Key="CheckersBrush" 
                   Viewport="0,0,11,11" ViewportUnits="Absolute"
@@ -474,8 +476,8 @@
                                 </Border.BorderBrush>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="25*"/>
-                                        <ColumnDefinition Width="1*"/>
+                                        <ColumnDefinition />
+                                        <ColumnDefinition Width="23"/>
                                     </Grid.ColumnDefinitions>
                                     <Label x:Name="LabelLU" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="48"/>
                                     <Image x:Name="LiveLU" Focusable="True" Margin="0"/>
@@ -490,8 +492,8 @@
                                 </Border.BorderBrush>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="25*"/>
-                                        <ColumnDefinition Width="1*"/>
+                                        <ColumnDefinition />
+                                        <ColumnDefinition Width="23"/>
                                     </Grid.ColumnDefinitions>
                                     <Label x:Name="LabelRU" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="48"/>
                                     <Image x:Name="LiveRU"/>
@@ -506,8 +508,8 @@
                                 </Border.BorderBrush>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="25*"/>
-                                        <ColumnDefinition Width="1*"/>
+                                        <ColumnDefinition />
+                                        <ColumnDefinition Width="23"/>
                                     </Grid.ColumnDefinitions>
                                     <Label x:Name="LabelLD" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="48"/>
                                     <Image x:Name="LiveLD"/>
