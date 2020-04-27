@@ -2378,6 +2378,19 @@ namespace ACNginxConsole
 
                 expandRightCol.Begin(RightCol, HandoffBehavior.SnapshotAndReplace, true);
 
+                LabelLU.Content = "";
+                LabelRU.Content = "";
+                LabelLD.Content = "";
+
+                ProgressLD.Value = 0;
+                ProgressLU.Value = 0;
+                ProgressRU.Value = 0;
+
+                ComboSettingLoad = true;
+                comboBoxSource.SelectedIndex = -1;
+                ComboSettingLoad = false;
+                buttonHelp.Content = "启动监视";
+
                 //关闭所有媒体。
                 for (int i = 0; i < 3; ++i)
                 {
@@ -2387,17 +2400,9 @@ namespace ACNginxConsole
                     //    Monitors.ElementAt(i).TstRtmp.Stop();
                     //    Monitors.ElementAt(i).ThPlayer = null;
                     //}
-                    
 
                 }
                 Monitors.Clear();
-                LabelLU.Content = "";
-                LabelRU.Content = "";
-                LabelLD.Content = "";
-                ComboSettingLoad = true;
-                comboBoxSource.SelectedIndex = -1;
-                ComboSettingLoad = false;
-                buttonHelp.Content = "启动监视";
             }
             imageProtection.Visibility = Visibility.Hidden;
             labelProtection.Visibility = Visibility.Hidden;
@@ -2419,6 +2424,7 @@ namespace ACNginxConsole
         byte selectedItem = 0;
         private void selectItem(byte selec)
         {
+            ProgressTran.Visibility = Visibility.Collapsed;
             ComboSettingLoad = true;
             selectedItem = selec;
             if (selec < 4)
@@ -2658,9 +2664,7 @@ namespace ACNginxConsole
 
         string[] mediaOptions = new[]
                                 {
-                                "--network-caching=1000",
-                                "--live-caching=300",
-                                "--no-rtsp-tcp"
+                                "--network-caching=300"
                                 };
 
 
@@ -2682,14 +2686,9 @@ namespace ACNginxConsole
                         {
                             //输出图片
                             string SourceName = null;
-                            if (comboBoxSource.SelectedIndex != -1)
-                            {
-                                SourceName = configdata[comboBoxSource.SelectedIndex].SourceName.ToString();
-                            }
-                            else
-                            {
-                                SourceName = "自定义";
-                            }
+                            
+                            SourceName = configdata[comboBoxSource.SelectedIndex].SourceName.ToString();
+                            
                             //if (checkBoxLowMoni.IsChecked.Equals(false))
                             //{   //传统 VLC 入口
 
@@ -2971,6 +2970,86 @@ namespace ACNginxConsole
         }
 
 
+        private void transition(byte selc)
+        {
+            
+                ProgressTran.Visibility = Visibility.Collapsed;
+                focaldephov.TransitionImg.Source = focaldephov.BackImg.Source;
+                focaldephov.BackImg.Opacity = 0;
+                selectItem(selc);
+            //Storyboard sbt = new Storyboard();
+            if (selc < 4)
+            {
+                DoubleAnimation opf = new DoubleAnimation()
+                {
+                    From = 0,
+                    To = 1,
+                    Duration = TimeSpan.FromSeconds(1)         //一个其他量
+                };
+                //Storyboard.SetTargetProperty(opf, new PropertyPath("(Image.Opacity)"));
+                focaldephov.BackImg.BeginAnimation(OpacityProperty, opf);
+            }
+            else
+            {
+                DoubleAnimation opf = new DoubleAnimation()
+                {
+                    From = 1,
+                    To = 0,
+                    Duration = TimeSpan.FromSeconds(1)         //一个其他量
+                };
+                //Storyboard.SetTargetProperty(opf, new PropertyPath("(Image.Opacity)"));
+                focaldephov.TransitionImg.BeginAnimation(OpacityProperty, opf);
+            }
+        }
+
+        byte tranto;
+
+        private void transition_manual(byte selc)
+        {
+            if (selc < 4)
+            {
+                focaldephov.TransitionImg.Source = focaldephov.BackImg.Source;
+                focaldephov.BackImg.Opacity = 0;
+                focaldephov.BackImg.SetBinding(Image.SourceProperty, Monitors.ElementAt(selc - 1).Bing);
+                //selectItem(selc);
+
+                BorderLU.BorderBrush.Opacity = (selectedItem == 1 ? 1 : (selc == 1 ? 0.5 : 0));
+                BorderRU.BorderBrush.Opacity = (selectedItem == 2 ? 1 : (selc == 2 ? 0.5 : 0));
+                BorderLD.BorderBrush.Opacity = (selectedItem == 3 ? 1 : (selc == 3 ? 0.5 : 0));
+                BorderRD.BorderBrush.Opacity = (selectedItem == 4 ? 1 : (selc == 4 ? 0.5 : 0));
+
+                tranto = selc;
+
+                ProgressTran.Value = 1;
+                ProgressTran.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                transition(selc);
+            }
+            
+        }
+
+        private void ProgressTran_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (ProgressTran.Visibility == Visibility.Visible)
+            {
+                focaldephov.BackImg.Opacity = 1 - ProgressTran.Value;
+                if (ProgressTran.Value == 0)
+                {
+                    //结束了
+                    ProgressTran.Visibility = Visibility.Collapsed;
+                    selectItem(tranto);
+                }
+                else if (ProgressTran.Value == 1)
+                {
+                    //取消了
+                    ProgressTran.Visibility = Visibility.Collapsed;
+                    selectItem(selectedItem);
+                }
+            }
+        }
+
         #endregion
 
         #region 弹幕系统
@@ -3161,6 +3240,19 @@ namespace ACNginxConsole
 
                         }
 
+                        listBoxDanmaku.Items.Clear();
+
+                        buttonDanmakuSwitch.Foreground = Brushes.White;
+                        buttonDanmakuSwitch.Background = myblue;
+                        buttonDanmakuSwitch.Content = "关闭弹幕";
+
+                        DanmakuSwitch = true;
+
+                        dispatcherTimerDanmaku.Start();
+
+                        //TODO：淡入
+                        Open_DanmakuWindow();
+
                     }
                 }
                 catch
@@ -3168,21 +3260,6 @@ namespace ACNginxConsole
                     buttonDanmakuSwitch.Content = "连接失败";
                     await System.Threading.Tasks.Task.Delay(1000);
                     buttonDanmakuSwitch.Content = "启动弹幕";
-                }
-                finally
-                {
-                    listBoxDanmaku.Items.Clear();
-
-                    buttonDanmakuSwitch.Foreground = Brushes.White;
-                    buttonDanmakuSwitch.Background = myblue;
-                    buttonDanmakuSwitch.Content = "关闭弹幕";
-
-                    DanmakuSwitch = true;
-
-                    dispatcherTimerDanmaku.Start();
-
-                    //TODO：淡入
-                    Open_DanmakuWindow();
                 }
 
 
@@ -3472,8 +3549,12 @@ namespace ACNginxConsole
             {
                 //此时已经被初始化
                 //关闭所有媒体。
-                if (BackLive.IsSelected.Equals(true))
+                if (focaldephov != null)
+                {
                     focaldephov.BackImg.Source = null;
+                    focaldephov.Close();
+                }
+                
                 for (int i = 0; i < 3; ++i)
                 {
                     Monitors.ElementAt(i).SourceProvider.Dispose();
@@ -4075,8 +4156,6 @@ namespace ACNginxConsole
         }
 
 
-
-
         #endregion
 
         private void ListSelecChange(int ind)
@@ -4100,7 +4179,14 @@ namespace ACNginxConsole
                 case Key.W: selectItem(2); break;
                 case Key.E: selectItem(3); break;
                 case Key.R: selectItem(4); break;
-                case Key.S: LiveSolo(); break;
+                case Key.A: transition(1); break;
+                case Key.S: transition(2); break;
+                case Key.D: transition(3); break;
+                case Key.F: transition(4); break;
+                case Key.Z: transition_manual(1); break;
+                case Key.X: transition_manual(2); break;
+                case Key.C: transition_manual(3); break;
+                case Key.V: transition_manual(4); break;
                 case Key.D1: ListSelecChange(0); break;
                 case Key.D2: ListSelecChange(1); break;
                 case Key.D3: ListSelecChange(2); break;
@@ -4110,6 +4196,7 @@ namespace ACNginxConsole
                 case Key.D7: ListSelecChange(6); break;
                 case Key.D8: ListSelecChange(7); break;
                 case Key.D9: ListSelecChange(8); break;
+                case Key.N: LiveSolo(); break;
                 case Key.M:
                     switch (selectedItem)
                     {
@@ -4161,9 +4248,20 @@ namespace ACNginxConsole
                             break;
                     }
                     break;
+                case Key.OemMinus:
+                    if(ProgressTran.Visibility == Visibility.Visible)
+                    {
+                        ProgressTran.Value -= 0.02;
+                    }
+                    break;
+                case Key.OemPlus:
+                    if (ProgressTran.Visibility == Visibility.Visible)
+                    {
+                        ProgressTran.Value += 0.02;
+                    }
+                    break;
             }
         }
 
-        
     }
 }
