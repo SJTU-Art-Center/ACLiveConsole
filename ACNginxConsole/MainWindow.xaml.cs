@@ -464,7 +464,6 @@ namespace ACNginxConsole
 
                                         System.Diagnostics.Debug.WriteLine(result);
                                         return result;
-                                        //该方法暂时失效
                                         //https://cn-hbxy-cmcc-live-01.live-play.acgvideo.com/live-bvc/live_
 
                                     }
@@ -665,7 +664,7 @@ namespace ACNginxConsole
 
             RightCol.Width = new GridLength(0, GridUnitType.Pixel); //右栏宽初始值为0
 
-            danmu.ReceivedDanmaku += b_ReceivedDanmaku;
+            //danmu.ReceivedDanmaku += b_ReceivedDanmaku;
             //b.ReceivedRoomCount += b_ReceivedRoomCount;
 
             //Hide_Monitor();
@@ -2980,7 +2979,11 @@ namespace ACNginxConsole
 
         //private readonly StaticModel Static = new StaticModel();
         //private Thread releaseThread;
-        DanmakuLoader danmu = new DanmakuLoader();
+        
+        // Multiple Danmu
+        Queue<DanmakuLoader> danmuqueue = new Queue<DanmakuLoader>();
+
+        //DanmakuLoader danmu = new DanmakuLoader();
 
         private void dispatcherTimerDanmaku_Tick(object sender, EventArgs e)
         {
@@ -3082,7 +3085,8 @@ namespace ACNginxConsole
             if (DanmakuSwitch)
             {
 
-                danmu.Disconnect();
+                var danmul = danmuqueue.Dequeue();
+                danmul.Disconnect();
 
                 //队列不再deQueue, ProcDanmaku 不会再被调用。
                 dispatcherTimerDanmaku.Stop();
@@ -3108,69 +3112,79 @@ namespace ACNginxConsole
                 //if (!connected)
                 //{
                 buttonDanmakuSwitch.Content = "连接中";
-                int room_id = 0;
+                Queue<int> room_idq = new Queue<int>();
                 foreach (ConfigItem cit in configdata)
                 {
                     if (cit.Type == "B站" && cit.Bililive_roomid > 0)    //有效的B站房间号
                     {
-                        room_id = cit.Bililive_roomid;
-                        break;
+                        //room_id = cit.Bililive_roomid;
+                        //break;
+                        room_idq.Enqueue(cit.Bililive_roomid);
                     }
                 }
-                if (room_id == 0)
+                try
                 {
-                    buttonDanmakuSwitch.Content = "连接失败";
-                }
-                else
-                {
-                    var connectresult = await danmu.ConnectAsync(room_id);
-                    var trytime = 0;
-                    if (!connectresult && danmu.Error != null)// 如果连接不成功并且出错了
+                    if (!room_idq.Any())
                     {
-                        buttonDanmakuSwitch.Content = "连接失败";
-                    }
-
-                    while (!connectresult && sender == null)
-                    {
-                        if (trytime > 3)
-                            break;
-                        else
-                            trytime++;
-
-                        await System.Threading.Tasks.Task.Delay(1000); // 稍等一下
-                        connectresult = await danmu.ConnectAsync(room_id);
-                    }
-
-                    if (connectresult)
-                    {
-
-                        listBoxDanmaku.Items.Clear();
-
-                        buttonDanmakuSwitch.Foreground = Brushes.White;
-                        buttonDanmakuSwitch.Background = myblue;
-                        buttonDanmakuSwitch.Content = "关闭弹幕";
-
-                        DanmakuSwitch = true;
-
-                        dispatcherTimerDanmaku.Start();
-
-                        //TODO：淡入
-                        Open_DanmakuWindow();
-
-
+                        throw new Exception();
                     }
                     else
                     {
-                        buttonDanmakuSwitch.Content = "连接失败";
+
+                        while (room_idq.Any())
+                        {
+                            DanmakuLoader danmul = new DanmakuLoader();
+                            int room_id = room_idq.Dequeue();
+                            var connectresult = await danmul.ConnectAsync(room_id);
+                            var trytime = 0;
+                            if (!connectresult && danmul.Error != null)// 如果连接不成功并且出错了
+                            {
+                                throw new WebException();
+                            }
+
+                            while (!connectresult && sender == null)
+                            {
+                                if (trytime > 3)
+                                    break;
+                                else
+                                    trytime++;
+
+                                await System.Threading.Tasks.Task.Delay(1000); // 稍等一下
+                                connectresult = await danmul.ConnectAsync(room_id);
+                            }
+
+                            if (!connectresult)
+                                throw new Exception();
+
+                            danmul.ReceivedDanmaku += b_ReceivedDanmaku;
+                            danmuqueue.Enqueue(danmul);
+
+                        }
+
                     }
                 }
-
-                if (buttonDanmakuSwitch.Content.ToString() == "连接失败")
+                catch
                 {
+                    buttonDanmakuSwitch.Content = "连接失败";
                     await System.Threading.Tasks.Task.Delay(1000);
                     buttonDanmakuSwitch.Content = "启动弹幕";
                 }
-                //}
+                finally
+                {
+                    listBoxDanmaku.Items.Clear();
+
+                    buttonDanmakuSwitch.Foreground = Brushes.White;
+                    buttonDanmakuSwitch.Background = myblue;
+                    buttonDanmakuSwitch.Content = "关闭弹幕";
+
+                    DanmakuSwitch = true;
+
+                    dispatcherTimerDanmaku.Start();
+
+                    //TODO：淡入
+                    Open_DanmakuWindow();
+                }
+
 
             }
 
