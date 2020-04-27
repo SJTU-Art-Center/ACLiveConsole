@@ -1,7 +1,9 @@
 # ACLiveConsole
 Art Center Live Console is a UI-friendly software to manage multi-streaming work.
 
-Release 3.9.1
+Release 4.1.0
+
+**Development Paused.**
 
 <s>This branch is for developing efficient RTMP player based on ffmpeg player. Now it is unusable.(with RAM leak issue)
 If succeeded, the delay will below 1000 ms so that OJ will approve.</s>
