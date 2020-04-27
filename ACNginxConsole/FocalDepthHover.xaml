@@ -36,10 +36,11 @@
     </Window.Resources>
     
     <Grid x:Name="grid">
+        <Image x:Name="TransitionImg"/>
         <Image x:Name="BackImg"/>
+        <Image x:Name="ForeImg"/>
         <Canvas x:Name="GridCanvas"/>
         <Canvas x:Name="ThumbCanvas"/>
-        <Image x:Name="ForeImg"/>
     </Grid>
 
 </Window>
