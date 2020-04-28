@@ -56,7 +56,7 @@
                     <Grid Background="Black">
                         <Canvas Margin="146.75,68.25,120.25,64.25" VerticalAlignment="Center" HorizontalAlignment="Center" Width="500" Height="403">
                             <Label x:Name="label8" Content="启动密码" Height="27.75" Canvas.Left="44" Canvas.Top="346.125" Width="62.25" Foreground="White"/>
-                            <PasswordBox x:Name="passwordBox" Height="27.75" Canvas.Left="111.25" Canvas.Top="346.125" Width="284" FontSize="16" PasswordChanged="PasswordBox_PasswordChanged" KeyDown="PasswordBox_KeyDown"/>
+                            <PasswordBox x:Name="passwordBox" Height="27.75" Canvas.Left="111.25" Canvas.Top="346.125" Width="284" FontSize="16" PasswordChanged="PasswordBox_PasswordChanged" KeyDown="PasswordBox_KeyDown" VerticalContentAlignment="Center"/>
                             <Image x:Name="image1" Height="272.25" Canvas.Left="56" Canvas.Top="29.5" Width="393.375"/>
                             <Button x:Name="button4" Content="→" Height="27.75" Canvas.Left="400.031" Canvas.Top="346.125" Width="48.938" Click="Button4_Click_1"/>
                             <Image x:Name="ACLiveConsoleLogo_png" Height="350" Canvas.Left="81.25" Source="ACLiveConsoleLogo.png" Stretch="Fill" Width="350"/>
@@ -317,9 +317,16 @@
                             <CheckBox x:Name="checkBoxCloseSniffing" Content="关闭播流地址自动获取" HorizontalAlignment="Left" Margin="0,5,0,0" Width="147" Checked="CheckBoxCloseSniffing_Checked" Unchecked="CheckBoxCloseSniffing_Unchecked"/>
                             <CheckBox x:Name="checkBoxClosingAnim" Content="计时器关闭推流时播放Closing.mp4" HorizontalAlignment="Left" Height="16" Margin="0,5,0,0" Width="242"/>
                             <CheckBox x:Name="checkBoxLowMoni" Content="使用低延迟监视器（弃用）" Margin="0,5,0.5,0" Checked="checkBoxLowMoni_Checked" Unchecked="checkBoxLowMoni_Unchecked" IsEnabled="False" Visibility="Collapsed"/>
-
-
-
+                            <CheckBox x:Name="checkBoxNetwork" Content="打开网络延迟设置" Margin="0,5,0.5,0" Checked="checkBoxNetwork_Checked" Unchecked="checkBoxNetwork_Unchecked" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="2*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Content="过渡秒数"/>
+                                <Slider x:Name="SliderTransSec" Grid.Column="1" Minimum="0.2" Maximum="5" Value="1" AutoToolTipPlacement="TopLeft" ValueChanged="SliderTransSec_ValueChanged" VerticalAlignment="Center" />
+                            </Grid>
                             <Border Background="White" CornerRadius="10" Margin="0,5,0,0">
                                 <StackPanel  Margin="10">
                                     <Grid Height="40" Background="{DynamicResource CheckersBrush}" Opacity="{Binding Value, ElementName=OpacSlider}" Margin="0,5,0,0">
@@ -460,6 +467,7 @@
             <Grid Grid.Column="2" Background="{DynamicResource {x:Static SystemColors.InactiveBorderBrushKey}}">
                 <StackPanel x:Name="StackPanelRightCol"  Margin="5,0" Focusable="True" KeyDown="StackPanelRightCol_KeyDown">
                     <Label x:Name="label7" Content="直播监视器" Margin="0,15,0,0" Foreground="White" Background="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}"/>
+                    <Slider x:Name="SliderNetwork" Maximum="3000" Value="500" IsSelectionRangeEnabled="True" SelectionStart="300" SelectionEnd="1500" AutoToolTipPlacement="TopLeft" ToolTip="网络缓存(ms)" ValueChanged="SliderNetwork_ValueChanged" Visibility="Collapsed" />
                     <Viewbox x:Name="ViewboxMonitor" Margin="0">
                         <Grid x:Name="Monitoring" Margin="0,0,0,0" Width="1600" Height="900" Background="#FFE2EBF4">
                             <Grid.ColumnDefinitions>
@@ -561,7 +569,7 @@
                         <ComboBox Grid.Column="1" x:Name="comboBoxSource" DisplayMemberPath="SourceName" SelectionChanged="ComboBoxSource_SelectionChanged" ToolTip="监视源" Margin="0" RenderTransformOrigin="0.503,0.55" Height="20" IsEnabled="False"/>
                         <Label x:Name="LabelDanmu" Grid.Column="1" Content="弹幕公屏" Padding="0" Margin="5,2,0,0"/>
                     </Grid>
-                    <Slider x:Name="ProgressTran" Height="20" Foreground="#FF9D95F1" Visibility="Collapsed" Maximum="1" ToolTip="- 过渡 + 退回" Background="#7FE6E6E6" ValueChanged="ProgressTran_ValueChanged"/>
+                    <Slider x:Name="ProgressTran" Height="20" Foreground="#FF9D95F1" Visibility="Collapsed" Maximum="1" ToolTip="- 过渡 + 退回" Background="#7FE6E6E6" ValueChanged="ProgressTran_ValueChanged" AutoToolTipPlacement="BottomRight"/>
                     <Grid x:Name="DanmakuSider" Margin="0,15,0,0" Background="#FF75D2F6" Height="27">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>

@@ -731,6 +731,10 @@ namespace ACNginxConsole
                 Monitors.Add(monitor);
             }
 
+            SliderTransSec.Value = Properties.Settings.Default.TranSec;
+
+            checkBoxNetwork.IsChecked = Properties.Settings.Default.OpenNetworkCaching;
+
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -2436,9 +2440,22 @@ namespace ACNginxConsole
                 }
 
                 buttonExtPlayer.IsEnabled = Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.IsPlaying().Equals(true);
+
+                if (checkBoxNetwork.IsChecked.Equals(true))
+                {
+                    SliderNetwork.Visibility = Visibility.Visible;
+                    SliderNetwork.Value = (double)Monitors.ElementAt(selectedItem - 1).Network;
+                }
+                else
+                {
+                    SliderNetwork.Visibility = Visibility.Collapsed;
+                }
+
             }
             else
             {
+                SliderNetwork.Visibility = Visibility.Collapsed;
+
                 LabelDanmu.Visibility = Visibility.Visible;
                 comboBoxSource.IsEnabled = false;
                 comboBoxSource.SelectedIndex = -1;
@@ -2519,6 +2536,8 @@ namespace ACNginxConsole
             private int volume;
             private double opacity;
             private Binding bing;
+            private string[] option;
+            private int network;
             //private Thread thPlayer;
             //private BitmapSource bs;
             //private WriteableBitmap wb;
@@ -2611,6 +2630,24 @@ namespace ACNginxConsole
                 }
             }
 
+            public string[] Option
+            {
+                get { return option; }
+            }
+
+            public int Network
+            {
+                get { return network; }
+                set
+                {
+                    option = new[]
+                    {
+                        "--network-caching=" + value
+                    };
+                    network = value;
+                }
+            }
+
             /// <summary>
             /// 播放线程执行方法
             /// </summary>
@@ -2645,15 +2682,10 @@ namespace ACNginxConsole
             {
                 PlayId = 1000;
                 Bing = new Binding();
+                Network = 500;
             }
             //需要在主进程初始化
         }
-
-
-        string[] mediaOptions = new[]
-                                {
-                                "--network-caching=300"
-                                };
 
 
         bool ComboSettingLoad = false;
@@ -2683,7 +2715,7 @@ namespace ACNginxConsole
                             //{   //传统 VLC 入口
 
                                 Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.Play(
-                                    Monitors.ElementAt(selectedItem - 1).PlayStream, mediaOptions);
+                                    Monitors.ElementAt(selectedItem - 1).PlayStream, Monitors.ElementAt(selectedItem - 1).Option);
                                 Monitors.ElementAt(selectedItem - 1).Volume = 0;
 
                                 Monitors.ElementAt(selectedItem - 1).Bing = new Binding();
@@ -2900,8 +2932,7 @@ namespace ACNginxConsole
         private void CallBackContinue(int selec)
         {
             Monitors.ElementAt(selec - 1).SourceProvider.MediaPlayer.Play(
-                                    Monitors.ElementAt(selec - 1).PlayStream, mediaOptions);
-            Monitors.ElementAt(selec - 1).Volume = 0;
+                                    Monitors.ElementAt(selec - 1).PlayStream, Monitors.ElementAt(selectedItem - 1).Option);
         }
 
         public void FFplay(object o)
@@ -2984,35 +3015,38 @@ namespace ACNginxConsole
 
         private void transition(byte selc)
         {
-            
+            //Storyboard sbt = new Storyboard();
+            if (selc < 4)
+            {
                 ProgressTran.Visibility = Visibility.Collapsed;
                 focaldephov.TransitionImg.Source = focaldephov.BackImg.Source;
                 focaldephov.BackImg.Opacity = 0;
                 selectItem(selc);
-            //Storyboard sbt = new Storyboard();
-            if (selc < 4)
-            {
                 DoubleAnimation opf = new DoubleAnimation()
                 {
                     From = 0,
                     To = 1,
-                    Duration = TimeSpan.FromSeconds(1)         //一个其他量
+                    Duration = TimeSpan.FromSeconds(Properties.Settings.Default.TranSec)         //一个其他量
                 };
                 //Storyboard.SetTargetProperty(opf, new PropertyPath("(Image.Opacity)"));
                 focaldephov.BackImg.BeginAnimation(OpacityProperty, opf);
             }
             else
             {
+                ProgressTran.Visibility = Visibility.Collapsed;
+                focaldephov.TransitionImg.Source = focaldephov.BackImg.Source;
+                focaldephov.BackImg.Opacity = 0;
+                selectItem(selc);
                 DoubleAnimation opf = new DoubleAnimation()
                 {
                     From = 1,
                     To = 0,
-                    Duration = TimeSpan.FromSeconds(1)         //一个其他量
+                    Duration = TimeSpan.FromSeconds(Properties.Settings.Default.TranSec)         //一个其他量
                 };
                 //Storyboard.SetTargetProperty(opf, new PropertyPath("(Image.Opacity)"));
                 focaldephov.TransitionImg.BeginAnimation(OpacityProperty, opf);
             }
-        }
+}
 
         byte tranto;
 
@@ -3567,13 +3601,16 @@ namespace ACNginxConsole
                     focaldephov.Close();
                 }
                 
-                for (int i = 0; i < 3; ++i)
+                for (int i = 1; i < 4; ++i)
                 {
                     //防止访问冲突
-                    if (Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer != null)
-                        if (Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.IsPlaying().Equals(true))
-                            Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.Pause();
-                    Monitors.ElementAt(i).SourceProvider.Dispose();
+                    if (Monitors.ElementAt(i - 1).SourceProvider!= null)
+                    {
+                        if (Monitors.ElementAt(i - 1).SourceProvider.MediaPlayer.IsPlaying().Equals(true))
+                            Monitors.ElementAt(i - 1).SourceProvider.MediaPlayer.Pause();
+                        Monitors.ElementAt(i - 1).SourceProvider.Dispose();
+                    }
+                        
                     //if (checkBoxLowMoni.IsChecked.Equals(true))
                     //{
                     //    Monitors.ElementAt(i).TstRtmp.Stop();
@@ -3909,7 +3946,7 @@ namespace ACNginxConsole
                 };
             }
 
-            FullFadeOut.Duration = TimeSpan.FromSeconds(1);//或许考虑一个其他量
+            FullFadeOut.Duration = TimeSpan.FromSeconds(Properties.Settings.Default.TranSec);//或许考虑一个其他量
 
             //Storyboard.SetTarget(FullFadeOut, SliderStoreSec);
             Storyboard.SetTargetProperty(FullFadeOut, new PropertyPath("(Slider.Value)"));
@@ -3998,7 +4035,7 @@ namespace ACNginxConsole
                 };
             }
 
-            FullFadeOut.Duration = TimeSpan.FromSeconds(1);//或许考虑一个其他量
+            FullFadeOut.Duration = TimeSpan.FromSeconds(Properties.Settings.Default.TranSec);//或许考虑一个其他量
 
             //Storyboard.SetTarget(FullFadeOut, SliderStoreSec);
             Storyboard.SetTargetProperty(FullFadeOut, new PropertyPath("(Image.Opacity)"));
@@ -4280,5 +4317,38 @@ namespace ACNginxConsole
             }
         }
 
+        private void SliderTransSec_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            Properties.Settings.Default.TranSec = SliderTransSec.Value;
+        }
+
+        private void checkBoxNetwork_Checked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.OpenNetworkCaching = true;
+        }
+
+        private void checkBoxNetwork_Unchecked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.OpenNetworkCaching = false;
+        }
+
+        private void SliderNetwork_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if(selectedItem > 0 && selectedItem < 4
+                && Monitors.ElementAt(selectedItem - 1).Network != (int)SliderNetwork.Value 
+                && Monitors.ElementAt(selectedItem - 1)!=null)
+            {
+                Monitors.ElementAt(selectedItem - 1).Network = (int)SliderNetwork.Value;
+                if (Monitors.ElementAt(selectedItem - 1).PlayStream != null)
+                {
+                    if (Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.IsPlaying().Equals(true))
+                        Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.Pause();
+
+                    Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.Play(
+                                        Monitors.ElementAt(selectedItem - 1).PlayStream, Monitors.ElementAt(selectedItem - 1).Option);
+                }
+            }
+            
+        }
     }
 }
