@@ -704,6 +704,33 @@ namespace ACNginxConsole
 
             buttonExtPlayer.IsEnabled = false;
 
+            //监视器初始化
+            var currentAssembly = Assembly.GetEntryAssembly();
+            var currentDirectory = new FileInfo(currentAssembly.Location).DirectoryName;
+            // Default installation path of VideoLAN.LibVLC.Windows
+            var libDirectory = new DirectoryInfo(System.IO.Path.Combine(currentDirectory, "libvlc\\" + (IntPtr.Size == 4 ? "win-x86" : "win-x64")));
+
+            Monitors = new List<Monitor>();
+            for (int i = 0; i < 3; ++i)
+            {
+                Monitor monitor = new Monitor();
+
+                monitor.SourceProvider = new VlcVideoSourceProvider(this.Dispatcher);
+                monitor.SourceProvider.CreatePlayer(libDirectory, "--file-logging", "-vvv", "--logfile=Logs.log");
+                monitor.SourceProvider.MediaPlayer.Log += new EventHandler<VlcMediaPlayerLogEventArgs>(MediaPlayer_Log);
+                monitor.SourceProvider.MediaPlayer.Manager.SetFullScreen(monitor.SourceProvider.MediaPlayer.Manager.CreateMediaPlayer(), true);
+                monitor.Volume = 0;
+                monitor.SourceProvider.MediaPlayer.EncounteredError += new EventHandler<VlcMediaPlayerEncounteredErrorEventArgs>(MediaPlayer_ErrorEncountered);
+
+                //if (checkBoxLowMoni.IsChecked.Equals(true))
+                //{
+                //    //不论如何先初始化
+                //    monitor.TstRtmp = new tstRtmp();
+                //}
+
+                Monitors.Add(monitor);
+            }
+
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -2336,35 +2363,8 @@ namespace ACNginxConsole
                     expandRightCol.Begin(RightCol, HandoffBehavior.SnapshotAndReplace, true);
                 }
 
-                buttonHelp.Content = "关闭监视";
+                buttonHelp.Content = "关闭侧栏";
 
-                //监视器初始化
-                var currentAssembly = Assembly.GetEntryAssembly();
-                var currentDirectory = new FileInfo(currentAssembly.Location).DirectoryName;
-                // Default installation path of VideoLAN.LibVLC.Windows
-                var libDirectory = new DirectoryInfo(System.IO.Path.Combine(currentDirectory, "libvlc\\" + (IntPtr.Size == 4 ? "win-x86" : "win-x64")));
-
-
-                Monitors = new List<Monitor>();
-                for(int i = 0; i < 3; ++i)
-                {
-                    Monitor monitor = new Monitor();
-
-                    monitor.SourceProvider = new VlcVideoSourceProvider(this.Dispatcher);
-                    monitor.SourceProvider.CreatePlayer(libDirectory, "--file-logging", "-vvv", "--logfile=Logs.log");
-                    monitor.SourceProvider.MediaPlayer.Log += new EventHandler<VlcMediaPlayerLogEventArgs>(MediaPlayer_Log);
-                    monitor.SourceProvider.MediaPlayer.Manager.SetFullScreen(monitor.SourceProvider.MediaPlayer.Manager.CreateMediaPlayer(), true);
-                    monitor.Volume = 0;
-                    monitor.SourceProvider.MediaPlayer.EncounteredError += new EventHandler<VlcMediaPlayerEncounteredErrorEventArgs>(MediaPlayer_ErrorEncountered);
-
-                    //if (checkBoxLowMoni.IsChecked.Equals(true))
-                    //{
-                    //    //不论如何先初始化
-                    //    monitor.TstRtmp = new tstRtmp();
-                    //}
-
-                    Monitors.Add(monitor);
-                }
             }
             else
             {
@@ -2389,20 +2389,8 @@ namespace ACNginxConsole
                 ComboSettingLoad = true;
                 comboBoxSource.SelectedIndex = -1;
                 ComboSettingLoad = false;
-                buttonHelp.Content = "启动监视";
+                buttonHelp.Content = "启动侧栏";
 
-                //关闭所有媒体。
-                for (int i = 0; i < 3; ++i)
-                {
-                    Monitors.ElementAt(i).SourceProvider.Dispose();
-                    //if (checkBoxLowMoni.IsChecked.Equals(true))
-                    //{
-                    //    Monitors.ElementAt(i).TstRtmp.Stop();
-                    //    Monitors.ElementAt(i).ThPlayer = null;
-                    //}
-
-                }
-                Monitors.Clear();
             }
             imageProtection.Visibility = Visibility.Hidden;
             labelProtection.Visibility = Visibility.Hidden;
@@ -2676,7 +2664,9 @@ namespace ACNginxConsole
                 if (selectedItem < 4)
                 {
                     if (comboBoxSource.SelectedIndex != -1)
-                    {
+                    {   //防止访问冲突
+                        if (Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.IsPlaying().Equals(true))
+                            Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.Pause();
                         Monitors.ElementAt(selectedItem - 1).PlayStream = configdata[comboBoxSource.SelectedIndex].LiveViewingSite.ToString();
                         Monitors.ElementAt(selectedItem - 1).PlayId = comboBoxSource.SelectedIndex;
                     }
@@ -2918,10 +2908,32 @@ namespace ACNginxConsole
         {
             var selec = selectedItem;
             Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.Stop();
-            Process.Start("ffplay.exe", "-fflags nobuffer \""
+            try
+            {
+                using (Process process = new System.Diagnostics.Process())
+                {
+                    process.StartInfo.FileName = "ffplay.exe";
+                    process.StartInfo.Arguments = "-fflags nobuffer \""
                     + Monitors.ElementAt(selectedItem - 1).PlayStream + "\""
-                    + (Monitors.ElementAt(selectedItem - 1).Volume == 0 ? " -an" : "")       //静音
-                    ).WaitForExit();
+                    + (Monitors.ElementAt(selectedItem - 1).Volume == 0 ? " -an" : "");
+                    // 必须禁用操作系统外壳程序  
+                    process.StartInfo.UseShellExecute = true;
+                    process.StartInfo.CreateNoWindow = false;
+                    process.StartInfo.RedirectStandardOutput = false;
+
+                    process.Start();
+                    process.WaitForExit();
+                    process.Close();
+                }
+            }
+            catch
+            {
+
+            }
+            //Process.Start("ffplay.exe", "-fflags nobuffer \""
+            //        + Monitors.ElementAt(selectedItem - 1).PlayStream + "\""
+            //        + (Monitors.ElementAt(selectedItem - 1).Volume == 0 ? " -an" : "")       //静音
+            //        ).WaitForExit();
             MoniCallBackDele mcb = o as MoniCallBackDele;
             mcb(selec);
         }
@@ -3557,6 +3569,10 @@ namespace ACNginxConsole
                 
                 for (int i = 0; i < 3; ++i)
                 {
+                    //防止访问冲突
+                    if (Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer != null)
+                        if (Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.IsPlaying().Equals(true))
+                            Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.Pause();
                     Monitors.ElementAt(i).SourceProvider.Dispose();
                     //if (checkBoxLowMoni.IsChecked.Equals(true))
                     //{
@@ -3564,6 +3580,7 @@ namespace ACNginxConsole
                     //    Monitors.ElementAt(i).ThPlayer = null;
                     //}
                 }
+                Monitors.Clear();
             }
             Properties.Settings.Default.Save();
             GC.Collect();

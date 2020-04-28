@@ -192,7 +192,7 @@
 
 
 
-                        <Button x:Name="buttonHelp" Content="启动监视" HorizontalAlignment="Left" Height="41.25" Margin="14.5,118.75,0,0" VerticalAlignment="Top" Width="128" Click="ButtonHelp_Click" Background="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}" Foreground="White"/>
+                        <Button x:Name="buttonHelp" Content="启动侧栏" HorizontalAlignment="Left" Height="41.25" Margin="14.5,118.75,0,0" VerticalAlignment="Top" Width="128" Click="ButtonHelp_Click" Background="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}" Foreground="White"/>
                         <StackPanel Margin="10,177,10,0.5">
                             <Expander x:Name="expander" Header="应急处理" BorderBrush="{x:Null}" BorderThickness="2" VerticalAlignment="Top" Background="#FFF9E0E0">
                                 <Grid Margin="0,0,0,20">
