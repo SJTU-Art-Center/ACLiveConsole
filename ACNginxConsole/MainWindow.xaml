@@ -6,7 +6,7 @@
         xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker"
         xmlns:local="clr-namespace:ACNginxConsole"
         mc:Ignorable="d"
-        Title="AC Live Console" Height="631.5" Width="830.348" Closed="Window_Closed" SizeChanged="Window_SizeChanged" Loaded="Window_Loaded">
+        Title="AC Live Console" Height="686.25" Width="830.348" Closed="Window_Closed" SizeChanged="Window_SizeChanged" Loaded="Window_Loaded">
 
     <Window.Resources>
         <colorPicker:ColorToStringConverter x:Key="ColorToStringConverter"/>
@@ -569,7 +569,7 @@
                         <ComboBox Grid.Column="1" x:Name="comboBoxSource" DisplayMemberPath="SourceName" SelectionChanged="ComboBoxSource_SelectionChanged" ToolTip="监视源" Margin="0" RenderTransformOrigin="0.503,0.55" Height="20" IsEnabled="False"/>
                         <Label x:Name="LabelDanmu" Grid.Column="1" Content="弹幕公屏" Padding="0" Margin="5,2,0,0"/>
                     </Grid>
-                    <Slider x:Name="ProgressTran" Height="20" Foreground="#FF9D95F1" Visibility="Collapsed" Maximum="1" ToolTip="- 过渡 + 退回" Background="#7FE6E6E6" ValueChanged="ProgressTran_ValueChanged" AutoToolTipPlacement="BottomRight"/>
+                    <Slider x:Name="ProgressTran" Height="20" Foreground="#FF9D95F1" Visibility="Collapsed" Maximum="1" ToolTip="- 过渡 + 退回" Background="#7FE6E6E6" ValueChanged="ProgressTran_ValueChanged" AutoToolTipPlacement="BottomRight" AutoToolTipPrecision="4"/>
                     <Grid x:Name="DanmakuSider" Margin="0,15,0,0" Background="#FF75D2F6" Height="27">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>

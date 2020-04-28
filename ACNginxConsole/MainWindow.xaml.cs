@@ -3015,13 +3015,22 @@ namespace ACNginxConsole
 
         private void transition(byte selc)
         {
+            ProgressTran.Visibility = Visibility.Collapsed;
+            if (selectedItem < 4)
+            {   //原图，增加条件限制
+                focaldephov.TransitionImg.Source = focaldephov.BackImg.Source;
+                //focaldephov.TransitionImg.SetBinding(Image.SourceProperty, Monitors.ElementAt(selectedItem - 1).Bing);
+            }
+            //else
+            //{
+            //    focaldephov.TransitionImg.SetBinding(Image.SourceProperty, new Binding());
+            //}
+            focaldephov.BackImg.Opacity = 0;
+            selectItem(selc);
             //Storyboard sbt = new Storyboard();
             if (selc < 4)
             {
-                ProgressTran.Visibility = Visibility.Collapsed;
-                focaldephov.TransitionImg.Source = focaldephov.BackImg.Source;
-                focaldephov.BackImg.Opacity = 0;
-                selectItem(selc);
+                focaldephov.TransitionImg.Opacity = 1;
                 DoubleAnimation opf = new DoubleAnimation()
                 {
                     From = 0,
@@ -3029,35 +3038,73 @@ namespace ACNginxConsole
                     Duration = TimeSpan.FromSeconds(Properties.Settings.Default.TranSec)         //一个其他量
                 };
                 //Storyboard.SetTargetProperty(opf, new PropertyPath("(Image.Opacity)"));
-                focaldephov.BackImg.BeginAnimation(OpacityProperty, opf);
+                focaldephov.BackImg.BeginAnimation(OpacityProperty, opf, HandoffBehavior.SnapshotAndReplace);
             }
-            else
-            {
-                ProgressTran.Visibility = Visibility.Collapsed;
-                focaldephov.TransitionImg.Source = focaldephov.BackImg.Source;
-                focaldephov.BackImg.Opacity = 0;
-                selectItem(selc);
-                DoubleAnimation opf = new DoubleAnimation()
-                {
-                    From = 1,
-                    To = 0,
-                    Duration = TimeSpan.FromSeconds(Properties.Settings.Default.TranSec)         //一个其他量
-                };
-                //Storyboard.SetTargetProperty(opf, new PropertyPath("(Image.Opacity)"));
-                focaldephov.TransitionImg.BeginAnimation(OpacityProperty, opf);
-            }
-}
+            //else
+            //{
+            //    DoubleAnimation opf = new DoubleAnimation()
+            //    {
+            //        From = 1,
+            //        To = 0,
+            //        Duration = TimeSpan.FromSeconds(Properties.Settings.Default.TranSec)         //一个其他量
+            //    };
+            //    //Storyboard.SetTargetProperty(opf, new PropertyPath("(Image.Opacity)"));
+            //    focaldephov.TransitionImg.BeginAnimation(OpacityProperty, opf, HandoffBehavior.SnapshotAndReplace);
+            //}
+            //不要了
+        }
 
         byte tranto;
 
         private void transition_manual(byte selc)
         {
+            if (selectedItem < 4)
+            {   //原图，增加条件限制
+                focaldephov.TransitionImg.Source = focaldephov.BackImg.Source;
+                //focaldephov.TransitionImg.SetBinding(Image.SourceProperty, Monitors.ElementAt(selectedItem - 1).Bing);
+            }
+            //else
+            //{
+            //    focaldephov.TransitionImg.SetBinding(Image.SourceProperty, new Binding());
+            //}
+            focaldephov.BackImg.Opacity = 0;
+            selectItem(selc);
+            //Storyboard sbt = new Storyboard();
+
+            BorderLU.BorderBrush.Opacity = (selectedItem == 1 ? 1 : (selc == 1 ? 0.5 : 0));
+            BorderRU.BorderBrush.Opacity = (selectedItem == 2 ? 1 : (selc == 2 ? 0.5 : 0));
+            BorderLD.BorderBrush.Opacity = (selectedItem == 3 ? 1 : (selc == 3 ? 0.5 : 0));
+            BorderRD.BorderBrush.Opacity = (selectedItem == 4 ? 1 : (selc == 4 ? 0.5 : 0));
+
+            tranto = selc;
+
             if (selc < 4)
             {
-                focaldephov.TransitionImg.Source = focaldephov.BackImg.Source;
+                ProgressTran.Value = 1;
+                ProgressTran.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                ProgressTran.Value = 0;
+                ProgressTran.Visibility = Visibility.Collapsed;
+            }
+
+            if (selc < 4)
+            {
+                if (selectedItem < 4)
+                {   //原图，增加条件限制
+                    focaldephov.TransitionImg.Source = focaldephov.BackImg.Source;
+                    //focaldephov.TransitionImg.SetBinding(Image.SourceProperty, Monitors.ElementAt(selectedItem - 1).Bing);
+                }
+                //else
+                //{
+                //    focaldephov.TransitionImg.SetBinding(Image.SourceProperty, new Binding());
+                //}
+
+                //focaldephov.BackImg.SetBinding(Image.SourceProperty, Monitors.ElementAt(selc - 1).Bing);
                 focaldephov.BackImg.Opacity = 0;
-                focaldephov.BackImg.SetBinding(Image.SourceProperty, Monitors.ElementAt(selc - 1).Bing);
-                //selectItem(selc);
+                focaldephov.TransitionImg.Opacity = 1;
+                selectItem(selc);
 
                 BorderLU.BorderBrush.Opacity = (selectedItem == 1 ? 1 : (selc == 1 ? 0.5 : 0));
                 BorderRU.BorderBrush.Opacity = (selectedItem == 2 ? 1 : (selc == 2 ? 0.5 : 0));
@@ -3071,9 +3118,13 @@ namespace ACNginxConsole
             }
             else
             {
-                transition(selc);
+                tranto = selc;
+
+                ProgressTran.Value = 0;
+                ProgressTran.Visibility = Visibility.Hidden;
+                selectItem(selc);
             }
-            
+
         }
 
         private void ProgressTran_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -3244,7 +3295,12 @@ namespace ACNginxConsole
                     {
                         //room_id = cit.Bililive_roomid;
                         //break;
-                        room_idq.Enqueue(cit.Bililive_roomid);
+                        bool flag = false;
+                        for (int i = 0; i < room_idq.Count; ++i)
+                            if (cit.Bililive_roomid == room_idq.ElementAt(i))
+                                flag = true;    //防止重复
+                        if (!flag)
+                            room_idq.Enqueue(cit.Bililive_roomid);
                     }
                 }
                 try
@@ -3806,7 +3862,7 @@ namespace ACNginxConsole
             System.Windows.Forms.DialogResult result = openFileDialog.ShowDialog();
             if (result == System.Windows.Forms.DialogResult.Cancel)
             {   //这BUG无伤大雅 不修了
-                ComboBoxBackImg.SelectedIndex = 0;
+                ComboBoxForeImg.SelectedIndex = 0;
                 //ComboBoxBackImg.SelectedValue = BackNone;
             }
             else
@@ -3847,7 +3903,8 @@ namespace ACNginxConsole
 
         private void ForeVid_Unselected(object sender, RoutedEventArgs e)
         {
-            sourceProvider_fore.Dispose();
+            if (sourceProvider_fore != null)
+                sourceProvider_fore.Dispose();
         }
 
         Storyboard PushOut_sb = new Storyboard();
