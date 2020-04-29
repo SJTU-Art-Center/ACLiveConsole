@@ -325,7 +325,7 @@
                                     <ColumnDefinition Width="2*"/>
                                 </Grid.ColumnDefinitions>
                                 <Label Content="过渡秒数"/>
-                                <Slider x:Name="SliderTransSec" Grid.Column="1" Minimum="0.2" Maximum="5" Value="1" AutoToolTipPlacement="TopLeft" ValueChanged="SliderTransSec_ValueChanged" VerticalAlignment="Center" />
+                                <Slider x:Name="SliderTransSec" Grid.Column="1" Minimum="0.2" Maximum="5" Value="1" AutoToolTipPlacement="TopLeft" ValueChanged="SliderTransSec_ValueChanged" VerticalAlignment="Center" AutoToolTipPrecision="1" />
                             </Grid>
                             <Border Background="White" CornerRadius="10" Margin="0,5,0,0">
                                 <StackPanel  Margin="10">
@@ -569,7 +569,7 @@
                         <ComboBox Grid.Column="1" x:Name="comboBoxSource" DisplayMemberPath="SourceName" SelectionChanged="ComboBoxSource_SelectionChanged" ToolTip="监视源" Margin="0" RenderTransformOrigin="0.503,0.55" Height="20" IsEnabled="False"/>
                         <Label x:Name="LabelDanmu" Grid.Column="1" Content="弹幕公屏" Padding="0" Margin="5,2,0,0"/>
                     </Grid>
-                    <Slider x:Name="ProgressTran" Height="20" Foreground="#FF9D95F1" Visibility="Collapsed" Maximum="1" ToolTip="- 过渡 + 退回" Background="#7FE6E6E6" ValueChanged="ProgressTran_ValueChanged" AutoToolTipPlacement="BottomRight" AutoToolTipPrecision="4"/>
+                    <Slider x:Name="ProgressTran" Height="20" Foreground="#FF9D95F1" Visibility="Collapsed" Maximum="1" ToolTip="- 过渡 + 退回" Background="#7FE6E6E6" ValueChanged="ProgressTran_ValueChanged" AutoToolTipPlacement="BottomRight" AutoToolTipPrecision="1"/>
                     <Grid x:Name="DanmakuSider" Margin="0,15,0,0" Background="#FF75D2F6" Height="27">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -577,8 +577,8 @@
                             <ColumnDefinition />
                             <ColumnDefinition Width="auto"/>
                         </Grid.ColumnDefinitions>
-                        <Button x:Name="buttonDanmakuSwitch" Grid.Column="0" Content="启动弹幕" Width="70" Background="White" Foreground="#FF77D3F5" BorderBrush="#FF01BBE2" Click="ButtonDanmakuSwitch_Click" />
-                        <Button Grid.Column="1" x:Name="buttonAutoDanmaku" Content="自动" Background="#FF01BCE1" Foreground="White" BorderBrush="#FF01BCE1" Width="40" Click="ButtonAutoDanmaku_Click"/>
+                        <Button x:Name="buttonDanmakuSwitch" Grid.Column="0" Content="启动公屏" Width="70" Background="White" Foreground="#FF77D3F5" BorderBrush="#FF01BBE2" Click="ButtonDanmakuSwitch_Click" />
+                        <Button Grid.Column="1" x:Name="buttonAutoDanmaku" Content="自动弹幕" Background="#FF01BCE1" Foreground="White" BorderBrush="#FF01BCE1" Click="ButtonAutoDanmaku_Click" Width="70"/>
                         <Button x:Name="buttonDanmuSetting" Grid.Column="3" Background="#FF01BCE1" BorderBrush="#FF01BCE1" Click="ButtonDanmuSetting_Click" ToolTip="弹幕设置">
                             <Image Source="gear_16xLG.png" RenderTransformOrigin="0.5,0.5" >
                                 <Image.RenderTransform>

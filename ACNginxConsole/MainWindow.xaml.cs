@@ -1040,7 +1040,7 @@ namespace ACNginxConsole
                     textBoxSourceName.Text = "流" + configcount;
                 }
 
-                
+
             }
 
         }
@@ -1110,7 +1110,7 @@ namespace ACNginxConsole
                 {   //从第二个开始录入
                     if (configdata[i].StreamCode == "")
                         continue;   //跳过空项
-                    if (checkBoxSolo.IsChecked.Equals(true) && configdata[i].Type=="局域网" 
+                    if (checkBoxSolo.IsChecked.Equals(true) && configdata[i].Type == "局域网"
                         && configdata[i].StreamCode == configdata[i].LiveViewingSite)
                         continue;   //独立时，跳过局域网播流项
                     textBoxOpt.Text += "push " + configdata[i].StreamCode + ";" + "\r\n";
@@ -1774,7 +1774,7 @@ namespace ACNginxConsole
         {
             Process.Start("Start_Nginx.bat");
 
-            foreach(ConfigItem item in configdata)
+            foreach (ConfigItem item in configdata)
             {
                 if (item.Type == "局域网")
                 {
@@ -2382,17 +2382,17 @@ namespace ACNginxConsole
 
                 expandRightCol.Begin(RightCol, HandoffBehavior.SnapshotAndReplace, true);
 
-                LabelLU.Content = "";
-                LabelRU.Content = "";
-                LabelLD.Content = "";
+                //LabelLU.Content = "";
+                //LabelRU.Content = "";
+                //LabelLD.Content = "";
 
-                ProgressLD.Value = 0;
-                ProgressLU.Value = 0;
-                ProgressRU.Value = 0;
+                //ProgressLD.Value = 0;
+                //ProgressLU.Value = 0;
+                //ProgressRU.Value = 0;
 
-                ComboSettingLoad = true;
-                comboBoxSource.SelectedIndex = -1;
-                ComboSettingLoad = false;
+                //ComboSettingLoad = true;
+                //comboBoxSource.SelectedIndex = -1;
+                //ComboSettingLoad = false;
                 buttonHelp.Content = "启动侧栏";
 
             }
@@ -2413,6 +2413,8 @@ namespace ACNginxConsole
             }
         }
 
+        // an universal architecture: PVW -> PGM
+
         byte selectedItem = 0;
         private void selectItem(byte selec)
         {
@@ -2423,10 +2425,10 @@ namespace ACNginxConsole
             {
                 LabelDanmu.Visibility = Visibility.Hidden;
                 comboBoxSource.IsEnabled = true;
-                if (Monitors.ElementAt(selec-1).PlayId <= comboBoxSource.Items.Count - 1)
+                if (Monitors.ElementAt(selec - 1).PlayId <= comboBoxSource.Items.Count - 1)
                 {
-                    comboBoxSource.SelectedIndex = Monitors.ElementAt(selec-1).PlayId;
-                   
+                    comboBoxSource.SelectedIndex = Monitors.ElementAt(selec - 1).PlayId;
+
                     if (DanmakuSwitch && BackLive.IsSelected)
                     {
                         if (focaldephov.ForeImg.Opacity == 1)
@@ -2502,6 +2504,91 @@ namespace ACNginxConsole
             BorderRU.BorderBrush.Opacity = (selectedItem == 2 ? 1 : 0);
             BorderLD.BorderBrush.Opacity = (selectedItem == 3 ? 1 : 0);
             BorderRD.BorderBrush.Opacity = (selectedItem == 4 ? 1 : 0);
+        }
+
+        private void trantoVis(byte Tranto)
+        {
+            tranto = Tranto;
+
+            BorderLU.BorderBrush.Opacity = (selectedItem == 1 ? 1 : (tranto == 1 ? 0.5 : 0));
+            BorderRU.BorderBrush.Opacity = (selectedItem == 2 ? 1 : (tranto == 2 ? 0.5 : 0));
+            BorderLD.BorderBrush.Opacity = (selectedItem == 3 ? 1 : (tranto == 3 ? 0.5 : 0));
+            BorderRD.BorderBrush.Opacity = (selectedItem == 4 ? 1 : (tranto == 4 ? 0.5 : 0));
+
+            focaldephov.TransitionImg.Source = focaldephov.BackImg.Source;
+            focaldephov.BackImg.Opacity = 0;
+            focaldephov.TransitionImg.Opacity = 1;
+            if (tranto < 4)
+            {
+                focaldephov.BackImg.SetBinding(Image.SourceProperty, Monitors.ElementAt(tranto - 1).Bing);
+                ProgressTran.Value = 1;
+                ProgressTran.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                focaldephov.BackImg.Source = null;
+                ProgressTran.Visibility = Visibility.Visible;
+                ProgressTran.Value = 0;
+            }
+            
+        }
+
+        Storyboard fadet = new Storyboard();
+
+        private void transition(byte selc)
+        {
+            
+            trantoVis(selc);
+
+            
+            DoubleAnimation opf = new DoubleAnimation()
+            {
+                From = 1,
+                To = 0,
+                Duration = TimeSpan.FromSeconds(Properties.Settings.Default.TranSec)         //一个其他量
+            };
+
+            //Storyboard.SetTarget(opf, SliderTransSec);
+            Storyboard.SetTargetProperty(opf, new PropertyPath("(Slider.Value)"));
+            fadet.Children.Add(opf);
+            fadet.Completed += Fadet_Completed;
+            fadet.Begin(ProgressTran, HandoffBehavior.SnapshotAndReplace, true);
+
+        }
+
+        private void Fadet_Completed(object sender, EventArgs e)
+        {
+            fadet.Remove(ProgressTran);
+            ProgressTran.Value = 1;
+        }
+
+        byte tranto;
+
+        private void transition_manual(byte selc)
+        {
+
+            trantoVis(selc);
+
+        }
+
+        private void ProgressTran_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (ProgressTran.Visibility == Visibility.Visible)
+            {
+                focaldephov.BackImg.Opacity = 1 - ProgressTran.Value;
+                if (ProgressTran.Value == 0)
+                {
+                    //结束了
+                    ProgressTran.Visibility = Visibility.Collapsed;
+                    selectItem(tranto);
+                }
+                else if (ProgressTran.Value == 1)
+                {
+                    //取消了
+                    ProgressTran.Visibility = Visibility.Collapsed;
+                    selectItem(selectedItem);
+                }
+            }
         }
 
         /* 暂时没有搞清楚*/
@@ -3013,140 +3100,6 @@ namespace ACNginxConsole
         }
 
 
-        private void transition(byte selc)
-        {
-            ProgressTran.Visibility = Visibility.Collapsed;
-            if (selectedItem < 4)
-            {   //原图，增加条件限制
-                focaldephov.TransitionImg.Source = focaldephov.BackImg.Source;
-                //focaldephov.TransitionImg.SetBinding(Image.SourceProperty, Monitors.ElementAt(selectedItem - 1).Bing);
-            }
-            //else
-            //{
-            //    focaldephov.TransitionImg.SetBinding(Image.SourceProperty, new Binding());
-            //}
-            focaldephov.BackImg.Opacity = 0;
-            selectItem(selc);
-            //Storyboard sbt = new Storyboard();
-            if (selc < 4)
-            {
-                focaldephov.TransitionImg.Opacity = 1;
-                DoubleAnimation opf = new DoubleAnimation()
-                {
-                    From = 0,
-                    To = 1,
-                    Duration = TimeSpan.FromSeconds(Properties.Settings.Default.TranSec)         //一个其他量
-                };
-                //Storyboard.SetTargetProperty(opf, new PropertyPath("(Image.Opacity)"));
-                focaldephov.BackImg.BeginAnimation(OpacityProperty, opf, HandoffBehavior.SnapshotAndReplace);
-            }
-            //else
-            //{
-            //    DoubleAnimation opf = new DoubleAnimation()
-            //    {
-            //        From = 1,
-            //        To = 0,
-            //        Duration = TimeSpan.FromSeconds(Properties.Settings.Default.TranSec)         //一个其他量
-            //    };
-            //    //Storyboard.SetTargetProperty(opf, new PropertyPath("(Image.Opacity)"));
-            //    focaldephov.TransitionImg.BeginAnimation(OpacityProperty, opf, HandoffBehavior.SnapshotAndReplace);
-            //}
-            //不要了
-        }
-
-        byte tranto;
-
-        private void transition_manual(byte selc)
-        {
-            if (selectedItem < 4)
-            {   //原图，增加条件限制
-                focaldephov.TransitionImg.Source = focaldephov.BackImg.Source;
-                //focaldephov.TransitionImg.SetBinding(Image.SourceProperty, Monitors.ElementAt(selectedItem - 1).Bing);
-            }
-            //else
-            //{
-            //    focaldephov.TransitionImg.SetBinding(Image.SourceProperty, new Binding());
-            //}
-            focaldephov.BackImg.Opacity = 0;
-            selectItem(selc);
-            //Storyboard sbt = new Storyboard();
-
-            BorderLU.BorderBrush.Opacity = (selectedItem == 1 ? 1 : (selc == 1 ? 0.5 : 0));
-            BorderRU.BorderBrush.Opacity = (selectedItem == 2 ? 1 : (selc == 2 ? 0.5 : 0));
-            BorderLD.BorderBrush.Opacity = (selectedItem == 3 ? 1 : (selc == 3 ? 0.5 : 0));
-            BorderRD.BorderBrush.Opacity = (selectedItem == 4 ? 1 : (selc == 4 ? 0.5 : 0));
-
-            tranto = selc;
-
-            if (selc < 4)
-            {
-                ProgressTran.Value = 1;
-                ProgressTran.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                ProgressTran.Value = 0;
-                ProgressTran.Visibility = Visibility.Collapsed;
-            }
-
-            if (selc < 4)
-            {
-                if (selectedItem < 4)
-                {   //原图，增加条件限制
-                    focaldephov.TransitionImg.Source = focaldephov.BackImg.Source;
-                    //focaldephov.TransitionImg.SetBinding(Image.SourceProperty, Monitors.ElementAt(selectedItem - 1).Bing);
-                }
-                //else
-                //{
-                //    focaldephov.TransitionImg.SetBinding(Image.SourceProperty, new Binding());
-                //}
-
-                //focaldephov.BackImg.SetBinding(Image.SourceProperty, Monitors.ElementAt(selc - 1).Bing);
-                focaldephov.BackImg.Opacity = 0;
-                focaldephov.TransitionImg.Opacity = 1;
-                selectItem(selc);
-
-                BorderLU.BorderBrush.Opacity = (selectedItem == 1 ? 1 : (selc == 1 ? 0.5 : 0));
-                BorderRU.BorderBrush.Opacity = (selectedItem == 2 ? 1 : (selc == 2 ? 0.5 : 0));
-                BorderLD.BorderBrush.Opacity = (selectedItem == 3 ? 1 : (selc == 3 ? 0.5 : 0));
-                BorderRD.BorderBrush.Opacity = (selectedItem == 4 ? 1 : (selc == 4 ? 0.5 : 0));
-
-                tranto = selc;
-
-                ProgressTran.Value = 1;
-                ProgressTran.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                tranto = selc;
-
-                ProgressTran.Value = 0;
-                ProgressTran.Visibility = Visibility.Hidden;
-                selectItem(selc);
-            }
-
-        }
-
-        private void ProgressTran_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            if (ProgressTran.Visibility == Visibility.Visible)
-            {
-                focaldephov.BackImg.Opacity = 1 - ProgressTran.Value;
-                if (ProgressTran.Value == 0)
-                {
-                    //结束了
-                    ProgressTran.Visibility = Visibility.Collapsed;
-                    selectItem(tranto);
-                }
-                else if (ProgressTran.Value == 1)
-                {
-                    //取消了
-                    ProgressTran.Visibility = Visibility.Collapsed;
-                    selectItem(selectedItem);
-                }
-            }
-        }
-
         #endregion
 
         #region 弹幕系统
@@ -3277,7 +3230,7 @@ namespace ACNginxConsole
 
                 buttonDanmakuSwitch.Foreground = myblue;
                 buttonDanmakuSwitch.Background = Brushes.White;
-                buttonDanmakuSwitch.Content = "启动弹幕";
+                buttonDanmakuSwitch.Content = "启动公屏";
 
                 DanmakuSwitch = false;
 
@@ -3346,7 +3299,7 @@ namespace ACNginxConsole
 
                         buttonDanmakuSwitch.Foreground = Brushes.White;
                         buttonDanmakuSwitch.Background = myblue;
-                        buttonDanmakuSwitch.Content = "关闭弹幕";
+                        buttonDanmakuSwitch.Content = "关闭公屏";
 
                         DanmakuSwitch = true;
 
@@ -3361,7 +3314,7 @@ namespace ACNginxConsole
                 {
                     buttonDanmakuSwitch.Content = "连接失败";
                     await System.Threading.Tasks.Task.Delay(1000);
-                    buttonDanmakuSwitch.Content = "启动弹幕";
+                    buttonDanmakuSwitch.Content = "启动公屏";
                 }
 
 
@@ -3410,13 +3363,13 @@ namespace ACNginxConsole
             {
                 buttonAutoDanmaku.Foreground = Brushes.White;
                 buttonAutoDanmaku.Background = myblue;
-                buttonAutoDanmaku.Content = "自动";
+                buttonAutoDanmaku.Content = "自动弹幕";
             }
             else
             {
                 buttonAutoDanmaku.Foreground = myblue;
                 buttonAutoDanmaku.Background = Brushes.White;
-                buttonAutoDanmaku.Content = "手动";
+                buttonAutoDanmaku.Content = "手动弹幕";
             }
             AutoDanmaku = !AutoDanmaku;
         }
