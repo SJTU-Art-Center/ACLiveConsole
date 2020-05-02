@@ -1,7 +1,7 @@
 # ACLiveConsole
 Art Center Live Console is a UI-friendly software to manage multi-streaming work.
 
-Release 4.3.0
+Release 4.3.5
 
 <s>[**Development Is Paused.**](https://github.com/SJTU-Art-Center/ACLiveConsole/wiki/%E8%87%B4%E5%BC%80%E5%8F%91%E8%80%85#130-%E6%9A%82%E5%81%9C%E5%BC%80%E5%8F%91)</s> （真香）
 
