@@ -208,6 +208,7 @@ namespace ACNginxConsole
         DispatcherTimer dispatcherTimerEGY = new DispatcherTimer();
         DispatcherTimer dispatcherTimerMon = new DispatcherTimer();
         DispatcherTimer dispatcherTimerDanmaku = new DispatcherTimer();
+        DispatcherTimer dispatcherTimerSysTime = new DispatcherTimer();
 
         int time_left;
 
@@ -608,6 +609,9 @@ namespace ACNginxConsole
             dispatcherTimerDanmaku.Tick += new EventHandler(dispatcherTimerDanmaku_Tick);
             dispatcherTimerDanmaku.Interval = new TimeSpan(0, 0, 0, 0, 500);
 
+            // 1000 / 30 = 33.33 ms
+            dispatcherTimerSysTime.Tick += DispatcherTimerSysTime_Tick;
+            dispatcherTimerSysTime.Interval = new TimeSpan(0, 0, 0, 0, 15);
 
             labelVer.Content = "版本: " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() + "\n";
             labelVer.Content += "© Art Center 2019 - 2020, All Rights Reserved." + "\n";
@@ -734,6 +738,7 @@ namespace ACNginxConsole
             SliderTransSec.Value = Properties.Settings.Default.TranSec;
 
             checkBoxNetwork.IsChecked = Properties.Settings.Default.OpenNetworkCaching;
+            checkBoxSystemTime.IsChecked = Properties.Settings.Default.SysTime;
 
         }
 
@@ -1817,11 +1822,15 @@ namespace ACNginxConsole
                 textBoxClock.IsEnabled = false;
                 labelLive.Content = "初始化...";
                 dispatcherTimerRefresh.Start();
+                if (checkBoxSystemTime.IsChecked.Equals(true))
+                    dispatcherTimerSysTime.Start();
+                else
+                    textBoxLiveTime.Text = "00:00:00";
             }
             else
             {
                 dispatcherTimerRefresh.Stop();
-
+                dispatcherTimerSysTime.Stop();
             }
         }
 
@@ -1850,6 +1859,7 @@ namespace ACNginxConsole
                 textBoxLiveTime.Background = Brushes.Transparent;
                 textBoxLiveTime.Foreground = Brushes.Black;
             }
+
             //前一个需要从文本读取
 
             string time1 = null;
@@ -1865,7 +1875,8 @@ namespace ACNginxConsole
 
                 DateTime nowtime = DateTime.Now;
 
-                textBoxLiveTime.Text = DateDiff(starttime, nowtime);
+                if (checkBoxSystemTime.IsChecked.Equals(false))             //如果勾选系统时间 将不会按照这种方式刷新
+                    textBoxLiveTime.Text = DateDiff(starttime, nowtime);
 
                 //当开始推流时判断
                 buttonClock.IsEnabled = true;
@@ -1976,6 +1987,12 @@ namespace ACNginxConsole
             }
 
 
+        }
+
+        private void DispatcherTimerSysTime_Tick(object sender, EventArgs e)
+        {
+            textBoxLiveTime.Text = System.DateTime.Now.ToString("HH:mm:ss")
+                + " " + System.DateTime.Now.Millisecond.ToString("000");
         }
 
         /// <summary>
@@ -2339,6 +2356,17 @@ namespace ACNginxConsole
         private void CheckBoxCloseSniffing_Unchecked(object sender, RoutedEventArgs e)
         {
             Properties.Settings.Default.CloseYouget = false;
+        }
+
+
+        private void checkBoxSystemTime_Checked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.SysTime = true;
+        }
+
+        private void checkBoxSystemTime_Unchecked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.SysTime = false;
         }
 
         #endregion
@@ -4360,5 +4388,6 @@ namespace ACNginxConsole
             }
             
         }
+
     }
 }

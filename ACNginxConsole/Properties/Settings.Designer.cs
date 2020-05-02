@@ -12,7 +12,7 @@ namespace ACNginxConsole.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.1.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.5.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -80,6 +80,246 @@ namespace ACNginxConsole.Properties {
             }
             set {
                 this["CloseProtection"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool CloseYouget {
+            get {
+                return ((bool)(this["CloseYouget"]));
+            }
+            set {
+                this["CloseYouget"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("10")]
+        public int StoreTime {
+            get {
+                return ((int)(this["StoreTime"]));
+            }
+            set {
+                this["StoreTime"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public double WinOpac {
+            get {
+                return ((double)(this["WinOpac"]));
+            }
+            set {
+                this["WinOpac"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public double DanmuOpac {
+            get {
+                return ((double)(this["DanmuOpac"]));
+            }
+            set {
+                this["DanmuOpac"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("#FF000000")]
+        public global::System.Windows.Media.Color WinBack {
+            get {
+                return ((global::System.Windows.Media.Color)(this["WinBack"]));
+            }
+            set {
+                this["WinBack"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("#FFFFFFFF")]
+        public global::System.Windows.Media.Color DanmuFore {
+            get {
+                return ((global::System.Windows.Media.Color)(this["DanmuFore"]));
+            }
+            set {
+                this["DanmuFore"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("10")]
+        public double HoverTime {
+            get {
+                return ((double)(this["HoverTime"]));
+            }
+            set {
+                this["HoverTime"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("32")]
+        public double MaxFontSize {
+            get {
+                return ((double)(this["MaxFontSize"]));
+            }
+            set {
+                this["MaxFontSize"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("3")]
+        public int LayerNum {
+            get {
+                return ((int)(this["LayerNum"]));
+            }
+            set {
+                this["LayerNum"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("10")]
+        public double MaxBlur {
+            get {
+                return ((double)(this["MaxBlur"]));
+            }
+            set {
+                this["MaxBlur"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.85")]
+        public double ScaleFac {
+            get {
+                return ((double)(this["ScaleFac"]));
+            }
+            set {
+                this["ScaleFac"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.333")]
+        public double InitTop {
+            get {
+                return ((double)(this["InitTop"]));
+            }
+            set {
+                this["InitTop"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Microsoft YaHei UI")]
+        public string ForeFont {
+            get {
+                return ((string)(this["ForeFont"]));
+            }
+            set {
+                this["ForeFont"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("#FF000000")]
+        public global::System.Windows.Media.Color BubbleColor {
+            get {
+                return ((global::System.Windows.Media.Color)(this["BubbleColor"]));
+            }
+            set {
+                this["BubbleColor"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string Regex {
+            get {
+                return ((string)(this["Regex"]));
+            }
+            set {
+                this["Regex"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int DanmuStyle {
+            get {
+                return ((int)(this["DanmuStyle"]));
+            }
+            set {
+                this["DanmuStyle"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool LowMoni {
+            get {
+                return ((bool)(this["LowMoni"]));
+            }
+            set {
+                this["LowMoni"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public double TranSec {
+            get {
+                return ((double)(this["TranSec"]));
+            }
+            set {
+                this["TranSec"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool OpenNetworkCaching {
+            get {
+                return ((bool)(this["OpenNetworkCaching"]));
+            }
+            set {
+                this["OpenNetworkCaching"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool SysTime {
+            get {
+                return ((bool)(this["SysTime"]));
+            }
+            set {
+                this["SysTime"] = value;
             }
         }
     }

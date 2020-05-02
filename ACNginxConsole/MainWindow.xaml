@@ -74,10 +74,10 @@
                         <Label x:Name="labelCode" Content="推流密钥" HorizontalAlignment="Left" Height="35" Margin="145,83,0,0" VerticalAlignment="Top"/>
                         <TextBox x:Name="textBoxMan" Height="48" Margin="206,120,306.5,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
                         <Label x:Name="labelMan" Content="自定义" HorizontalAlignment="Left" Height="27" Margin="145,117,0,0" VerticalAlignment="Top" Width="60"/>
-                        <RadioButton x:Name="radioButtonB" Content="B站" HorizontalAlignment="Left" Height="20.25" Margin="14.5,55,0,0" VerticalAlignment="Top" Width="104.25" Checked="RadioButton_Checked"/>
+                        <RadioButton x:Name="radioButtonB" Content="B站" HorizontalAlignment="Left" Height="20" Margin="14,55,0,0" VerticalAlignment="Top" Width="104" Checked="RadioButton_Checked"/>
                         <RadioButton x:Name="radioButtonWeibo" Content="微博" HorizontalAlignment="Left" Height="20" Margin="14,88,0,0" VerticalAlignment="Top" Width="105" Checked="RadioButtonWeibo_Checked_1"/>
-                        <RadioButton x:Name="radioButtonMan" Content="自定义" HorizontalAlignment="Left" Height="16" Margin="14,120,0,0" VerticalAlignment="Top" Width="105" Checked="RadioButtonMan_Checked_1"/>
-                        <RadioButton x:Name="radioButtonLAN" Content="局域网" HorizontalAlignment="Left" Height="19" Margin="14,154,0,0" VerticalAlignment="Top" Width="106" Checked="radioButtonLAN_Checked"/>
+                        <RadioButton x:Name="radioButtonMan" Content="自定义" HorizontalAlignment="Left" Height="16" Margin="14,152,0,0" VerticalAlignment="Top" Width="105" Checked="RadioButtonMan_Checked_1"/>
+                        <RadioButton x:Name="radioButtonLAN" Content="局域网" HorizontalAlignment="Left" Height="19" Margin="14,120,0,0" VerticalAlignment="Top" Width="106" Checked="radioButtonLAN_Checked"/>
                         <Label x:Name="label5" Content="推流平台" HorizontalAlignment="Left" Height="27" Margin="14.5,13.5,0,0" VerticalAlignment="Top" Width="118" Background="#FFCC261F" Foreground="White"/>
                         <Label x:Name="label6" Content="推流地址" Height="26" Margin="145,14,306.5,0" VerticalAlignment="Top" Background="#FFF2EC29" Foreground="Black"/>
                         <Label x:Name="labelWhite" Content="推流写入" Height="26" Margin="0,14,9.5,0" VerticalAlignment="Top" Background="White" HorizontalAlignment="Right" Width="286"/>
@@ -187,7 +187,7 @@
                     <Grid Background="#FFE5E5E5">
                         <Button x:Name="button_StartLive" Content="开始推流" HorizontalAlignment="Left" Height="37.75" Margin="14.5,22.75,0,0" VerticalAlignment="Top" Width="128" Click="Button_StartLive_Click"/>
                         <Button x:Name="button_EndLive" Content="终止推流" HorizontalAlignment="Left" Height="37.75" Margin="14.5,65.5,0,0" VerticalAlignment="Top" Width="128" Click="Button_EndLive_Click"/>
-                        <TextBox x:Name="textBoxLiveTime" Margin="147.5,66,10,0" TextWrapping="Wrap" Text="00:00:00" TextAlignment="Center" FontSize="28" Background="{x:Null}" Foreground="Black" Height="37.25" VerticalAlignment="Top"/>
+                        <TextBox x:Name="textBoxLiveTime" Margin="147.5,66,10,0" TextWrapping="Wrap" Text="00:00:00" TextAlignment="Center" FontSize="28" Background="{x:Null}" Foreground="Black" Height="37.25" VerticalAlignment="Top" IsReadOnly="True"/>
                         <Label x:Name="labelLive" Content="就绪" Height="29" Margin="147.5,29.25,10,0" VerticalAlignment="Top"/>
 
 
@@ -318,6 +318,7 @@
                             <CheckBox x:Name="checkBoxClosingAnim" Content="计时器关闭推流时播放Closing.mp4" HorizontalAlignment="Left" Height="16" Margin="0,5,0,0" Width="242"/>
                             <CheckBox x:Name="checkBoxLowMoni" Content="使用低延迟监视器（弃用）" Margin="0,5,0.5,0" Checked="checkBoxLowMoni_Checked" Unchecked="checkBoxLowMoni_Unchecked" IsEnabled="False" Visibility="Collapsed"/>
                             <CheckBox x:Name="checkBoxNetwork" Content="打开网络延迟设置" Margin="0,5,0.5,0" Checked="checkBoxNetwork_Checked" Unchecked="checkBoxNetwork_Unchecked" />
+                            <CheckBox x:Name="checkBoxSystemTime" Margin="0,5,0.5,0" Content="显示系统时间" Checked="checkBoxSystemTime_Checked" Unchecked="checkBoxSystemTime_Unchecked"/>
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="auto"/>
@@ -456,6 +457,7 @@
                                 </StackPanel>
 
                             </Border>
+
 
                         </StackPanel>
                         <Button x:Name="buttonTest" Content="试验性界面" HorizontalAlignment="Left" Height="66" Margin="331,152,0,0" VerticalAlignment="Top" Width="85" Click="ButtonTest_Click" Visibility="Hidden"/>
