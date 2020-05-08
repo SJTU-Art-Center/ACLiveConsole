@@ -3,7 +3,7 @@ Art Center Live Console is a UI-friendly software to manage multi-streaming work
 
 Release 4.3.5
 
-<s>[**Development Is Paused.**](https://github.com/SJTU-Art-Center/ACLiveConsole/wiki/%E8%87%B4%E5%BC%80%E5%8F%91%E8%80%85#130-%E6%9A%82%E5%81%9C%E5%BC%80%E5%8F%91)</s> （真香）
+[**Development Is Paused Again.**](https://github.com/SJTU-Art-Center/ACLiveConsole/wiki/%E8%87%B4%E5%BC%80%E5%8F%91%E8%80%85#130-%E6%9A%82%E5%81%9C%E5%BC%80%E5%8F%91)
 
 <s>This branch is for developing an efficient RTMP player based on ffmpeg player. Now it is unusable. (with RAM leak issue)
 If succeeded, the delay will below 1000 ms so that OJ will approve.</s>
