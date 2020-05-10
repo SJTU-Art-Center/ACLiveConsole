@@ -3147,9 +3147,8 @@ namespace ACNginxConsole
 
         }
 
-        private void buttonMonitorRefresh_Click(object sender, RoutedEventArgs e)
+        private void AllRefresh()
         {
-
             for (int i = 1; i < 4; ++i)
             {
 
@@ -3174,6 +3173,16 @@ namespace ACNginxConsole
                     Monitors.ElementAt(i - 1).SourceProvider.MediaPlayer.Play(
                                         Monitors.ElementAt(i - 1).PlayStream, Monitors.ElementAt(i - 1).Option);
             }
+        }
+
+
+        private void buttonMonitorRefresh_Click(object sender, RoutedEventArgs e)
+        {
+
+            Thread re = new Thread(AllRefresh); //线程安全
+            re.IsBackground = true;
+            re.Start();
+            
         }
 
         #endregion
