@@ -468,7 +468,25 @@
             <GridSplitter x:Name="ColumnSplit" Grid.Column="1" Width="5" HorizontalAlignment="Stretch"/>
             <Grid Grid.Column="2" Background="{DynamicResource {x:Static SystemColors.InactiveBorderBrushKey}}">
                 <StackPanel x:Name="StackPanelRightCol"  Margin="5,0" Focusable="True" KeyDown="StackPanelRightCol_KeyDown">
-                    <Label x:Name="label7" Content="直播监视器" Margin="0,15,0,0" Foreground="White" Background="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}"/>
+                    <Grid Margin="0,15,0,0" >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Label x:Name="label7" Content="直播监视器" Foreground="White" Background="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}" VerticalContentAlignment="Center" Padding="10,5,5,5"/>
+                        <Button x:Name="buttonMonitorRefresh" Grid.Column="1" Width="27" Background="#FF8BA1B9" BorderBrush="#FF8BA1B9" Height="27" ToolTip="重载所有监视器" Click="buttonMonitorRefresh_Click">
+                            <Image RenderTransformOrigin="0.5,0.5" Source="refresh_16xLG.png" >
+                                <Image.RenderTransform>
+                                    <TransformGroup>
+                                        <ScaleTransform ScaleX="0.7" ScaleY="0.7"/>
+                                        <SkewTransform/>
+                                        <RotateTransform/>
+                                        <TranslateTransform/>
+                                    </TransformGroup>
+                                </Image.RenderTransform>
+                            </Image>
+                        </Button>
+                    </Grid>
                     <Slider x:Name="SliderNetwork" Maximum="3000" Value="500" IsSelectionRangeEnabled="True" SelectionStart="300" SelectionEnd="1500" AutoToolTipPlacement="TopLeft" ToolTip="网络缓存(ms)" ValueChanged="SliderNetwork_ValueChanged" Visibility="Collapsed" />
                     <Viewbox x:Name="ViewboxMonitor" Margin="0">
                         <Grid x:Name="Monitoring" Margin="0,0,0,0" Width="1600" Height="900" Background="#FFE2EBF4">
@@ -571,7 +589,7 @@
                         <ComboBox Grid.Column="1" x:Name="comboBoxSource" DisplayMemberPath="SourceName" SelectionChanged="ComboBoxSource_SelectionChanged" ToolTip="监视源" Margin="0" RenderTransformOrigin="0.503,0.55" Height="20" IsEnabled="False"/>
                         <Label x:Name="LabelDanmu" Grid.Column="1" Content="弹幕公屏" Padding="0" Margin="5,2,0,0"/>
                     </Grid>
-                    <Slider x:Name="ProgressTran" Height="20" Foreground="#FF9D95F1" Visibility="Collapsed" Maximum="1" ToolTip="- 过渡 + 退回" Background="#7FE6E6E6" ValueChanged="ProgressTran_ValueChanged" AutoToolTipPlacement="BottomRight" AutoToolTipPrecision="1"/>
+                    <Slider x:Name="ProgressTran" Height="20" Foreground="#FF9D95F1" Maximum="1" Visibility="Collapsed" ToolTip="- 过渡 + 退回" Background="#7FE6E6E6" ValueChanged="ProgressTran_ValueChanged" AutoToolTipPlacement="BottomRight" AutoToolTipPrecision="1"/>
                     <Grid x:Name="DanmakuSider" Margin="0,15,0,0" Background="#FF75D2F6" Height="27">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>

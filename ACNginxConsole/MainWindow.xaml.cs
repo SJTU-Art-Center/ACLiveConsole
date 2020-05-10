@@ -3128,6 +3128,54 @@ namespace ACNginxConsole
         }
 
 
+        private void SliderNetwork_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (selectedItem > 0 && selectedItem < 4
+                && Monitors.ElementAt(selectedItem - 1).Network != (int)SliderNetwork.Value
+                && Monitors.ElementAt(selectedItem - 1) != null)
+            {
+                Monitors.ElementAt(selectedItem - 1).Network = (int)SliderNetwork.Value;
+                if (Monitors.ElementAt(selectedItem - 1).PlayStream != null)
+                {
+                    if (Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.IsPlaying().Equals(true))
+                        Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.Pause();
+
+                    Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.Play(
+                                        Monitors.ElementAt(selectedItem - 1).PlayStream, Monitors.ElementAt(selectedItem - 1).Option);
+                }
+            }
+
+        }
+
+        private void buttonMonitorRefresh_Click(object sender, RoutedEventArgs e)
+        {
+
+            for (int i = 1; i < 4; ++i)
+            {
+
+                if (Monitors.ElementAt(i - 1).SourceProvider.MediaPlayer.IsPlaying().Equals(true))
+                    Monitors.ElementAt(i - 1).SourceProvider.MediaPlayer.Pause();
+
+                Monitors.ElementAt(i - 1).SourceProvider.Dispose();
+
+                var currentAssembly = Assembly.GetEntryAssembly();
+                var currentDirectory = new FileInfo(currentAssembly.Location).DirectoryName;
+                // Default installation path of VideoLAN.LibVLC.Windows
+                var libDirectory = new DirectoryInfo(System.IO.Path.Combine(currentDirectory, "libvlc\\" + (IntPtr.Size == 4 ? "win-x86" : "win-x64")));
+
+                Monitors.ElementAt(i - 1).SourceProvider = new VlcVideoSourceProvider(this.Dispatcher);
+                Monitors.ElementAt(i - 1).SourceProvider.CreatePlayer(libDirectory, "--file-logging", "-vvv", "--logfile=Logs.log");
+                Monitors.ElementAt(i - 1).SourceProvider.MediaPlayer.Log += new EventHandler<VlcMediaPlayerLogEventArgs>(MediaPlayer_Log);
+                Monitors.ElementAt(i - 1).SourceProvider.MediaPlayer.Manager.SetFullScreen(Monitors.ElementAt(i - 1).SourceProvider.MediaPlayer.Manager.CreateMediaPlayer(), true);
+                //Monitors.ElementAt(i - 1).Volume = 0;
+                Monitors.ElementAt(i - 1).SourceProvider.MediaPlayer.EncounteredError += new EventHandler<VlcMediaPlayerEncounteredErrorEventArgs>(MediaPlayer_ErrorEncountered);
+
+                if (Monitors.ElementAt(i - 1).PlayStream != null)
+                    Monitors.ElementAt(i - 1).SourceProvider.MediaPlayer.Play(
+                                        Monitors.ElementAt(i - 1).PlayStream, Monitors.ElementAt(i - 1).Option);
+            }
+        }
+
         #endregion
 
         #region 弹幕系统
@@ -4368,25 +4416,6 @@ namespace ACNginxConsole
         private void checkBoxNetwork_Unchecked(object sender, RoutedEventArgs e)
         {
             Properties.Settings.Default.OpenNetworkCaching = false;
-        }
-
-        private void SliderNetwork_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            if(selectedItem > 0 && selectedItem < 4
-                && Monitors.ElementAt(selectedItem - 1).Network != (int)SliderNetwork.Value 
-                && Monitors.ElementAt(selectedItem - 1)!=null)
-            {
-                Monitors.ElementAt(selectedItem - 1).Network = (int)SliderNetwork.Value;
-                if (Monitors.ElementAt(selectedItem - 1).PlayStream != null)
-                {
-                    if (Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.IsPlaying().Equals(true))
-                        Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.Pause();
-
-                    Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.Play(
-                                        Monitors.ElementAt(selectedItem - 1).PlayStream, Monitors.ElementAt(selectedItem - 1).Option);
-                }
-            }
-            
         }
 
     }
