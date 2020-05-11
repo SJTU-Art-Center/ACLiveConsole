@@ -73,8 +73,10 @@ using Vlc.DotNet.Wpf;
 using BiliDMLib;
 using BilibiliDM_PluginFramework;
 using Newtonsoft.Json.Linq;
+using AForge.Video.DirectShow;
 using FFmpegDemo;
 using System.Windows.Interop;
+using Vlc.DotNet.Core.Interops;
 //using System.Windows.Forms;
 
 namespace ACNginxConsole
@@ -226,6 +228,9 @@ namespace ACNginxConsole
         private Regex FilterRegex;
         private bool ignorespam_enabled = false;
 
+
+        DirectoryInfo libDirectory;
+
         #endregion
 
         #region 配置项类
@@ -258,6 +263,7 @@ namespace ACNginxConsole
             private string streamCode;
             private string liveViewingSite;
             private int bililive_roomid;
+            private string[] devOptions;
             public event PropertyChangedEventHandler PropertyChanged;
 
             public int Id
@@ -345,6 +351,18 @@ namespace ACNginxConsole
                 }
             }
 
+            public string[] DevOptions
+            {
+                get { return devOptions; }
+                set { 
+                    devOptions = value;
+                    if (this.PropertyChanged != null)
+                    {
+                        this.PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(ConfigItem)));
+                    }
+                }
+            }
+
 
             public ConfigItem() { }
 
@@ -358,6 +376,7 @@ namespace ACNginxConsole
                     case 1: this.Type = "微博"; break;
                     case 2: this.Type = "自定义"; break;
                     case 3: this.Type = "局域网"; break;
+                    case 4: this.Type = "捕获设备"; break;
                 }
                 this.SourceName = sourceName;
                 this.StreamCode = streamCode;
@@ -712,7 +731,7 @@ namespace ACNginxConsole
             var currentAssembly = Assembly.GetEntryAssembly();
             var currentDirectory = new FileInfo(currentAssembly.Location).DirectoryName;
             // Default installation path of VideoLAN.LibVLC.Windows
-            var libDirectory = new DirectoryInfo(System.IO.Path.Combine(currentDirectory, "libvlc\\" + (IntPtr.Size == 4 ? "win-x86" : "win-x64")));
+            libDirectory = new DirectoryInfo(System.IO.Path.Combine(currentDirectory, "libvlc\\" + (IntPtr.Size == 4 ? "win-x86" : "win-x64")));
 
             Monitors = new List<Monitor>();
             for (int i = 0; i < 3; ++i)
@@ -720,6 +739,7 @@ namespace ACNginxConsole
                 Monitor monitor = new Monitor();
 
                 monitor.SourceProvider = new VlcVideoSourceProvider(this.Dispatcher);
+                monitor.SourceProvider.IsAlphaChannelEnabled = true;  //开alpha通道
                 monitor.SourceProvider.CreatePlayer(libDirectory, "--file-logging", "-vvv", "--logfile=Logs.log");
                 monitor.SourceProvider.MediaPlayer.Log += new EventHandler<VlcMediaPlayerLogEventArgs>(MediaPlayer_Log);
                 monitor.SourceProvider.MediaPlayer.Manager.SetFullScreen(monitor.SourceProvider.MediaPlayer.Manager.CreateMediaPlayer(), true);
@@ -962,8 +982,11 @@ namespace ACNginxConsole
             }
             else if (radioButtonLAN.IsChecked == true)
             {
-                sourceType = 3;
-            }
+                if (radioButtonRecord.IsChecked == true)
+                    sourceType = 4;
+                else
+                    sourceType = 3;
+            } 
 
         }
 
@@ -1041,6 +1064,23 @@ namespace ACNginxConsole
                 {
                     configdata.Add(new ConfigItem(configcount, sourceType, textBoxSourceName.Text.ToString(), textBoxMan.Text.ToString(), textBoxWebsite.Text.ToString()));
                     //configdata.Add(new ConfigItem(++configcount, 0, "ceshi","ceshi2"));
+                    if (sourceType == 4)
+                    {
+                        var VidStr = comboBoxVideo.SelectedIndex == -1 ? "" :
+                                comboBoxVideo.SelectedValue.ToString().Replace("System.Windows.Controls.ComboBoxItem: ", "");
+                        var AudStr = comboBoxAudio.SelectedIndex == -1 ? "" :
+                                comboBoxAudio.SelectedValue.ToString().Replace("System.Windows.Controls.ComboBoxItem: ", "");
+
+                        configdata[configcount].DevOptions = new string[] {
+                            ":dshow-vdev="+ VidStr,
+                            ":dshow-adev="+ AudStr,
+                            //":dshow-vdev=Microsoft Camera Rear",
+                            //":dshow-adev=麦克风阵列 (Realtek High Definition Audio(SST))",
+                            ":live-caching = 0",//本地缓存毫秒数 
+                            ":dshow-aspect-ratio=16:9",
+                            ":dshow-tuner-country=0",//不设置这个，录像没有声音，原因不明
+                        };
+                    }
                     ++configcount;
                     textBoxSourceName.Text = "流" + configcount;
                 }
@@ -1352,11 +1392,18 @@ namespace ACNginxConsole
         private void radioButtonLAN_Checked(object sender, RoutedEventArgs e)
         {
             ManualConfig();
-            radioButtonSender.IsChecked = true;
+            if(radioButtonSender.IsChecked.Equals(true))
+                Sender();
+            else
+                radioButtonSender.IsChecked = true;
+
+            comboBoxVideo.IsEnabled = false;
+            comboBoxAudio.IsEnabled = false;
+
             GridLANTip.Visibility = Visibility.Visible;
         }
 
-        private void radioButtonSender_Checked(object sender, RoutedEventArgs e)
+        private void Sender()
         {
             textBlockTip.Text = "点击 +1流 后，请把播流地址传给直播主机。";
             //读取本机IP
@@ -1369,8 +1416,8 @@ namespace ACNginxConsole
             Debug.WriteLine(_ip);
             textBoxMan.Text = "rtmp://" + _ip + "/live";
             textBoxWebsite.Text = "rtmp://" + _ip + "/live";
-            ImgDownArrow.Visibility = Visibility.Visible;
-            ImgRightArrow.Visibility = Visibility.Hidden;
+            //ImgDownArrow.Visibility = Visibility.Visible;
+            ImgRightArrow.Visibility = Visibility.Visible;
             textBoxSourceName.Text = "局域网播流";
             labelMan.Visibility = Visibility.Visible;
             textBoxMan.Visibility = Visibility.Visible;
@@ -1378,12 +1425,17 @@ namespace ACNginxConsole
             textBoxWebsite.IsReadOnly = true;
         }
 
+        private void radioButtonSender_Checked(object sender, RoutedEventArgs e)
+        {
+            Sender();
+        }
+
         private void radioButtonReceiver_Checked(object sender, RoutedEventArgs e)
         {
             textBlockTip.Text = "请输入分机的播流地址，然后 +1流 。";
             textBoxWebsite.Text = "";
             textBoxMan.Text = "";
-            ImgDownArrow.Visibility = Visibility.Hidden;
+            //ImgDownArrow.Visibility = Visibility.Hidden;
             ImgRightArrow.Visibility = Visibility.Visible;
             labelMan.Visibility = Visibility.Hidden;
             textBoxMan.Visibility = Visibility.Hidden;
@@ -2469,9 +2521,11 @@ namespace ACNginxConsole
                     comboBoxSource.SelectedIndex = -1;
                 }
 
-                buttonExtPlayer.IsEnabled = Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.IsPlaying().Equals(true);
+                if (comboBoxSource.SelectedIndex != -1 && configdata[Monitors.ElementAt(selec - 1).PlayId].Type != "捕获设备")
+                    buttonExtPlayer.IsEnabled = Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.IsPlaying().Equals(true);
 
-                if (checkBoxNetwork.IsChecked.Equals(true))
+                if (checkBoxNetwork.IsChecked.Equals(true) && Monitors.ElementAt(selec - 1).PlayId<comboBoxSource.Items.Count
+                    && configdata[Monitors.ElementAt(selec - 1).PlayId].Type!="捕获设备")
                 {
                     SliderNetwork.Visibility = Visibility.Visible;
                     SliderNetwork.Value = (double)Monitors.ElementAt(selectedItem - 1).Network;
@@ -2748,6 +2802,7 @@ namespace ACNginxConsole
             public string[] Option
             {
                 get { return option; }
+                set { option = value; }
             }
 
             public int Network
@@ -2825,17 +2880,46 @@ namespace ACNginxConsole
                             string SourceName = null;
                             
                             SourceName = configdata[comboBoxSource.SelectedIndex].SourceName.ToString();
-                            
+
+                            if (configdata[comboBoxSource.SelectedIndex].Type == "B站" ||
+                                configdata[comboBoxSource.SelectedIndex].Type == "微博")
+                                Monitors.ElementAt(selectedItem - 1).Network = 1000;
+                            else if (configdata[comboBoxSource.SelectedIndex].Type == "捕获设备")
+                                Monitors.ElementAt(selectedItem - 1).Option = configdata[comboBoxSource.SelectedIndex].DevOptions;
+                            else
+                                Monitors.ElementAt(selectedItem - 1).Network = 500;
+
+
                             //if (checkBoxLowMoni.IsChecked.Equals(false))
                             //{   //传统 VLC 入口
 
+                            //Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.ResetMedia();
+                            if (configdata[comboBoxSource.SelectedIndex].Type == "捕获设备")
+                            {
+                                try
+                                {
+                                    //Debug.WriteLine(Monitors.ElementAt(selectedItem - 1).Option);
+                                    Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.Play(
+                                        "dshow://  ",
+                                        Monitors.ElementAt(selectedItem - 1).Option
+                                        //@":dshow-vdev=Microsoft Camera Rear",
+                                        //@":dshow-adev=麦克风阵列 (Realtek High Definition Audio(SST))"
+                                        //,":live-caching = 0"//本地缓存毫秒数 
+                                        );
+                                }
+                                catch (Exception ex)
+                                {
+                                    Debug.WriteLine(ex);
+                                }
+                            }
+                            else
                                 Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.Play(
                                     Monitors.ElementAt(selectedItem - 1).PlayStream, Monitors.ElementAt(selectedItem - 1).Option);
-                                Monitors.ElementAt(selectedItem - 1).Volume = 0;
+                            Monitors.ElementAt(selectedItem - 1).Volume = 0;
 
-                                Monitors.ElementAt(selectedItem - 1).Bing = new Binding();
-                                Monitors.ElementAt(selectedItem - 1).Bing.Source = Monitors.ElementAt(selectedItem - 1).SourceProvider;
-                                Monitors.ElementAt(selectedItem - 1).Bing.Path = new PropertyPath("VideoSource");
+                            Monitors.ElementAt(selectedItem - 1).Bing = new Binding();
+                            Monitors.ElementAt(selectedItem - 1).Bing.Source = Monitors.ElementAt(selectedItem - 1).SourceProvider;
+                            Monitors.ElementAt(selectedItem - 1).Bing.Path = new PropertyPath("VideoSource");
                                 
                                 
                             //}
@@ -3147,22 +3231,24 @@ namespace ACNginxConsole
 
         }
 
+
+        
         private void AllRefresh()
         {
             for (int i = 1; i < 4; ++i)
             {
 
+                if (Monitors.ElementAt(selectedItem - 1).PlayId < comboBoxSource.Items.Count &&
+                       configdata[Monitors.ElementAt(selectedItem - 1).PlayId].Type == "捕获设备")
+                    continue;
+
                 if (Monitors.ElementAt(i - 1).SourceProvider.MediaPlayer.IsPlaying().Equals(true))
                     Monitors.ElementAt(i - 1).SourceProvider.MediaPlayer.Pause();
 
-                Monitors.ElementAt(i - 1).SourceProvider.Dispose();
-
-                var currentAssembly = Assembly.GetEntryAssembly();
-                var currentDirectory = new FileInfo(currentAssembly.Location).DirectoryName;
-                // Default installation path of VideoLAN.LibVLC.Windows
-                var libDirectory = new DirectoryInfo(System.IO.Path.Combine(currentDirectory, "libvlc\\" + (IntPtr.Size == 4 ? "win-x86" : "win-x64")));
+                    Monitors.ElementAt(i - 1).SourceProvider.Dispose();
 
                 Monitors.ElementAt(i - 1).SourceProvider = new VlcVideoSourceProvider(this.Dispatcher);
+                Monitors.ElementAt(i - 1).SourceProvider.IsAlphaChannelEnabled = true;  //开alpha通道
                 Monitors.ElementAt(i - 1).SourceProvider.CreatePlayer(libDirectory, "--file-logging", "-vvv", "--logfile=Logs.log");
                 Monitors.ElementAt(i - 1).SourceProvider.MediaPlayer.Log += new EventHandler<VlcMediaPlayerLogEventArgs>(MediaPlayer_Log);
                 Monitors.ElementAt(i - 1).SourceProvider.MediaPlayer.Manager.SetFullScreen(Monitors.ElementAt(i - 1).SourceProvider.MediaPlayer.Manager.CreateMediaPlayer(), true);
@@ -3170,8 +3256,25 @@ namespace ACNginxConsole
                 Monitors.ElementAt(i - 1).SourceProvider.MediaPlayer.EncounteredError += new EventHandler<VlcMediaPlayerEncounteredErrorEventArgs>(MediaPlayer_ErrorEncountered);
 
                 if (Monitors.ElementAt(i - 1).PlayStream != null)
-                    Monitors.ElementAt(i - 1).SourceProvider.MediaPlayer.Play(
-                                        Monitors.ElementAt(i - 1).PlayStream, Monitors.ElementAt(i - 1).Option);
+                {
+                    //Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.ResetMedia();
+                    if (Monitors.ElementAt(i - 1).PlayId < comboBoxSource.Items.Count &&
+                        configdata[Monitors.ElementAt(i - 1).PlayId].Type == "捕获设备")
+                    {
+                        try
+                        {
+                            Monitors.ElementAt(i - 1).SourceProvider.MediaPlayer.Play(
+                                @"dshow://  ", Monitors.ElementAt(selectedItem - 1).Option);
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine(ex);
+                        }
+                    }
+                    else
+                        Monitors.ElementAt(i - 1).SourceProvider.MediaPlayer.Play(
+                            Monitors.ElementAt(i - 1).PlayStream, Monitors.ElementAt(selectedItem - 1).Option);
+                }
             }
         }
 
@@ -3619,7 +3722,7 @@ namespace ACNginxConsole
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             //listbox的最大高度限制
-            listBoxDanmaku.MaxHeight = this.Height - 50;
+            listBoxDanmaku.MaxHeight = this.Height - 70;
         }
 
         //TODO: 以后写成一个list用于调用样式列表。
@@ -4426,6 +4529,103 @@ namespace ACNginxConsole
         {
             Properties.Settings.Default.OpenNetworkCaching = false;
         }
+
+        private void radioButtonRecord_Checked(object sender, RoutedEventArgs e)
+        {
+            comboBoxVideo.IsEnabled = true;
+            comboBoxAudio.IsEnabled = true;
+            textBlockTip.Text = "请选择视频和音频捕获设备，然后 +1 流。";
+            labelWebsite.Content = "播流参数";
+            textBoxSourceName.Text = "捕获" + configcount;
+            textBoxWebsite.IsReadOnly = true;
+            textBoxMan.Text = "";
+            textBoxWebsite.Text = " :dshow-vdev=\"" + "\" :dshow-adev=\"" + "\"";
+            ImgRightArrow.Visibility = Visibility.Hidden;
+            RefreshOutput();
+
+            comboBoxVideo.Items.Clear();
+
+            try
+            {
+                var videoDevices = new FilterInfoCollection(FilterCategory.VideoInputDevice);
+
+                if (videoDevices.Count == 0)
+                    throw new ApplicationException();
+
+                foreach (FilterInfo device in videoDevices)
+                {
+                    comboBoxVideo.Items.Add(device.Name);
+                }
+            }
+            catch
+            {
+
+            }
+
+            comboBoxAudio.Items.Clear();
+
+            try
+            {
+                var audioDevices = new FilterInfoCollection(FilterCategory.AudioInputDevice);
+
+                if (audioDevices.Count == 0)
+                    throw new ApplicationException();
+
+                foreach (FilterInfo device in audioDevices)
+                {
+                    comboBoxAudio.Items.Add(device.Name);
+                }
+            }
+            catch
+            {
+
+            }
+
+        }
+
+        private void radioButtonRecord_Unchecked(object sender, RoutedEventArgs e)
+        {
+            comboBoxVideo.SelectedIndex = -1;
+            comboBoxAudio.SelectedIndex = -1;
+            comboBoxVideo.IsEnabled = false;
+            comboBoxAudio.IsEnabled = false;
+            labelWebsite.Content = "播流地址";
+        }
+
+        private void RefreshDevArg()
+        {
+            //Preview Only.
+            var VidStr = comboBoxVideo.SelectedIndex == -1 ? "" :
+                comboBoxVideo.SelectedValue.ToString().Replace("System.Windows.Controls.ComboBoxItem: ", "");
+            var AudStr = comboBoxAudio.SelectedIndex == -1 ? "" :
+                comboBoxAudio.SelectedValue.ToString().Replace("System.Windows.Controls.ComboBoxItem: ", "");
+
+            textBoxWebsite.Text = "视频: " + VidStr + " 音频: " + AudStr;
+            
+        }
+
+        private void comboBoxVideo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            RefreshDevArg();
+        }
+
+        private void comboBoxAudio_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            RefreshDevArg();
+        }
+
+        private void comboBoxVideo_DropDownOpened(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void comboBoxAudio_DropDownOpened(object sender, EventArgs e)
+        {
+            
+        }
+
+
+        // TODO: ffmpeg -f gdigrab -i title="FocalDepthHover" "rtmp://127.0.0.1/live"
 
     }
 }

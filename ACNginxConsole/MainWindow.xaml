@@ -6,7 +6,7 @@
         xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker"
         xmlns:local="clr-namespace:ACNginxConsole"
         mc:Ignorable="d"
-        Title="AC Live Console" Height="686.25" Width="830.348" Closed="Window_Closed" SizeChanged="Window_SizeChanged" Loaded="Window_Loaded">
+        Title="AC Live Console" Height="686.25" Width="908.348" Closed="Window_Closed" SizeChanged="Window_SizeChanged" Loaded="Window_Loaded" MinHeight="30">
 
     <Window.Resources>
         <colorPicker:ColorToStringConverter x:Key="ColorToStringConverter"/>
@@ -147,16 +147,20 @@
                         </Grid>
 
                         <Label x:Name="labelWebsite" Content="直播网址" Height="34" Margin="0,83,231.5,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="64"/>
-                        <TextBox x:Name="textBoxWebsite" Margin="0,88,31.5,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="200" Height="20" TextWrapping="WrapWithOverflow"/>
+                        <TextBox x:Name="textBoxWebsite" Margin="0,88,32.5,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="199" Height="20" TextWrapping="WrapWithOverflow"/>
                         <Button x:Name="buttonlWHelp" Height="20" Margin="0,88,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="22" Click="ButtonlWHelp_Click" ToolTip="获取有关播流网址的帮助">
                             <Image Source="StatusAnnotations_Help_and_inconclusive_16xLG_color.png" />
                         </Button>
-                        <Grid x:Name="GridLANTip" Height="68" Margin="145,47,306.5,0" VerticalAlignment="Top" Background="#FFE5E5E5">
+                        <Grid x:Name="GridLANTip" Height="127" Margin="145,47,300.5,0" VerticalAlignment="Top" Background="#FFE5E5E5">
                             <RadioButton x:Name="radioButtonSender" Content="发送" HorizontalAlignment="Left" Height="19" Margin="0,7,0,0" VerticalAlignment="Top" Width="47" Checked="radioButtonSender_Checked"/>
                             <RadioButton x:Name="radioButtonReceiver" Content="接收" HorizontalAlignment="Left" Height="18" Margin="0,40,0,0" VerticalAlignment="Top" Width="54" Checked="radioButtonReceiver_Checked"/>
                             <TextBlock x:Name="textBlockTip" Height="47" Margin="59,6,0,0" TextWrapping="Wrap" Text="请把播流地址传给直播主机。" VerticalAlignment="Top"/>
-                            <Image x:Name="ImgDownArrow" Margin="0,0,6,7" Source="arrow_Down_color_32xLG.png" Stretch="Fill" Height="28" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="28"/>
-                            <Image x:Name="ImgRightArrow" Margin="0,0,6,7" Source="arrow_Forward_color_32xLG.png" Stretch="Fill" Height="28" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="28"/>
+                            <Image x:Name="ImgRightArrow" Margin="0,0,6,65" Source="arrow_Forward_color_32xLG.png" Stretch="Fill" Height="28" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="28"/>
+                            <ComboBox x:Name="comboBoxVideo" Height="19" Margin="122,71,6,0" VerticalAlignment="Top" VerticalContentAlignment="Center" SelectionChanged="comboBoxVideo_SelectionChanged" DropDownOpened="comboBoxVideo_DropDownOpened"/>
+                            <ComboBox x:Name="comboBoxAudio" Height="19" Margin="122,102,6,0" VerticalAlignment="Top" VerticalContentAlignment="Center" SelectionChanged="comboBoxAudio_SelectionChanged" DropDownOpened="comboBoxAudio_DropDownOpened"/>
+                            <RadioButton x:Name="radioButtonRecord" Content="捕获设备" HorizontalAlignment="Left" Height="17" Margin="0,72,0,0" VerticalAlignment="Top" Width="96" Checked="radioButtonRecord_Checked" Unchecked="radioButtonRecord_Unchecked"/>
+                            <Label x:Name="label9" Content="视频" HorizontalAlignment="Left" Height="24" Margin="81,66,0,0" VerticalAlignment="Top" Width="36"/>
+                            <Label x:Name="label9_Copy" Content="音频" HorizontalAlignment="Left" Height="24" Margin="81,97,0,0" VerticalAlignment="Top" Width="36"/>
 
                         </Grid>
                         <CheckBox x:Name="checkBoxSolo" Content="接收端独立" Margin="0,0,124.5,17" HorizontalAlignment="Right" Width="107" Height="22" VerticalAlignment="Bottom" ToolTip="作为信号接收器但又需要分流直播时，请勾选此项。"/>
