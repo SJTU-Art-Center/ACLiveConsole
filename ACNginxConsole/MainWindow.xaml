@@ -6,7 +6,7 @@
         xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker"
         xmlns:local="clr-namespace:ACNginxConsole"
         mc:Ignorable="d"
-        Title="AC Live Console" Height="686.25" Width="908.348" Closed="Window_Closed" SizeChanged="Window_SizeChanged" Loaded="Window_Loaded" MinHeight="30">
+        Title="AC Live Console" Height="686.25" Width="920.848" Closed="Window_Closed" SizeChanged="Window_SizeChanged" Loaded="Window_Loaded" MinHeight="30">
 
     <Window.Resources>
         <colorPicker:ColorToStringConverter x:Key="ColorToStringConverter"/>
@@ -161,6 +161,7 @@
                             <RadioButton x:Name="radioButtonRecord" Content="捕获设备" HorizontalAlignment="Left" Height="17" Margin="0,72,0,0" VerticalAlignment="Top" Width="96" Checked="radioButtonRecord_Checked" Unchecked="radioButtonRecord_Unchecked"/>
                             <Label x:Name="label9" Content="视频" HorizontalAlignment="Left" Height="24" Margin="81,66,0,0" VerticalAlignment="Top" Width="36"/>
                             <Label x:Name="label9_Copy" Content="音频" HorizontalAlignment="Left" Height="24" Margin="81,97,0,0" VerticalAlignment="Top" Width="36"/>
+                            <RadioButton x:Name="radioButtonScreen" Content="桌面" HorizontalAlignment="Left" Height="15" Margin="0,103,0,0" VerticalAlignment="Top" Width="81" Checked="radioButtonScreen_Checked"/>
 
                         </Grid>
                         <CheckBox x:Name="checkBoxSolo" Content="接收端独立" Margin="0,0,124.5,17" HorizontalAlignment="Right" Width="107" Height="22" VerticalAlignment="Bottom" ToolTip="作为信号接收器但又需要分流直播时，请勾选此项。"/>

@@ -739,7 +739,7 @@ namespace ACNginxConsole
                 Monitor monitor = new Monitor();
 
                 monitor.SourceProvider = new VlcVideoSourceProvider(this.Dispatcher);
-                monitor.SourceProvider.IsAlphaChannelEnabled = true;  //开alpha通道
+                //monitor.SourceProvider.IsAlphaChannelEnabled = true;  //开alpha通道
                 monitor.SourceProvider.CreatePlayer(libDirectory, "--file-logging", "-vvv", "--logfile=Logs.log");
                 monitor.SourceProvider.MediaPlayer.Log += new EventHandler<VlcMediaPlayerLogEventArgs>(MediaPlayer_Log);
                 monitor.SourceProvider.MediaPlayer.Manager.SetFullScreen(monitor.SourceProvider.MediaPlayer.Manager.CreateMediaPlayer(), true);
@@ -1074,11 +1074,9 @@ namespace ACNginxConsole
                         configdata[configcount].DevOptions = new string[] {
                             ":dshow-vdev="+ VidStr,
                             ":dshow-adev="+ AudStr,
-                            //":dshow-vdev=Microsoft Camera Rear",
-                            //":dshow-adev=麦克风阵列 (Realtek High Definition Audio(SST))",
                             ":live-caching = 0",//本地缓存毫秒数 
                             ":dshow-aspect-ratio=16:9",
-                            ":dshow-tuner-country=0",//不设置这个，录像没有声音，原因不明
+                            //":dshow-tuner-country=0",//不设置这个，录像没有声音，原因不明
                         };
                     }
                     ++configcount;
@@ -2524,8 +2522,10 @@ namespace ACNginxConsole
                 if (comboBoxSource.SelectedIndex != -1 && configdata[Monitors.ElementAt(selec - 1).PlayId].Type != "捕获设备")
                     buttonExtPlayer.IsEnabled = Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.IsPlaying().Equals(true);
 
-                if (checkBoxNetwork.IsChecked.Equals(true) && Monitors.ElementAt(selec - 1).PlayId<comboBoxSource.Items.Count
-                    && configdata[Monitors.ElementAt(selec - 1).PlayId].Type!="捕获设备")
+                if (checkBoxNetwork.IsChecked.Equals(true)
+                    && Monitors.ElementAt(selec - 1).PlayId<comboBoxSource.Items.Count
+                    && configdata[Monitors.ElementAt(selec - 1).PlayId].Type!="捕获设备"
+                    )
                 {
                     SliderNetwork.Visibility = Visibility.Visible;
                     SliderNetwork.Value = (double)Monitors.ElementAt(selectedItem - 1).Network;
@@ -2896,21 +2896,12 @@ namespace ACNginxConsole
                             //Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.ResetMedia();
                             if (configdata[comboBoxSource.SelectedIndex].Type == "捕获设备")
                             {
-                                try
-                                {
-                                    //Debug.WriteLine(Monitors.ElementAt(selectedItem - 1).Option);
+                                    //Debug.WriteLine(Monitors.ElementAt(selectedItem - 1).Option[0]);
                                     Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.Play(
-                                        "dshow://  ",
+                                        @"dshow://  ",
                                         Monitors.ElementAt(selectedItem - 1).Option
-                                        //@":dshow-vdev=Microsoft Camera Rear",
-                                        //@":dshow-adev=麦克风阵列 (Realtek High Definition Audio(SST))"
-                                        //,":live-caching = 0"//本地缓存毫秒数 
                                         );
-                                }
-                                catch (Exception ex)
-                                {
-                                    Debug.WriteLine(ex);
-                                }
+                                
                             }
                             else
                                 Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.Play(
@@ -3238,9 +3229,9 @@ namespace ACNginxConsole
             for (int i = 1; i < 4; ++i)
             {
 
-                if (Monitors.ElementAt(selectedItem - 1).PlayId < comboBoxSource.Items.Count &&
-                       configdata[Monitors.ElementAt(selectedItem - 1).PlayId].Type == "捕获设备")
-                    continue;
+                if (Monitors.ElementAt(i - 1).PlayId < comboBoxSource.Items.Count && 
+                    configdata[Monitors.ElementAt(i - 1).PlayId].Type == "捕获设备")
+                    continue;   //跳过捕获设备
 
                 if (Monitors.ElementAt(i - 1).SourceProvider.MediaPlayer.IsPlaying().Equals(true))
                     Monitors.ElementAt(i - 1).SourceProvider.MediaPlayer.Pause();
@@ -3248,7 +3239,7 @@ namespace ACNginxConsole
                     Monitors.ElementAt(i - 1).SourceProvider.Dispose();
 
                 Monitors.ElementAt(i - 1).SourceProvider = new VlcVideoSourceProvider(this.Dispatcher);
-                Monitors.ElementAt(i - 1).SourceProvider.IsAlphaChannelEnabled = true;  //开alpha通道
+                //Monitors.ElementAt(i - 1).SourceProvider.IsAlphaChannelEnabled = true;  //开alpha通道
                 Monitors.ElementAt(i - 1).SourceProvider.CreatePlayer(libDirectory, "--file-logging", "-vvv", "--logfile=Logs.log");
                 Monitors.ElementAt(i - 1).SourceProvider.MediaPlayer.Log += new EventHandler<VlcMediaPlayerLogEventArgs>(MediaPlayer_Log);
                 Monitors.ElementAt(i - 1).SourceProvider.MediaPlayer.Manager.SetFullScreen(Monitors.ElementAt(i - 1).SourceProvider.MediaPlayer.Manager.CreateMediaPlayer(), true);
@@ -4622,6 +4613,15 @@ namespace ACNginxConsole
         private void comboBoxAudio_DropDownOpened(object sender, EventArgs e)
         {
             
+        }
+
+        private void radioButtonScreen_Checked(object sender, RoutedEventArgs e)
+        {
+            textBlockTip.Text = "+1流后，可以监视显示器实时画面。";
+            textBoxWebsite.IsReadOnly = true;
+            textBoxWebsite.Text = "screen://";
+            textBoxSourceName.Text = "桌面" + configcount;
+            RefreshOutput();
         }
 
 
