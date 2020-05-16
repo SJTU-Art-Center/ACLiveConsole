@@ -595,7 +595,7 @@
                         <Label x:Name="LabelDanmu" Grid.Column="1" Content="弹幕公屏" Padding="0" Margin="5,2,0,0"/>
                     </Grid>
                     <Slider x:Name="ProgressTran" Height="20" Foreground="#FF9D95F1" Maximum="1" Visibility="Collapsed" ToolTip="- 过渡 + 退回" Background="#7FE6E6E6" ValueChanged="ProgressTran_ValueChanged" AutoToolTipPlacement="BottomRight" AutoToolTipPrecision="1"/>
-                    <Grid x:Name="GridTranEffect" >
+                    <Grid x:Name="GridTranEffect" Visibility="Collapsed">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition/>
                             <ColumnDefinition/>

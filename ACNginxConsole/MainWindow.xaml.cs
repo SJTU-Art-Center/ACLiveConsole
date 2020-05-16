@@ -2569,6 +2569,12 @@ namespace ACNginxConsole
             buttonSolo.IsEnabled = true;
             MonitoringChanged();
             ComboSettingLoad = false;
+
+            buttonSideBySide.BorderThickness = new Thickness(1);
+            buttonLRSplit.BorderThickness = new Thickness(1);
+            buttonUDSplit.BorderThickness = new Thickness(1);
+            buttonaSWindow.BorderThickness = new Thickness(1);
+            TranEffect = TranEffects.None;
         }
 
         private void ButtonLU_Click(object sender, RoutedEventArgs e)
@@ -2678,11 +2684,11 @@ namespace ACNginxConsole
         private void ProgressTran_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             if (ProgressTran.Visibility == Visibility.Visible)
-            {   
+            {
                 if (TranEffect == TranEffects.None)
                     focaldephov.BackImg.Opacity = 1 - ProgressTran.Value;
                 else
-                    focaldephov.BackImg.Opacity = Math.Abs(2 * (ProgressTran.Value - 0.5));
+                    focaldephov.BackImg.Opacity = (ProgressTran.Value > 0.5) ? 2 * (1 - ProgressTran.Value) : 1;
                 TranEffectStyle();
 
                 if (ProgressTran.Value == 0)
@@ -2705,31 +2711,84 @@ namespace ACNginxConsole
         enum TranEffects { None, SideBySide, LRSplit, UDSplit, SWindow };
         TranEffects TranEffect = TranEffects.None;
 
+        Matrix backMatrix_init, tranMatrix_init;
+        Matrix backMatrix_fin, tranMatrix_fin;
 
-        private void DefineInitialState()
+        private void DefineStates()
         {
+            backMatrix_init = focaldephov.BackImg.RenderTransform.Value;
+            tranMatrix_init = focaldephov.TransitionImg.RenderTransform.Value;
+
+            if (ProgressTran.Value > 0.5)
+            {
+                switch (TranEffect)
+                {
+                    case TranEffects.SideBySide:
+                        backMatrix_fin = new Matrix(4.0 / 9, 0,
+                            0, 4.0 / 9,
+                            +(0.3 / 16 + 2.0 / 9) * focaldephov.Width, 0);
+                        tranMatrix_fin = new Matrix(4.0 / 9, 0,
+                            0, 4.0 / 9,
+                            -(0.3 / 16 + 2.0 / 9) * focaldephov.Width, 0);
+                        break;
+                    case TranEffects.LRSplit:
+
+                        break;
+                    case TranEffects.UDSplit:
+
+                        break;
+                    case TranEffects.SWindow:
+
+                        break;
+                }
+            }
+            else
+            {
+                switch (TranEffect)
+                {
+                    // BackImg 载入的图像 
+                    // TranImg 原图像
+                    case TranEffects.SideBySide:
+                        backMatrix_fin = new Matrix(1, 0,
+                            0, 1,
+                            0, 0);
+                        tranMatrix_fin = new Matrix(1, 0,
+                            0, 1,
+                            0, 0);
+                        break;
+                    case TranEffects.LRSplit:
+
+                        break;
+                    case TranEffects.UDSplit:
+
+                        break;
+                    case TranEffects.SWindow:
+
+                        break;
+                }
+            }
 
         }
 
         private void TranEffectStyle()
         {
             //现在已经载入图像
-            switch (TranEffect)
+            if (TranEffect != TranEffects.None)
             {
-                // BackImg 载入的图像 
-                // TranImg 原图像
-                case TranEffects.SideBySide:
+                //定比分点计算
+                double progress = 1 - Math.Abs(2 * (ProgressTran.Value - 0.5));
+                Matrix backMatrix = new Matrix(
+                    backMatrix_init.M11 + (backMatrix_fin.M11 - backMatrix_init.M11) * progress, 0,
+                    0, backMatrix_init.M22 + (backMatrix_fin.M22 - backMatrix_init.M22) * progress,
+                    backMatrix_init.OffsetX + (backMatrix_fin.OffsetX - backMatrix_init.OffsetX) * progress, backMatrix_init.OffsetY + (backMatrix_fin.OffsetY - backMatrix_init.OffsetY) * progress);
+                focaldephov.BackImg.RenderTransform = new MatrixTransform(backMatrix);
 
-                    break;
-                case TranEffects.LRSplit:
+                Matrix tranMatrix = new Matrix(
+                    tranMatrix_init.M11 + (tranMatrix_fin.M11 - tranMatrix_init.M11) * progress, 0,
+                    0, tranMatrix_init.M22 + (tranMatrix_fin.M22 - tranMatrix_init.M22) * progress,
+                    tranMatrix_init.OffsetX + (tranMatrix_fin.OffsetX - tranMatrix_init.OffsetX) * progress, tranMatrix_init.OffsetY + (tranMatrix_fin.OffsetY - tranMatrix_init.OffsetY) * progress);
+                focaldephov.TransitionImg.RenderTransform = new MatrixTransform(tranMatrix);
 
-                    break;
-                case TranEffects.UDSplit:
-
-                    break;
-                case TranEffects.SWindow:
-
-                    break;
             }
         }
 
@@ -2762,6 +2821,7 @@ namespace ACNginxConsole
                 buttonUDSplit.BorderThickness = new Thickness(1);
                 buttonaSWindow.BorderThickness = new Thickness(1);
 
+
             }
             else
             {
@@ -2791,9 +2851,11 @@ namespace ACNginxConsole
                 buttonaSWindow.BorderThickness =
                     (TranEffect == TranEffects.SWindow) ? new Thickness(3) : new Thickness(1);
 
+                DefineStates();
+
             }
 
-            DefineInitialState();
+            
 
             Storyboard.SetTargetProperty(opf, new PropertyPath("(Slider.Value)"));
             fadet.Children.Add(opf);
