@@ -595,6 +595,29 @@
                         <Label x:Name="LabelDanmu" Grid.Column="1" Content="弹幕公屏" Padding="0" Margin="5,2,0,0"/>
                     </Grid>
                     <Slider x:Name="ProgressTran" Height="20" Foreground="#FF9D95F1" Maximum="1" Visibility="Collapsed" ToolTip="- 过渡 + 退回" Background="#7FE6E6E6" ValueChanged="ProgressTran_ValueChanged" AutoToolTipPlacement="BottomRight" AutoToolTipPrecision="1"/>
+                    <Grid x:Name="GridTranEffect" >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Button x:Name="buttonSideBySide" Click="buttonSideBySide_Click" BorderThickness="1">
+                            <Image Source="SideBySide.png" RenderTransformOrigin="0.5,0.5"  >
+                                <Image.RenderTransform>
+                                    <TransformGroup>
+                                        <ScaleTransform ScaleX="0.7" ScaleY="0.7"/>
+                                        <SkewTransform/>
+                                        <RotateTransform/>
+                                        <TranslateTransform/>
+                                    </TransformGroup>
+                                </Image.RenderTransform>
+                            </Image>
+                        </Button>
+                        <Button Grid.Column="1" x:Name="buttonLRSplit" Click="buttonLRSplit_Click" />
+                        <Button Grid.Column="2" x:Name="buttonUDSplit" Click="buttonUDSplit_Click" />
+                        <Button Grid.Column="3" x:Name="buttonaSWindow" Click="buttonaSWindow_Click" />
+                    </Grid>
                     <Grid x:Name="DanmakuSider" Margin="0,15,0,0" Background="#FF75D2F6" Height="27">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>

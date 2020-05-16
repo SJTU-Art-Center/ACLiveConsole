@@ -34,13 +34,13 @@
             </Setter>
         </Style>
     </Window.Resources>
-    
-    <Grid x:Name="grid">
-        <Image x:Name="TransitionImg"/>
-        <Image x:Name="BackImg"/>
-        <Image x:Name="ForeImg"/>
-        <Canvas x:Name="GridCanvas"/>
+
+    <Canvas x:Name="grid" ClipToBounds="True">
+        <Image x:Name="TransitionImg" Width="{Binding ActualWidth, ElementName=grid, Mode=OneWay}" Height="{Binding ActualHeight, ElementName=grid, Mode=OneWay}" />
+        <Image x:Name="BackImg" Width="{Binding ActualWidth, ElementName=grid, Mode=OneWay}" Height="{Binding ActualHeight, ElementName=grid, Mode=OneWay}" />
+        <Image x:Name="ForeImg" Width="{Binding ActualWidth, ElementName=grid, Mode=OneWay}" Height="{Binding ActualHeight, ElementName=grid, Mode=OneWay}" />
+        <Canvas x:Name="GridCanvas" />
         <Canvas x:Name="ThumbCanvas"/>
-    </Grid>
+    </Canvas>
 
 </Window>

@@ -982,7 +982,8 @@ namespace ACNginxConsole
             }
             else if (radioButtonLAN.IsChecked == true)
             {
-                if (radioButtonRecord.IsChecked == true)
+                if (radioButtonRecord.IsChecked == true || 
+                    radioButtonScreen.IsChecked == true)
                     sourceType = 4;
                 else
                     sourceType = 3;
@@ -1066,18 +1067,28 @@ namespace ACNginxConsole
                     //configdata.Add(new ConfigItem(++configcount, 0, "ceshi","ceshi2"));
                     if (sourceType == 4)
                     {
-                        var VidStr = comboBoxVideo.SelectedIndex == -1 ? "" :
-                                comboBoxVideo.SelectedValue.ToString().Replace("System.Windows.Controls.ComboBoxItem: ", "");
-                        var AudStr = comboBoxAudio.SelectedIndex == -1 ? "" :
-                                comboBoxAudio.SelectedValue.ToString().Replace("System.Windows.Controls.ComboBoxItem: ", "");
+                        if (textBoxWebsite.Text == "screen://")
+                        {
+                            configdata[configcount].DevOptions = new string[] {
+                            ":screen-fps=30",
+                            ":live-caching = 0"
+                            };
+                        }
+                        else
+                        {
+                            var VidStr = comboBoxVideo.SelectedIndex == -1 ? "" :
+                                    comboBoxVideo.SelectedValue.ToString().Replace("System.Windows.Controls.ComboBoxItem: ", "");
+                            var AudStr = comboBoxAudio.SelectedIndex == -1 ? "" :
+                                    comboBoxAudio.SelectedValue.ToString().Replace("System.Windows.Controls.ComboBoxItem: ", "");
 
-                        configdata[configcount].DevOptions = new string[] {
+                            configdata[configcount].DevOptions = new string[] {
                             ":dshow-vdev="+ VidStr,
                             ":dshow-adev="+ AudStr,
                             ":live-caching = 0",//本地缓存毫秒数 
                             ":dshow-aspect-ratio=16:9",
                             //":dshow-tuner-country=0",//不设置这个，录像没有声音，原因不明
                         };
+                        }
                     }
                     ++configcount;
                     textBoxSourceName.Text = "流" + configcount;
@@ -2640,8 +2651,17 @@ namespace ACNginxConsole
 
         private void Fadet_Completed(object sender, EventArgs e)
         {
+            double fin = ProgressTran.Value;
             fadet.Remove(ProgressTran);
-            ProgressTran.Value = 1;
+            ProgressTran.Value = fin;
+            if (fin == 0 || fin == 1)
+            {
+                TranEffect = TranEffects.None;  //归零
+            }
+            buttonSideBySide.IsEnabled = true;
+            buttonLRSplit.IsEnabled = true;
+            buttonUDSplit.IsEnabled = true;
+            buttonaSWindow.IsEnabled = true;
         }
 
         byte tranto;
@@ -2651,26 +2671,168 @@ namespace ACNginxConsole
 
             trantoVis(selc);
 
+            GridTranEffect.Visibility = Visibility.Visible;
+
         }
 
         private void ProgressTran_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             if (ProgressTran.Visibility == Visibility.Visible)
-            {
-                focaldephov.BackImg.Opacity = 1 - ProgressTran.Value;
+            {   
+                if (TranEffect == TranEffects.None)
+                    focaldephov.BackImg.Opacity = 1 - ProgressTran.Value;
+                else
+                    focaldephov.BackImg.Opacity = Math.Abs(2 * (ProgressTran.Value - 0.5));
+                TranEffectStyle();
+
                 if (ProgressTran.Value == 0)
                 {
                     //结束了
                     ProgressTran.Visibility = Visibility.Collapsed;
+                    GridTranEffect.Visibility = Visibility.Collapsed;
                     selectItem(tranto);
                 }
                 else if (ProgressTran.Value == 1)
                 {
                     //取消了
                     ProgressTran.Visibility = Visibility.Collapsed;
+                    GridTranEffect.Visibility = Visibility.Collapsed;
                     selectItem(selectedItem);
                 }
             }
+        }
+
+        enum TranEffects { None, SideBySide, LRSplit, UDSplit, SWindow };
+        TranEffects TranEffect = TranEffects.None;
+
+
+        private void DefineInitialState()
+        {
+
+        }
+
+        private void TranEffectStyle()
+        {
+            //现在已经载入图像
+            switch (TranEffect)
+            {
+                // BackImg 载入的图像 
+                // TranImg 原图像
+                case TranEffects.SideBySide:
+
+                    break;
+                case TranEffects.LRSplit:
+
+                    break;
+                case TranEffects.UDSplit:
+
+                    break;
+                case TranEffects.SWindow:
+
+                    break;
+            }
+        }
+
+        private void TranEffectChanged()
+        {
+            //SliderAnim
+
+            DoubleAnimation opf;
+
+            if ((TranEffect == TranEffects.SideBySide && buttonSideBySide.BorderThickness.Equals(new Thickness(3)))||
+                (TranEffect == TranEffects.LRSplit && buttonLRSplit.BorderThickness.Equals(new Thickness(3)))||
+                (TranEffect == TranEffects.UDSplit && buttonUDSplit.BorderThickness.Equals(new Thickness(3)))||
+                (TranEffect == TranEffects.SWindow && buttonaSWindow.BorderThickness.Equals(new Thickness(3)))
+                )
+            {
+                opf = new DoubleAnimation()
+                {
+                    From = ProgressTran.Value,          //0.5-->0
+                    To = 0,
+                    Duration = TimeSpan.FromSeconds(Properties.Settings.Default.TranSec),         //一个其他量
+                    EasingFunction = new BackEase()
+                    {
+                        EasingMode = EasingMode.EaseOut,
+                        Amplitude = 0.3
+                    }
+                };
+
+                buttonSideBySide.BorderThickness = new Thickness(1);
+                buttonLRSplit.BorderThickness = new Thickness(1);
+                buttonUDSplit.BorderThickness = new Thickness(1);
+                buttonaSWindow.BorderThickness = new Thickness(1);
+
+            }
+            else
+            {
+                //Pre-Assemble
+                ProgressTran.Visibility = Visibility.Collapsed;
+                ProgressTran.Value = 1;
+                ProgressTran.Visibility = Visibility.Visible;
+
+                opf = new DoubleAnimation()
+                {
+                    From = 1,          //1-->0.5
+                    To = 0.5,
+                    Duration = TimeSpan.FromSeconds(Properties.Settings.Default.TranSec),         //一个其他量
+                    EasingFunction = new BackEase()
+                    {
+                        EasingMode = EasingMode.EaseIn,
+                        Amplitude = 0.3
+                    }
+                };
+
+                buttonSideBySide.BorderThickness =
+                (TranEffect == TranEffects.SideBySide) ? new Thickness(3) : new Thickness(1);
+                buttonLRSplit.BorderThickness =
+                    (TranEffect == TranEffects.LRSplit) ? new Thickness(3) : new Thickness(1);
+                buttonUDSplit.BorderThickness =
+                    (TranEffect == TranEffects.UDSplit) ? new Thickness(3) : new Thickness(1);
+                buttonaSWindow.BorderThickness =
+                    (TranEffect == TranEffects.SWindow) ? new Thickness(3) : new Thickness(1);
+
+            }
+
+            DefineInitialState();
+
+            Storyboard.SetTargetProperty(opf, new PropertyPath("(Slider.Value)"));
+            fadet.Children.Add(opf);
+            fadet.Completed += Fadet_Completed;
+            fadet.Begin(ProgressTran, HandoffBehavior.SnapshotAndReplace, true);
+
+            buttonSideBySide.IsEnabled = false;
+            buttonLRSplit.IsEnabled = false;
+            buttonUDSplit.IsEnabled = false;
+            buttonaSWindow.IsEnabled = false;
+
+        }
+
+        private void buttonSideBySide_Click(object sender, RoutedEventArgs e)
+        {
+            if (TranEffect != TranEffects.SideBySide)
+                TranEffect = TranEffects.SideBySide;
+            TranEffectChanged();
+        }
+
+        private void buttonLRSplit_Click(object sender, RoutedEventArgs e)
+        {
+            if (TranEffect != TranEffects.LRSplit)
+                TranEffect = TranEffects.LRSplit;
+            TranEffectChanged();
+        }
+
+        private void buttonUDSplit_Click(object sender, RoutedEventArgs e)
+        {
+            if (TranEffect != TranEffects.UDSplit)
+                TranEffect = TranEffects.UDSplit;
+            TranEffectChanged();
+        }
+
+        private void buttonaSWindow_Click(object sender, RoutedEventArgs e)
+        {
+            if (TranEffect != TranEffects.SWindow)
+                TranEffect = TranEffects.SWindow;
+            TranEffectChanged();
         }
 
         /* 暂时没有搞清楚*/
@@ -2896,11 +3058,21 @@ namespace ACNginxConsole
                             //Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.ResetMedia();
                             if (configdata[comboBoxSource.SelectedIndex].Type == "捕获设备")
                             {
-                                    //Debug.WriteLine(Monitors.ElementAt(selectedItem - 1).Option[0]);
+                                //Debug.WriteLine(Monitors.ElementAt(selectedItem - 1).Option[0]);
+                                if (Monitors.ElementAt(selectedItem - 1).PlayStream == "screen://")
+                                {
+                                    Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.Play(
+                                        @"screen://  ",
+                                        Monitors.ElementAt(selectedItem - 1).Option
+                                        );
+                                }
+                                else
+                                {
                                     Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.Play(
                                         @"dshow://  ",
                                         Monitors.ElementAt(selectedItem - 1).Option
                                         );
+                                }
                                 
                             }
                             else
@@ -3249,20 +3421,7 @@ namespace ACNginxConsole
                 if (Monitors.ElementAt(i - 1).PlayStream != null)
                 {
                     //Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.ResetMedia();
-                    if (Monitors.ElementAt(i - 1).PlayId < comboBoxSource.Items.Count &&
-                        configdata[Monitors.ElementAt(i - 1).PlayId].Type == "捕获设备")
-                    {
-                        try
-                        {
-                            Monitors.ElementAt(i - 1).SourceProvider.MediaPlayer.Play(
-                                @"dshow://  ", Monitors.ElementAt(selectedItem - 1).Option);
-                        }
-                        catch (Exception ex)
-                        {
-                            Debug.WriteLine(ex);
-                        }
-                    }
-                    else
+                    
                         Monitors.ElementAt(i - 1).SourceProvider.MediaPlayer.Play(
                             Monitors.ElementAt(i - 1).PlayStream, Monitors.ElementAt(selectedItem - 1).Option);
                 }
@@ -4621,8 +4780,11 @@ namespace ACNginxConsole
             textBoxWebsite.IsReadOnly = true;
             textBoxWebsite.Text = "screen://";
             textBoxSourceName.Text = "桌面" + configcount;
+            textBoxMan.Text = "";
             RefreshOutput();
         }
+
+        
 
 
         // TODO: ffmpeg -f gdigrab -i title="FocalDepthHover" "rtmp://127.0.0.1/live"
