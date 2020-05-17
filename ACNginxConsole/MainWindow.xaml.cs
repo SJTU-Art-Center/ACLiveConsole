@@ -4738,6 +4738,26 @@ namespace ACNginxConsole
                 case Key.X: transition_manual(2); break;
                 case Key.C: transition_manual(3); break;
                 case Key.V: transition_manual(4); break;
+                case Key.H:
+                    if (TranEffect != TranEffects.SideBySide)
+                        TranEffect = TranEffects.SideBySide;
+                    TranEffectChanged();
+                    break;
+                case Key.J:
+                    if (TranEffect != TranEffects.LRSplit)
+                        TranEffect = TranEffects.LRSplit;
+                    TranEffectChanged();
+                    break;
+                case Key.K:
+                    if (TranEffect != TranEffects.UDSplit)
+                        TranEffect = TranEffects.UDSplit;
+                    TranEffectChanged();
+                    break;
+                case Key.L:
+                    if (TranEffect != TranEffects.SWindow)
+                        TranEffect = TranEffects.SWindow;
+                    TranEffectChanged();
+                    break;
                 case Key.D1: ListSelecChange(0); break;
                 case Key.D2: ListSelecChange(1); break;
                 case Key.D3: ListSelecChange(2); break;
