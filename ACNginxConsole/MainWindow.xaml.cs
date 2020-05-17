@@ -2885,10 +2885,17 @@ namespace ACNginxConsole
             }
             else
             {
-                if ((TranEffect == TranEffects.SideBySide && !buttonSideBySide.BorderThickness.Equals(new Thickness(3))) ||
-                (TranEffect == TranEffects.LRSplit && !buttonLRSplit.BorderThickness.Equals(new Thickness(3))) ||
-                (TranEffect == TranEffects.UDSplit && !buttonUDSplit.BorderThickness.Equals(new Thickness(3))) ||
-                (TranEffect == TranEffects.SWindow && !buttonaSWindow.BorderThickness.Equals(new Thickness(3))))
+                int SelectedMode = 0;
+                if (buttonSideBySide.BorderThickness.Equals(new Thickness(3)))
+                    SelectedMode = 1;
+                else if (buttonLRSplit.BorderThickness.Equals(new Thickness(3)))
+                    SelectedMode = 2;
+                else if (buttonUDSplit.BorderThickness.Equals(new Thickness(3)))
+                    SelectedMode = 3;
+                else if (buttonaSWindow.BorderThickness.Equals(new Thickness(3)))
+                    SelectedMode = 4;
+
+                if (SelectedMode > 0 && SelectedMode != (int)TranEffect) 
                 {
                     //不相符
                     cross = true;
@@ -2914,6 +2921,7 @@ namespace ACNginxConsole
                         Amplitude = 0.3
                     }
                 };
+
 
                 buttonSideBySide.BorderThickness =
                 (TranEffect == TranEffects.SideBySide) ? new Thickness(3) : new Thickness(1);
@@ -4104,6 +4112,8 @@ namespace ACNginxConsole
                 Monitors.Clear();
             }
             Properties.Settings.Default.Save();
+            if (sc != null && sc.IsLoaded)
+                sc.Close(); //手动关闭
             GC.Collect();
             Application.Current.Shutdown();
         }
