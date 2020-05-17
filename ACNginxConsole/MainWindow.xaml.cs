@@ -195,6 +195,13 @@ namespace ACNginxConsole
         public MainWindow.DanmakuItem Danmu;
     }
 
+    public delegate void VolChangedEvt(object sender, VolChangedArgs e);
+
+    public class VolChangedArgs
+    {
+
+    }
+
     /// <summary>
     /// MainWindow.xaml 的交互逻辑
     /// </summary>
@@ -235,7 +242,7 @@ namespace ACNginxConsole
 
         #region 配置项类
         public event PropertyChangedEventHandler PropertyChanged;
-        static ObservableCollection<ConfigItem> configdata;//定义配置数据库
+        public static ObservableCollection<ConfigItem> configdata;//定义配置数据库
         public ObservableCollection<ConfigItem> Configdata
         {
 
@@ -600,6 +607,8 @@ namespace ACNginxConsole
 
         #endregion
 
+        SoundControl sc;
+
         public MainWindow()
         {
 
@@ -759,6 +768,8 @@ namespace ACNginxConsole
 
             checkBoxNetwork.IsChecked = Properties.Settings.Default.OpenNetworkCaching;
             checkBoxSystemTime.IsChecked = Properties.Settings.Default.SysTime;
+
+            SoundControl.VCE += SoundControl_VCE;
 
         }
 
@@ -2637,22 +2648,26 @@ namespace ACNginxConsole
 
         private void transition(byte selc)
         {
-            
-            trantoVis(selc);
-
-            
-            DoubleAnimation opf = new DoubleAnimation()
+            //增加入口限制
+            if (BackLive.IsSelected)
             {
-                From = 1,
-                To = 0,
-                Duration = TimeSpan.FromSeconds(Properties.Settings.Default.TranSec)         //一个其他量
-            };
+                trantoVis(selc);
 
-            //Storyboard.SetTarget(opf, SliderTransSec);
-            Storyboard.SetTargetProperty(opf, new PropertyPath("(Slider.Value)"));
-            fadet.Children.Add(opf);
-            fadet.Completed += Fadet_Completed;
-            fadet.Begin(ProgressTran, HandoffBehavior.SnapshotAndReplace, true);
+
+                DoubleAnimation opf = new DoubleAnimation()
+                {
+                    From = 1,
+                    To = 0,
+                    Duration = TimeSpan.FromSeconds(Properties.Settings.Default.TranSec)         //一个其他量
+                };
+
+                //Storyboard.SetTarget(opf, SliderTransSec);
+                Storyboard.SetTargetProperty(opf, new PropertyPath("(Slider.Value)"));
+                fadet.Children.Add(opf);
+                fadet.Completed += Fadet_Completed;
+                fadet.Begin(ProgressTran, HandoffBehavior.SnapshotAndReplace, true);
+            }
+            
 
         }
 
@@ -2675,11 +2690,12 @@ namespace ACNginxConsole
 
         private void transition_manual(byte selc)
         {
+            if (BackLive.IsSelected)
+            {
+                trantoVis(selc);
 
-            trantoVis(selc);
-
-            GridTranEffect.Visibility = Visibility.Visible;
-
+                GridTranEffect.Visibility = Visibility.Visible;
+            }
         }
 
         private void ProgressTran_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -2911,12 +2927,12 @@ namespace ACNginxConsole
 
         // Reframed. 
 
-        private List<Monitor> Monitors;
+        public static List<Monitor> Monitors;
 
         /// <summary>
         /// 监视器类
         /// </summary>
-        private class Monitor
+        public class Monitor
         {
             private int playId;
             private string playStream;
@@ -3156,9 +3172,9 @@ namespace ACNginxConsole
                             //}
                             switch (selectedItem)
                             {
-                                case 1: LabelLU.Content = "左上:" + SourceName; LiveLU.SetBinding(Image.SourceProperty, Monitors.ElementAt(selectedItem - 1).Bing); break;
-                                case 2: LabelRU.Content = "右上:" + SourceName; LiveRU.SetBinding(Image.SourceProperty, Monitors.ElementAt(selectedItem - 1).Bing); break;
-                                case 3: LabelLD.Content = "左下:" + SourceName; LiveLD.SetBinding(Image.SourceProperty, Monitors.ElementAt(selectedItem - 1).Bing); break;
+                                case 1: LabelLU.Content = "左上:" + SourceName; if(sc!=null&&sc.IsLoaded) sc.labelSN1.Content = SourceName; LiveLU.SetBinding(Image.SourceProperty, Monitors.ElementAt(selectedItem - 1).Bing); break;
+                                case 2: LabelRU.Content = "右上:" + SourceName; if (sc != null && sc.IsLoaded) sc.labelSN2.Content = SourceName; LiveRU.SetBinding(Image.SourceProperty, Monitors.ElementAt(selectedItem - 1).Bing); break;
+                                case 3: LabelLD.Content = "左下:" + SourceName; if (sc != null && sc.IsLoaded) sc.labelSN3.Content = SourceName; LiveLD.SetBinding(Image.SourceProperty, Monitors.ElementAt(selectedItem - 1).Bing); break;
                                 case 4: LabelRD.Content = "右下:" + SourceName; LiveRD.SetBinding(Image.SourceProperty, Monitors.ElementAt(selectedItem - 1).Bing); break;
                             }
                             selectItem(selectedItem);
@@ -4658,55 +4674,70 @@ namespace ACNginxConsole
                 case Key.D9: ListSelecChange(8); break;
                 case Key.N: LiveSolo(); break;
                 case Key.M:
+                    SoundControl.MainChange = true;
                     switch (selectedItem)
                     {
                         case 1: 
                             Monitors.ElementAt(selectedItem - 1).Volume = 0;
                             ProgressLU.Value = 0;
+                            if(sc!=null&&sc.IsLoaded) sc.Slider1.Value = 0;
                             break;
                         case 2:
                             Monitors.ElementAt(selectedItem - 1).Volume = 0;
                             ProgressRU.Value = 0;
+                            if (sc != null && sc.IsLoaded) sc.Slider2.Value = 0;
                             break;
                         case 3:
                             Monitors.ElementAt(selectedItem - 1).Volume = 0;
                             ProgressLD.Value = 0;
+                            if (sc != null && sc.IsLoaded) sc.Slider3.Value = 0;
                             break;
                     }
+                    SoundControl.MainChange = false;
                     break;
                 case Key.Down:
+                    SoundControl.MainChange = true;
                     switch (selectedItem)
                     {
                         case 1:
                             Monitors.ElementAt(selectedItem - 1).Volume -= 2;
                             ProgressLU.Value = Monitors.ElementAt(selectedItem - 1).Volume;
+                            if (sc != null && sc.IsLoaded) sc.Slider1.Value = Monitors.ElementAt(selectedItem - 1).Volume;
                             break;
                         case 2:
                             Monitors.ElementAt(selectedItem - 1).Volume -= 2;
                             ProgressRU.Value = Monitors.ElementAt(selectedItem - 1).Volume;
+                            if (sc != null && sc.IsLoaded) sc.Slider2.Value = Monitors.ElementAt(selectedItem - 1).Volume;
                             break;
                         case 3:
                             Monitors.ElementAt(selectedItem - 1).Volume -= 2;
                             ProgressLD.Value = Monitors.ElementAt(selectedItem - 1).Volume;
+                            if (sc != null && sc.IsLoaded) sc.Slider3.Value = Monitors.ElementAt(selectedItem - 1).Volume;
                             break;
                     }
+                    SoundControl.MainChange = false;
                     break;
                 case Key.Up:
+                    SoundControl.MainChange = true;
                     switch (selectedItem)
                     {
                         case 1:
                             Monitors.ElementAt(selectedItem - 1).Volume += 2;
                             ProgressLU.Value = Monitors.ElementAt(selectedItem - 1).Volume;
+                            if (sc != null && sc.IsLoaded) sc.Slider1.Value = Monitors.ElementAt(selectedItem - 1).Volume;
                             break;
                         case 2:
                             Monitors.ElementAt(selectedItem - 1).Volume += 2;
                             ProgressRU.Value = Monitors.ElementAt(selectedItem - 1).Volume;
+                            if (sc != null && sc.IsLoaded) sc.Slider2.Value = Monitors.ElementAt(selectedItem - 1).Volume;
                             break;
                         case 3:
                             Monitors.ElementAt(selectedItem - 1).Volume += 2;
                             ProgressLD.Value = Monitors.ElementAt(selectedItem - 1).Volume;
+                            if (sc != null && sc.IsLoaded) sc.Slider3.Value = Monitors.ElementAt(selectedItem - 1).Volume;
                             break;
                     }
+                    SoundControl.MainChange = false;
                     break;
                 case Key.OemMinus:
                     if(ProgressTran.Visibility == Visibility.Visible)
@@ -4842,7 +4873,24 @@ namespace ACNginxConsole
             RefreshOutput();
         }
 
-        
+        private void buttonMonitorSound_Click(object sender, RoutedEventArgs e)
+        {
+            if (sc == null || sc.IsLoaded==false)
+            {
+                sc = new SoundControl();
+                sc.Show();
+            }
+        }
+
+        private void SoundControl_VCE(object sender, VolChangedArgs e)
+        {
+            ProgressLU.Value = Monitors.ElementAt(0).Volume;
+            ProgressRU.Value = Monitors.ElementAt(1).Volume;
+            ProgressLD.Value = Monitors.ElementAt(2).Volume;
+            //Monitors.ElementAt(0).Volume = (int)ProgressLU.Value;
+            //Monitors.ElementAt(1).Volume = (int)ProgressRU.Value;
+            //Monitors.ElementAt(2).Volume = (int)ProgressLD.Value;
+        }
 
 
         // TODO: ffmpeg -f gdigrab -i title="FocalDepthHover" "rtmp://127.0.0.1/live"

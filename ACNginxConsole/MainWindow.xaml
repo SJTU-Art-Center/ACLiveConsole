@@ -491,6 +491,18 @@
                                 </Image.RenderTransform>
                             </Image>
                         </Button>
+                        <Button x:Name="buttonMonitorSound" Grid.Column="1" Width="27" Background="#FF8BA1B9" BorderBrush="#FF8BA1B9" Height="27" ToolTip="打开音控台" Click="buttonMonitorSound_Click">
+                            <Image Source="Soundfile_461.png" RenderTransformOrigin="0.5,0.5" >
+                                <Image.RenderTransform>
+                                    <TransformGroup>
+                                        <ScaleTransform ScaleX="0.7" ScaleY="0.7"/>
+                                        <SkewTransform/>
+                                        <RotateTransform/>
+                                        <TranslateTransform/>
+                                    </TransformGroup>
+                                </Image.RenderTransform>
+                            </Image>
+                        </Button>
                     </Grid>
                     <Slider x:Name="SliderNetwork" Maximum="3000" Value="500" IsSelectionRangeEnabled="True" SelectionStart="300" SelectionEnd="1500" AutoToolTipPlacement="TopLeft" ToolTip="网络缓存(ms)" ValueChanged="SliderNetwork_ValueChanged" Visibility="Collapsed" />
                     <Viewbox x:Name="ViewboxMonitor" Margin="0">
