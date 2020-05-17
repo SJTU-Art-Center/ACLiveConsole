@@ -397,14 +397,14 @@
                                                         <colorPicker:ColorComboBox x:Name="BackColorPicker" Grid.Column="1" Grid.Row="2" SelectedColorChanged="BackColorPicker_SelectedColorChanged" SelectedColor="Black" />
                                                         <Button x:Name="buttonTextFore" Grid.Row="3" Content="字体前景" Padding="5,3" HorizontalContentAlignment="Left" Background="#FF6DC2F9" Foreground="#FFFEFDFA" VerticalContentAlignment="Center" Click="ButtonTextFore_Click" ToolTip="按下将弹幕公屏置顶。"/>
                                                         <colorPicker:ColorComboBox x:Name="ForeColorPicker" Grid.Row="3" Grid.Column="1" SelectedColor="White" SelectedColorChanged="ForeColorPicker_SelectedColorChanged"/>
-                                                        <Button x:Name="buttonBackImg" Grid.Row="4" Content="背景源" Padding="5,3" HorizontalContentAlignment="Left" Foreground="#FFFEFDFA" Background="#FF6DC2F9" Click="ButtonBackImg_Click"/>
+                                                        <Button x:Name="buttonBackImg" Grid.Row="4" Content="前景源" Padding="5,3" HorizontalContentAlignment="Left" Foreground="#FFFEFDFA" Background="#FF6DC2F9" Click="ButtonBackImg_Click"/>
                                                         <ComboBox x:Name="ComboBoxBackImg" Grid.Row="4" Grid.Column="1" SelectedIndex="0" VerticalContentAlignment="Center">
                                                             <ComboBoxItem x:Name="BackNone" Content="无" Selected="BackNone_Selected" />
                                                             <ComboBoxItem x:Name="BackLive" Content="直播源" Selected="BackLive_Selected" Unselected="BackLive_Unselected" />
                                                             <ComboBoxItem x:Name="BackPic" Content="图片..." Selected="BackPic_Selected"/>
                                                             <ComboBoxItem x:Name="BackVid" Content="视频..." Selected="BackVid_Selected" Unselected="BackVid_Unselected" />
                                                         </ComboBox>
-                                                        <Button x:Name="buttonForeImg" Content="前景源" Grid.Row="5" Padding="5,3" HorizontalContentAlignment="Left" Background="#FF6DC2F9" Foreground="#FFFEFDFA" Click="ButtonForeImg_Click"/>
+                                                        <Button x:Name="buttonForeImg" Content="背景源" Grid.Row="5" Padding="5,3" HorizontalContentAlignment="Left" Background="#FF6DC2F9" Foreground="#FFFEFDFA" Click="ButtonForeImg_Click"/>
                                                         <ComboBox x:Name="ComboBoxForeImg" Grid.Row="5" Grid.Column="1" SelectedIndex="0" VerticalContentAlignment="Center">
                                                             <ComboBoxItem x:Name="ForeNone" Content="无" Selected="ForeNone_Selected"/>
                                                             <ComboBoxItem x:Name="ForePic" Content="图片..." Selected="ForePic_Selected"/>
@@ -479,7 +479,7 @@
                             <ColumnDefinition Width="auto"/>
                         </Grid.ColumnDefinitions>
                         <Label x:Name="label7" Content="直播监视器" Foreground="White" Background="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}" VerticalContentAlignment="Center" Padding="10,5,5,5"/>
-                        <Button x:Name="buttonMonitorRefresh" Grid.Column="1" Width="27" Background="#FF8BA1B9" BorderBrush="#FF8BA1B9" Height="27" ToolTip="重载所有监视器" Click="buttonMonitorRefresh_Click">
+                        <Button x:Name="buttonMonitorRefresh" Grid.Column="1" Width="27" Background="#FF8BA1B9" BorderBrush="#FF8BA1B9" Height="27" ToolTip="重载所有监视器" Click="buttonMonitorRefresh_Click" Visibility="Collapsed">
                             <Image RenderTransformOrigin="0.5,0.5" Source="refresh_16xLG.png" >
                                 <Image.RenderTransform>
                                     <TransformGroup>
@@ -595,7 +595,7 @@
                         <Label x:Name="LabelDanmu" Grid.Column="1" Content="弹幕公屏" Padding="0" Margin="5,2,0,0"/>
                     </Grid>
                     <Slider x:Name="ProgressTran" Height="20" Foreground="#FF9D95F1" Maximum="1" Visibility="Collapsed" ToolTip="- 过渡 + 退回" Background="#7FE6E6E6" ValueChanged="ProgressTran_ValueChanged" AutoToolTipPlacement="BottomRight" AutoToolTipPrecision="1"/>
-                    <Grid x:Name="GridTranEffect" Visibility="Collapsed">
+                    <Grid x:Name="GridTranEffect" Visibility="Collapsed" >
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition/>
                             <ColumnDefinition/>
@@ -616,7 +616,18 @@
                         </Button>
                         <Button Grid.Column="1" x:Name="buttonLRSplit" Click="buttonLRSplit_Click" />
                         <Button Grid.Column="2" x:Name="buttonUDSplit" Click="buttonUDSplit_Click" />
-                        <Button Grid.Column="3" x:Name="buttonaSWindow" Click="buttonaSWindow_Click" />
+                        <Button Grid.Column="3" x:Name="buttonaSWindow" Click="buttonaSWindow_Click" >
+                            <Image Source="SWindow.png" RenderTransformOrigin="0.5,0.5"  >
+                                <Image.RenderTransform>
+                                    <TransformGroup>
+                                        <ScaleTransform ScaleX="0.7" ScaleY="0.7"/>
+                                        <SkewTransform/>
+                                        <RotateTransform/>
+                                        <TranslateTransform/>
+                                    </TransformGroup>
+                                </Image.RenderTransform>
+                            </Image>
+                        </Button>
                     </Grid>
                     <Grid x:Name="DanmakuSider" Margin="0,15,0,0" Background="#FF75D2F6" Height="27">
                         <Grid.ColumnDefinitions>

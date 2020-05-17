@@ -2575,6 +2575,7 @@ namespace ACNginxConsole
             buttonUDSplit.BorderThickness = new Thickness(1);
             buttonaSWindow.BorderThickness = new Thickness(1);
             TranEffect = TranEffects.None;
+
         }
 
         private void ButtonLU_Click(object sender, RoutedEventArgs e)
@@ -2719,8 +2720,8 @@ namespace ACNginxConsole
             backMatrix_init = focaldephov.BackImg.RenderTransform.Value;
             tranMatrix_init = focaldephov.TransitionImg.RenderTransform.Value;
 
-            if (ProgressTran.Value > 0.5)
-            {
+            //if (ProgressTran.Value > 0.5)
+            //{
                 switch (TranEffect)
                 {
                     case TranEffects.SideBySide:
@@ -2730,6 +2731,11 @@ namespace ACNginxConsole
                         tranMatrix_fin = new Matrix(4.0 / 9, 0,
                             0, 4.0 / 9,
                             -(0.3 / 16 + 2.0 / 9) * focaldephov.Width, 0);
+                        if (buttonSideBySide.BorderThickness.Equals(new Thickness(3)) && focaldephov.ForeImg.Opacity==0||
+                        (buttonSideBySide.BorderThickness.Equals(new Thickness(1)) && focaldephov.ForeImg.Opacity == 1))
+                        {
+                            ImgFadeOutAnim(buttonForeImg, focaldephov.ForeImg);
+                        }
                         break;
                     case TranEffects.LRSplit:
 
@@ -2738,35 +2744,19 @@ namespace ACNginxConsole
 
                         break;
                     case TranEffects.SWindow:
-
+                        double border = 1.0 / 16 * focaldephov.Width;
+                        backMatrix_fin = new Matrix(2.5 / 9, 0,
+                            0, 2.5 / 9,
+                            (1.0 / 2 - 1.25 / 9) * focaldephov.Width - border, (1.0 / 2 - 1.25 / 9) * focaldephov.Height - border );
+                        tranMatrix_fin = Matrix.Identity;
                         break;
                 }
-            }
-            else
-            {
-                switch (TranEffect)
-                {
-                    // BackImg 载入的图像 
-                    // TranImg 原图像
-                    case TranEffects.SideBySide:
-                        backMatrix_fin = new Matrix(1, 0,
-                            0, 1,
-                            0, 0);
-                        tranMatrix_fin = new Matrix(1, 0,
-                            0, 1,
-                            0, 0);
-                        break;
-                    case TranEffects.LRSplit:
-
-                        break;
-                    case TranEffects.UDSplit:
-
-                        break;
-                    case TranEffects.SWindow:
-
-                        break;
-                }
-            }
+            //}
+            //else
+            //{
+            //    backMatrix_fin = Matrix.Identity;
+            //    tranMatrix_fin = Matrix.Identity;
+            //}
 
         }
 
@@ -2821,6 +2811,11 @@ namespace ACNginxConsole
                 buttonUDSplit.BorderThickness = new Thickness(1);
                 buttonaSWindow.BorderThickness = new Thickness(1);
 
+                //反向输出
+                backMatrix_init = Matrix.Identity;
+                tranMatrix_init = Matrix.Identity;
+                backMatrix_fin = focaldephov.BackImg.RenderTransform.Value;
+                tranMatrix_fin = focaldephov.TransitionImg.RenderTransform.Value;
 
             }
             else
@@ -2856,6 +2851,7 @@ namespace ACNginxConsole
             }
 
             
+
 
             Storyboard.SetTargetProperty(opf, new PropertyPath("(Slider.Value)"));
             fadet.Children.Add(opf);
@@ -4095,7 +4091,7 @@ namespace ACNginxConsole
         private void BackPic_Selected(object sender, RoutedEventArgs e)
         {
             System.Windows.Forms.OpenFileDialog openFileDialog = new System.Windows.Forms.OpenFileDialog();
-            openFileDialog.Title = "选择背景图像";
+            openFileDialog.Title = "选择前景图像";
             openFileDialog.Filter = "png|*.png|jpg|*.jpg|jpeg|*.jpeg";
             openFileDialog.FileName = string.Empty;
             openFileDialog.FilterIndex = 1;
@@ -4118,7 +4114,7 @@ namespace ACNginxConsole
         private void BackVid_Selected(object sender, RoutedEventArgs e)
         {
             System.Windows.Forms.OpenFileDialog openFileDialog = new System.Windows.Forms.OpenFileDialog();
-            openFileDialog.Title = "选择背景视频";
+            openFileDialog.Title = "选择前景视频";
             openFileDialog.Filter = "mp4|*.mp4|mov|*.mov";
             openFileDialog.FileName = string.Empty;
             openFileDialog.FilterIndex = 1;
@@ -4183,8 +4179,8 @@ namespace ACNginxConsole
         private void ForePic_Selected(object sender, RoutedEventArgs e)
         {
             System.Windows.Forms.OpenFileDialog openFileDialog = new System.Windows.Forms.OpenFileDialog();
-            openFileDialog.Title = "选择前景图像";
-            openFileDialog.Filter = "png|*.png|jpg|*.jpg|jpeg|*.jpeg";
+            openFileDialog.Title = "选择背景图像";
+            openFileDialog.Filter = "jpg|*.jpg|png|*.png|jpeg|*.jpeg";
             openFileDialog.FileName = string.Empty;
             openFileDialog.FilterIndex = 1;
             openFileDialog.RestoreDirectory = true;
@@ -4206,7 +4202,7 @@ namespace ACNginxConsole
         private void ForeVid_Selected(object sender, RoutedEventArgs e)
         {
             System.Windows.Forms.OpenFileDialog openFileDialog = new System.Windows.Forms.OpenFileDialog();
-            openFileDialog.Title = "选择前景视频";
+            openFileDialog.Title = "选择背景视频";
             openFileDialog.Filter = "mp4|*.mp4|mov|*.mov";
             openFileDialog.FileName = string.Empty;
             openFileDialog.FilterIndex = 1;
