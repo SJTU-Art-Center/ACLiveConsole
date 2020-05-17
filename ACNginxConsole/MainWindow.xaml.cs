@@ -2882,6 +2882,8 @@ namespace ACNginxConsole
                 tranRect_init = new Rect(0, 0, focaldephov.Width, focaldephov.Height);
                 backRect_fin = focaldephov.BackClipRect.Rect;
                 backRect_fin = focaldephov.TranClipRect.Rect;
+
+                RightCol.Focus();
             }
             else
             {
