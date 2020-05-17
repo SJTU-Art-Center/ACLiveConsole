@@ -614,7 +614,7 @@
                             <ColumnDefinition/>
                             <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
-                        <Button x:Name="buttonSideBySide" Click="buttonSideBySide_Click" BorderThickness="1">
+                        <Button x:Name="buttonSideBySide" Click="buttonSideBySide_Click" BorderThickness="1" ToolTip="全比例同屏(H)">
                             <Image Source="SideBySide.png" RenderTransformOrigin="0.5,0.5"  >
                                 <Image.RenderTransform>
                                     <TransformGroup>
@@ -626,7 +626,7 @@
                                 </Image.RenderTransform>
                             </Image>
                         </Button>
-                        <Button Grid.Column="1" x:Name="buttonLRSplit" Click="buttonLRSplit_Click">
+                        <Button Grid.Column="1" x:Name="buttonLRSplit" Click="buttonLRSplit_Click" ToolTip="肖像型同屏(左右,J)">
                             <Image Source="LRSplit.png" RenderTransformOrigin="0.5,0.5">
                                 <Image.RenderTransform>
                                     <TransformGroup>
@@ -639,7 +639,7 @@
 
                             </Image>
                         </Button>
-                        <Button Grid.Column="2" x:Name="buttonUDSplit" Click="buttonUDSplit_Click">
+                        <Button Grid.Column="2" x:Name="buttonUDSplit" Click="buttonUDSplit_Click" ToolTip="肖像型同屏(上下,K)">
                             <Image Source="UDSplit.png" RenderTransformOrigin="0.5,0.5">
                                 <Image.RenderTransform>
                                     <TransformGroup>
@@ -652,7 +652,7 @@
 
                             </Image>
                         </Button>
-                        <Button Grid.Column="3" x:Name="buttonaSWindow" Click="buttonaSWindow_Click" >
+                        <Button Grid.Column="3" x:Name="buttonaSWindow" Click="buttonaSWindow_Click" ToolTip="小窗模式(L)">
                             <Image Source="SWindow.png" RenderTransformOrigin="0.5,0.5"  >
                                 <Image.RenderTransform>
                                     <TransformGroup>
