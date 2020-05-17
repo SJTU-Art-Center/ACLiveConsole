@@ -2704,6 +2704,8 @@ namespace ACNginxConsole
             {
                 if (TranEffect == TranEffects.None)
                     focaldephov.BackImg.Opacity = 1 - ProgressTran.Value;
+                else if (cross)
+                    focaldephov.BackImg.Opacity = 1;
                 else
                     focaldephov.BackImg.Opacity = (ProgressTran.Value > 0.5) ? 2 * (1 - ProgressTran.Value) : 1;
                 TranEffectStyle();
@@ -2730,15 +2732,20 @@ namespace ACNginxConsole
 
         Matrix backMatrix_init, tranMatrix_init;
         Matrix backMatrix_fin, tranMatrix_fin;
+        Rect backRect_init, tranRect_init;
+        Rect backRect_fin, tranRect_fin;
 
         private void DefineStates()
         {
             backMatrix_init = focaldephov.BackImg.RenderTransform.Value;
             tranMatrix_init = focaldephov.TransitionImg.RenderTransform.Value;
 
+            backRect_init = focaldephov.BackClipRect.Rect;
+            tranRect_init = focaldephov.TranClipRect.Rect;
+
             //if (ProgressTran.Value > 0.5)
             //{
-                switch (TranEffect)
+            switch (TranEffect)
                 {
                     case TranEffects.SideBySide:
                         backMatrix_fin = new Matrix(4.0 / 9, 0,
@@ -2752,12 +2759,26 @@ namespace ACNginxConsole
                         {
                             ImgFadeOutAnim(buttonForeImg, focaldephov.ForeImg);
                         }
+                        backRect_fin = new Rect(0, 0, focaldephov.Width, focaldephov.Height);
+                        tranRect_fin = new Rect(0, 0, focaldephov.Width, focaldephov.Height);
                         break;
                     case TranEffects.LRSplit:
-
+                        backMatrix_fin = new Matrix(1, 0,
+                            0, 1,
+                            focaldephov.Width/4, 0
+                        );
+                        tranMatrix_fin = new Matrix(1, 0, 0, 1, -focaldephov.Width / 4, 0);
+                        backRect_fin = new Rect(focaldephov.Width / 4, 0, focaldephov.Width / 2, focaldephov.Height);
+                        tranRect_fin = new Rect(focaldephov.Width / 4, 0, focaldephov.Width / 2, focaldephov.Height);
                         break;
                     case TranEffects.UDSplit:
-
+                        backMatrix_fin = new Matrix(1, 0,
+                            0, 1,
+                            0, focaldephov.Height/4
+                        );
+                        tranMatrix_fin = new Matrix(1, 0, 0, 1, 0, -focaldephov.Height / 4);
+                        backRect_fin = new Rect(0, focaldephov.Height / 4, focaldephov.Width, focaldephov.Height/2);
+                        tranRect_fin = new Rect(0, focaldephov.Height / 4, focaldephov.Width, focaldephov.Height/2);
                         break;
                     case TranEffects.SWindow:
                         double border = 1.0 / 16 * focaldephov.Width;
@@ -2765,6 +2786,8 @@ namespace ACNginxConsole
                             0, 2.5 / 9,
                             (1.0 / 2 - 1.25 / 9) * focaldephov.Width - border, (1.0 / 2 - 1.25 / 9) * focaldephov.Height - border );
                         tranMatrix_fin = Matrix.Identity;
+                        backRect_fin = new Rect(0, 0, focaldephov.Width, focaldephov.Height);
+                        tranRect_fin = new Rect(0, 0, focaldephov.Width, focaldephov.Height);
                         break;
                 }
             //}
@@ -2795,8 +2818,26 @@ namespace ACNginxConsole
                     tranMatrix_init.OffsetX + (tranMatrix_fin.OffsetX - tranMatrix_init.OffsetX) * progress, tranMatrix_init.OffsetY + (tranMatrix_fin.OffsetY - tranMatrix_init.OffsetY) * progress);
                 focaldephov.TransitionImg.RenderTransform = new MatrixTransform(tranMatrix);
 
+                Rect backRect = new Rect(
+                    backRect_init.X + (backRect_fin.X - backRect_init.X) * progress,
+                    backRect_init.Y + (backRect_fin.Y - backRect_init.Y) * progress,
+                    backRect_init.Width + (backRect_fin.Width - backRect_init.Width) * progress,
+                    backRect_init.Height + (backRect_fin.Height - backRect_init.Height) * progress
+                    );
+                focaldephov.BackClipRect.Rect = backRect;
+
+                Rect tranRect = new Rect(
+                    tranRect_init.X + (tranRect_fin.X - tranRect_init.X) * progress,
+                    tranRect_init.Y + (tranRect_fin.Y - tranRect_init.Y) * progress,
+                    tranRect_init.Width + (tranRect_fin.Width - tranRect_init.Width) * progress,
+                    tranRect_init.Height + (tranRect_fin.Height - tranRect_init.Height) * progress
+                    );
+                focaldephov.TranClipRect.Rect = tranRect;
+
             }
         }
+
+        bool cross = false;
 
         private void TranEffectChanged()
         {
@@ -2804,12 +2845,16 @@ namespace ACNginxConsole
 
             DoubleAnimation opf;
 
+            
+
             if ((TranEffect == TranEffects.SideBySide && buttonSideBySide.BorderThickness.Equals(new Thickness(3)))||
                 (TranEffect == TranEffects.LRSplit && buttonLRSplit.BorderThickness.Equals(new Thickness(3)))||
                 (TranEffect == TranEffects.UDSplit && buttonUDSplit.BorderThickness.Equals(new Thickness(3)))||
                 (TranEffect == TranEffects.SWindow && buttonaSWindow.BorderThickness.Equals(new Thickness(3)))
                 )
             {
+                cross = false;
+
                 opf = new DoubleAnimation()
                 {
                     From = ProgressTran.Value,          //0.5-->0
@@ -2833,9 +2878,26 @@ namespace ACNginxConsole
                 backMatrix_fin = focaldephov.BackImg.RenderTransform.Value;
                 tranMatrix_fin = focaldephov.TransitionImg.RenderTransform.Value;
 
+                backRect_init = new Rect(0, 0, focaldephov.Width, focaldephov.Height);
+                tranRect_init = new Rect(0, 0, focaldephov.Width, focaldephov.Height);
+                backRect_fin = focaldephov.BackClipRect.Rect;
+                backRect_fin = focaldephov.TranClipRect.Rect;
             }
             else
             {
+                if ((TranEffect == TranEffects.SideBySide && !buttonSideBySide.BorderThickness.Equals(new Thickness(3))) ||
+                (TranEffect == TranEffects.LRSplit && !buttonLRSplit.BorderThickness.Equals(new Thickness(3))) ||
+                (TranEffect == TranEffects.UDSplit && !buttonUDSplit.BorderThickness.Equals(new Thickness(3))) ||
+                (TranEffect == TranEffects.SWindow && !buttonaSWindow.BorderThickness.Equals(new Thickness(3))))
+                {
+                    //不相符
+                    cross = true;
+                }
+                else
+                {
+                    cross = false;
+                }
+
                 //Pre-Assemble
                 ProgressTran.Visibility = Visibility.Collapsed;
                 ProgressTran.Value = 1;
@@ -3472,34 +3534,35 @@ namespace ACNginxConsole
         
         private void AllRefresh()
         {
-            for (int i = 1; i < 4; ++i)
-            {
+            //弃用
+            //for (int i = 1; i < 4; ++i)
+            //{
 
-                if (Monitors.ElementAt(i - 1).PlayId < comboBoxSource.Items.Count && 
-                    configdata[Monitors.ElementAt(i - 1).PlayId].Type == "捕获设备")
-                    continue;   //跳过捕获设备
+            //    if (Monitors.ElementAt(i - 1).PlayId < comboBoxSource.Items.Count && 
+            //        configdata[Monitors.ElementAt(i - 1).PlayId].Type == "捕获设备")
+            //        continue;   //跳过捕获设备
 
-                if (Monitors.ElementAt(i - 1).SourceProvider.MediaPlayer.IsPlaying().Equals(true))
-                    Monitors.ElementAt(i - 1).SourceProvider.MediaPlayer.Pause();
+            //    if (Monitors.ElementAt(i - 1).SourceProvider.MediaPlayer.IsPlaying().Equals(true))
+            //        Monitors.ElementAt(i - 1).SourceProvider.MediaPlayer.Pause();
 
-                    Monitors.ElementAt(i - 1).SourceProvider.Dispose();
+            //        Monitors.ElementAt(i - 1).SourceProvider.Dispose();
 
-                Monitors.ElementAt(i - 1).SourceProvider = new VlcVideoSourceProvider(this.Dispatcher);
-                //Monitors.ElementAt(i - 1).SourceProvider.IsAlphaChannelEnabled = true;  //开alpha通道
-                Monitors.ElementAt(i - 1).SourceProvider.CreatePlayer(libDirectory, "--file-logging", "-vvv", "--logfile=Logs.log");
-                Monitors.ElementAt(i - 1).SourceProvider.MediaPlayer.Log += new EventHandler<VlcMediaPlayerLogEventArgs>(MediaPlayer_Log);
-                Monitors.ElementAt(i - 1).SourceProvider.MediaPlayer.Manager.SetFullScreen(Monitors.ElementAt(i - 1).SourceProvider.MediaPlayer.Manager.CreateMediaPlayer(), true);
-                //Monitors.ElementAt(i - 1).Volume = 0;
-                Monitors.ElementAt(i - 1).SourceProvider.MediaPlayer.EncounteredError += new EventHandler<VlcMediaPlayerEncounteredErrorEventArgs>(MediaPlayer_ErrorEncountered);
+            //    Monitors.ElementAt(i - 1).SourceProvider = new VlcVideoSourceProvider(this.Dispatcher);
+            //    //Monitors.ElementAt(i - 1).SourceProvider.IsAlphaChannelEnabled = true;  //开alpha通道
+            //    Monitors.ElementAt(i - 1).SourceProvider.CreatePlayer(libDirectory, "--file-logging", "-vvv", "--logfile=Logs.log");
+            //    Monitors.ElementAt(i - 1).SourceProvider.MediaPlayer.Log += new EventHandler<VlcMediaPlayerLogEventArgs>(MediaPlayer_Log);
+            //    Monitors.ElementAt(i - 1).SourceProvider.MediaPlayer.Manager.SetFullScreen(Monitors.ElementAt(i - 1).SourceProvider.MediaPlayer.Manager.CreateMediaPlayer(), true);
+            //    //Monitors.ElementAt(i - 1).Volume = 0;
+            //    Monitors.ElementAt(i - 1).SourceProvider.MediaPlayer.EncounteredError += new EventHandler<VlcMediaPlayerEncounteredErrorEventArgs>(MediaPlayer_ErrorEncountered);
 
-                if (Monitors.ElementAt(i - 1).PlayStream != null)
-                {
-                    //Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.ResetMedia();
+            //    if (Monitors.ElementAt(i - 1).PlayStream != null)
+            //    {
+            //        //Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.ResetMedia();
                     
-                        Monitors.ElementAt(i - 1).SourceProvider.MediaPlayer.Play(
-                            Monitors.ElementAt(i - 1).PlayStream, Monitors.ElementAt(selectedItem - 1).Option);
-                }
-            }
+            //            Monitors.ElementAt(i - 1).SourceProvider.MediaPlayer.Play(
+            //                Monitors.ElementAt(i - 1).PlayStream, Monitors.ElementAt(selectedItem - 1).Option);
+            //    }
+            //}
         }
 
 
