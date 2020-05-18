@@ -322,5 +322,17 @@ namespace ACNginxConsole.Properties {
                 this["SysTime"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public int SmartPA {
+            get {
+                return ((int)(this["SmartPA"]));
+            }
+            set {
+                this["SmartPA"] = value;
+            }
+        }
     }
 }
