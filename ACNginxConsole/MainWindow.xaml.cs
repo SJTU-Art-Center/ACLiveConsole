@@ -202,6 +202,13 @@ namespace ACNginxConsole
 
     }
 
+    public delegate void MainSelecChangedEvt(object sender, MainSelecChangedArgs e);
+
+    public class MainSelecChangedArgs
+    {
+
+    }
+
     /// <summary>
     /// MainWindow.xaml 的交互逻辑
     /// </summary>
@@ -237,6 +244,9 @@ namespace ACNginxConsole
 
 
         DirectoryInfo libDirectory;
+
+        public delegate void MainSelecChangedEvt(object sender, MainSelecChangedArgs e);
+        public static event MainSelecChangedEvt MSC;
 
         #endregion
 
@@ -2589,24 +2599,34 @@ namespace ACNginxConsole
 
         }
 
+        private void HardCut(byte to)
+        {
+            if (sc != null && sc.IsLoaded && Properties.Settings.Default.SmartPA > 0)
+            {
+                SJLcutter(to, false);
+            }
+            GridTranEffect.Visibility = Visibility.Collapsed;
+            selectItem(to);
+        }
+
         private void ButtonLU_Click(object sender, RoutedEventArgs e)
         {
-            selectItem(1);
+            HardCut(1);
         }
 
         private void ButtonRU_Click(object sender, RoutedEventArgs e)
         {
-            selectItem(2);
+            HardCut(2);
         }
 
         private void ButtonLD_Click(object sender, RoutedEventArgs e)
         {
-            selectItem(3);
+            HardCut(3);
         }
 
         private void ButtonRD_Click(object sender, RoutedEventArgs e)
         {
-            selectItem(4);
+            HardCut(4);
         }
 
         private void MonitoringChanged()
@@ -2646,11 +2666,30 @@ namespace ACNginxConsole
 
         Storyboard fadet = new Storyboard();
 
+        private void SJLcutter(byte to, bool maintain)
+        {
+            if (!maintain)
+            {
+                if (selectedItem > 0 && selectedItem < 4)
+                    SoundControl.soundControllers.ElementAt(selectedItem - 1).On = false;
+            }
+            if (to < 4)
+                SoundControl.soundControllers.ElementAt(to - 1).On = true;
+            MSC.Invoke(this, new MainSelecChangedArgs() { });
+
+        }
+
         private void transition(byte selc)
         {
             //增加入口限制
             if (BackLive.IsSelected)
             {
+
+                if (sc != null && sc.IsLoaded && Properties.Settings.Default.SmartPA == 1)  //J cut
+                {
+                    SJLcutter(selc, false);
+                }
+
                 trantoVis(selc);
 
 
@@ -2692,6 +2731,11 @@ namespace ACNginxConsole
         {
             if (BackLive.IsSelected)
             {
+                if (sc != null && sc.IsLoaded && Properties.Settings.Default.SmartPA == 1)  //J cut
+                {
+                    SJLcutter(selc, true);      //手动时不切 启动另一监视器声音。
+                }
+
                 trantoVis(selc);
 
                 GridTranEffect.Visibility = Visibility.Visible;
@@ -2712,6 +2756,10 @@ namespace ACNginxConsole
 
                 if (ProgressTran.Value == 0)
                 {
+                    if (sc != null && sc.IsLoaded && Properties.Settings.Default.SmartPA > 0)  //J/L cut
+                    {
+                        SJLcutter(tranto, false);
+                    }
                     //结束了
                     ProgressTran.Visibility = Visibility.Collapsed;
                     GridTranEffect.Visibility = Visibility.Collapsed;
@@ -2719,11 +2767,16 @@ namespace ACNginxConsole
                 }
                 else if (ProgressTran.Value == 1)
                 {
+                    if (sc != null && sc.IsLoaded && Properties.Settings.Default.SmartPA > 0)  //J/L cut
+                    {
+                        SJLcutter(selectedItem, false);
+                    }
                     //取消了
                     ProgressTran.Visibility = Visibility.Collapsed;
                     GridTranEffect.Visibility = Visibility.Collapsed;
                     selectItem(selectedItem);
                 }
+                
             }
         }
 
@@ -2845,8 +2898,6 @@ namespace ACNginxConsole
 
             DoubleAnimation opf;
 
-            
-
             if ((TranEffect == TranEffects.SideBySide && buttonSideBySide.BorderThickness.Equals(new Thickness(3)))||
                 (TranEffect == TranEffects.LRSplit && buttonLRSplit.BorderThickness.Equals(new Thickness(3)))||
                 (TranEffect == TranEffects.UDSplit && buttonUDSplit.BorderThickness.Equals(new Thickness(3)))||
@@ -2938,7 +2989,10 @@ namespace ACNginxConsole
 
             }
 
-            
+            //if (sc != null && sc.IsLoaded && Properties.Settings.Default.SmartPA > 0)  //J cut
+            //{
+            //    SJLcutter(selc, true);
+            //}
 
 
             Storyboard.SetTargetProperty(opf, new PropertyPath("(Slider.Value)"));
@@ -4029,6 +4083,8 @@ namespace ACNginxConsole
         private void Open_DanmakuWindow()
         {
             this.Topmost = true;
+            if (sc != null && sc.IsLoaded)
+                sc.Topmost = true;
             if(!focaldephov.IsActive)
                 
             try
@@ -4721,16 +4777,18 @@ namespace ACNginxConsole
             }
         }
 
+
+
         private void StackPanelRightCol_KeyDown(object sender, KeyEventArgs e)
         {
             StackPanelRightCol.Focus();
             //侧栏快捷键
             switch (e.Key)
             {
-                case Key.Q: selectItem(1); break;
-                case Key.W: selectItem(2); break;
-                case Key.E: selectItem(3); break;
-                case Key.R: selectItem(4); break;
+                case Key.Q: HardCut(1); break;
+                case Key.W: HardCut(2); break;
+                case Key.E: HardCut(3); break;
+                case Key.R: HardCut(4); break;
                 case Key.A: transition(1); break;
                 case Key.S: transition(2); break;
                 case Key.D: transition(3); break;

@@ -25,7 +25,7 @@ namespace ACNginxConsole
 
         public static bool MainChange;
 
-        List<SoundController> soundControllers;
+        public static List<SoundController> soundControllers;
 
         public SoundControl()
         {
@@ -36,9 +36,47 @@ namespace ACNginxConsole
                 new SoundController(true,false,false),
                 new SoundController(true,false,false),
             };
+            MainChange = true;
             SliderUpdate();
+            MainChange = false;
             NameUpdate();
             MainChange = false;
+            SmartStateChanged();
+
+            MainWindow.MSC += MainWindow_MSC;
+        }
+
+        private void MainWindow_MSC(object sender, MainSelecChangedArgs e)
+        {
+            Update();
+        }
+
+        void SmartStateChanged()
+        {
+            int state = Properties.Settings.Default.SmartPA;
+            if (state == 0)
+            {
+                buttonSmartPA.Background = TranBrush;
+                buttonSmartPA.Foreground = WhiteBrush;
+                buttonJcut.Background = TranBrush;
+                buttonJcut.Foreground = WhiteBrush;
+                buttonLcut.Background = TranBrush;
+                buttonLcut.Foreground = WhiteBrush;
+            } else {
+                buttonSmartPA.Background = SmartBrush;
+                buttonSmartPA.Foreground = BlackBrush;
+                if (state == 1) {
+                    buttonJcut.Background = SmartBrush;
+                    buttonJcut.Foreground = BlackBrush;
+                    buttonLcut.Background = TranBrush;
+                    buttonLcut.Foreground = WhiteBrush;
+                } else if (state == 2) {
+                    buttonJcut.Background = TranBrush;
+                    buttonJcut.Foreground = WhiteBrush;
+                    buttonLcut.Background = SmartBrush;
+                    buttonLcut.Foreground = BlackBrush;
+                }
+            }
         }
 
         public class SoundController
@@ -198,6 +236,7 @@ namespace ACNginxConsole
         SolidColorBrush SoloBrush = new SolidColorBrush(Color.FromArgb(255, 79, 115, 162));
         SolidColorBrush BlackBrush = new SolidColorBrush(Color.FromArgb(255, 0, 0, 0));
         SolidColorBrush WhiteBrush = new SolidColorBrush(Color.FromArgb(255, 255, 255, 255));
+        SolidColorBrush SmartBrush = new SolidColorBrush(Color.FromArgb(255, 216, 181, 27));
 
         private void buttonON1_Click(object sender, RoutedEventArgs e)
         {
@@ -334,6 +373,27 @@ namespace ACNginxConsole
             }
         }
 
+        private void buttonSmartPA_Click(object sender, RoutedEventArgs e)
+        {
+            if (Properties.Settings.Default.SmartPA > 0)
+                Properties.Settings.Default.SmartPA = 0;
+            else
+                Properties.Settings.Default.SmartPA = 1;
+            SmartStateChanged();
+        }
 
+        private void buttonJcut_Click(object sender, RoutedEventArgs e)
+        {
+            if (Properties.Settings.Default.SmartPA == 2)
+                Properties.Settings.Default.SmartPA = 1;
+            SmartStateChanged();
+        }
+
+        private void buttonLcut_Click(object sender, RoutedEventArgs e)
+        {
+            if (Properties.Settings.Default.SmartPA == 1)
+                Properties.Settings.Default.SmartPA = 2;
+            SmartStateChanged();
+        }
     }
 }
