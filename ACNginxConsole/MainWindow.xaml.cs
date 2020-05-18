@@ -4167,6 +4167,7 @@ namespace ACNginxConsole
         {
             bing_sub = new Binding();
             focaldephov.BackImg.SetBinding(Image.SourceProperty, bing_sub);
+            focaldephov.TransitionImg.SetBinding(Image.SourceProperty, bing_sub);   //过渡层清空
         }
 
         private void BackLive_Selected(object sender, RoutedEventArgs e)
