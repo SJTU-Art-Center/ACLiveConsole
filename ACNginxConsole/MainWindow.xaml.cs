@@ -781,6 +781,8 @@ namespace ACNginxConsole
 
             SoundControl.VCE += SoundControl_VCE;
 
+            checkBoxDanmuLink.IsChecked = Properties.Settings.Default.danmuLink;
+            Rec2.Visibility = Visibility.Hidden;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -1105,9 +1107,9 @@ namespace ACNginxConsole
                             configdata[configcount].DevOptions = new string[] {
                             ":dshow-vdev="+ VidStr,
                             ":dshow-adev="+ AudStr,
-                            ":live-caching = 0",//本地缓存毫秒数 
+                            ":live-caching = 100",//本地缓存毫秒数 
                             ":dshow-aspect-ratio=16:9",
-                            //":dshow-tuner-country=0",//不设置这个，录像没有声音，原因不明
+                            ":dshow-tuner-country=0",//不设置这个，录像没有声音，原因不明
                         };
                         }
                     }
@@ -1392,6 +1394,7 @@ namespace ACNginxConsole
             };
             ++configcount;
             listViewOpt.ItemsSource = configdata;
+            comboBoxSource.ItemsSource = configdata;
             textBoxSourceName.Text = "流" + configcount;
         }
 
@@ -3227,7 +3230,7 @@ namespace ACNginxConsole
             {
                 if (selectedItem < 4)
                 {
-                    if (comboBoxSource.SelectedIndex != -1)
+                    if (comboBoxSource.SelectedIndex != -1 && configdata[comboBoxSource.SelectedIndex].LiveViewingSite!=null)
                     {   //防止访问冲突
                         if (Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.IsPlaying().Equals(true))
                             Monitors.ElementAt(selectedItem - 1).SourceProvider.MediaPlayer.Pause();
@@ -3745,6 +3748,37 @@ namespace ACNginxConsole
 
         }
 
+        bool screenSwitch = false;
+
+        private void buttonScreenSwitch_Click(object sender, RoutedEventArgs e)
+        {
+            var myblue = new SolidColorBrush(Color.FromArgb(255, 1, 188, 225));
+            if (screenSwitch)
+            {
+                //关闭公屏
+                //TODO:淡出
+                Close_DanmakuWindow();
+
+                buttonScreenSwitch.Foreground = myblue;
+                buttonScreenSwitch.Background = Brushes.White;
+                buttonScreenSwitch.Content = "启动公屏";
+
+                screenSwitch = false;
+            }
+            else
+            {
+                //TODO：淡入
+                Open_DanmakuWindow();
+
+                buttonScreenSwitch.Foreground = Brushes.White;
+                buttonScreenSwitch.Background = myblue;
+                buttonScreenSwitch.Content = "关闭公屏";
+
+                screenSwitch = true;
+            }
+
+        }
+
         bool DanmakuSwitch = false;
 
         private async void ButtonDanmakuSwitch_Click(object sender, RoutedEventArgs e)
@@ -3752,9 +3786,11 @@ namespace ACNginxConsole
             var myblue = new SolidColorBrush(Color.FromArgb(255, 1, 188, 225));
             if (DanmakuSwitch)
             {
-
-                var danmul = danmuqueue.Dequeue();
-                danmul.Disconnect();
+                while (danmuqueue.Any())        //队列全部清空
+                {
+                    var danmul = danmuqueue.Dequeue();
+                    danmul.Disconnect();
+                }
 
                 //队列不再deQueue, ProcDanmaku 不会再被调用。
                 dispatcherTimerDanmaku.Stop();
@@ -3764,12 +3800,9 @@ namespace ACNginxConsole
                 //显性清除
                 listBoxDanmaku.Items.Clear();
 
-                //TODO:淡出
-                Close_DanmakuWindow();
-
                 buttonDanmakuSwitch.Foreground = myblue;
                 buttonDanmakuSwitch.Background = Brushes.White;
-                buttonDanmakuSwitch.Content = "启动公屏";
+                buttonDanmakuSwitch.Content = "连接弹幕";
 
                 DanmakuSwitch = false;
 
@@ -3792,7 +3825,11 @@ namespace ACNginxConsole
                             if (cit.Bililive_roomid == room_idq.ElementAt(i))
                                 flag = true;    //防止重复
                         if (!flag)
+                        {
                             room_idq.Enqueue(cit.Bililive_roomid);
+                            if (checkBoxDanmuLink.IsChecked.Equals(true))   //是否只接收一个信号
+                                break;
+                        }           
                     }
                 }
                 try
@@ -3838,14 +3875,11 @@ namespace ACNginxConsole
 
                         buttonDanmakuSwitch.Foreground = Brushes.White;
                         buttonDanmakuSwitch.Background = myblue;
-                        buttonDanmakuSwitch.Content = "关闭公屏";
+                        buttonDanmakuSwitch.Content = "关闭连接";
 
                         DanmakuSwitch = true;
 
                         dispatcherTimerDanmaku.Start();
-
-                        //TODO：淡入
-                        Open_DanmakuWindow();
 
                     }
                 }
@@ -3853,7 +3887,7 @@ namespace ACNginxConsole
                 {
                     buttonDanmakuSwitch.Content = "连接失败";
                     await System.Threading.Tasks.Task.Delay(1000);
-                    buttonDanmakuSwitch.Content = "启动公屏";
+                    buttonDanmakuSwitch.Content = "连接弹幕";
                 }
 
 
@@ -5010,6 +5044,18 @@ namespace ACNginxConsole
         private void comboBoxVideo_DropDownOpened(object sender, EventArgs e)
         {
             
+        }
+
+        private void checkBoxDanmuLink_Checked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.danmuLink = true;
+            Rec2.Visibility = Visibility.Visible;
+        }
+
+        private void checkBoxDanmuLink_Unchecked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.danmuLink = false;
+            Rec2.Visibility = Visibility.Hidden;
         }
 
         private void comboBoxAudio_DropDownOpened(object sender, EventArgs e)

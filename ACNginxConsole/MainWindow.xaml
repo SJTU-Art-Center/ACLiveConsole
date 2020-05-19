@@ -307,7 +307,7 @@
                                 <ColumnDefinition/>
                             </Grid.ColumnDefinitions>
                             <Image x:Name="WarPic2" Source="StatusAnnotations_Warning_32xLG_color.png" Stretch="Fill" Width="32" Height="32" />
-                            <TextBlock x:Name="labell2" TextWrapping="Wrap" Text="       低延迟监视器暂时不能播放声音(BETA)。请在共享屏幕时将OBS最小化以减少资源消耗。" Height="35" Grid.Column="1" Margin="5,0"/>
+                            <TextBlock x:Name="labell2" TextWrapping="Wrap" Text="       你需要重新连接弹幕，让弹幕接收设置生效。" Height="35" Grid.Column="1" Margin="5,0"/>
                         </Grid>
 
 
@@ -324,6 +324,7 @@
                             <CheckBox x:Name="checkBoxLowMoni" Content="使用低延迟监视器（弃用）" Margin="0,5,0.5,0" Checked="checkBoxLowMoni_Checked" Unchecked="checkBoxLowMoni_Unchecked" IsEnabled="False" Visibility="Collapsed"/>
                             <CheckBox x:Name="checkBoxNetwork" Content="打开网络延迟设置" Margin="0,5,0.5,0" Checked="checkBoxNetwork_Checked" Unchecked="checkBoxNetwork_Unchecked" />
                             <CheckBox x:Name="checkBoxSystemTime" Margin="0,5,0.5,0" Content="显示系统时间" Checked="checkBoxSystemTime_Checked" Unchecked="checkBoxSystemTime_Unchecked"/>
+                            <CheckBox x:Name="checkBoxDanmuLink" Margin="0,5,0.5,0" Content="只接收第一个B站地址的弹幕" Checked="checkBoxDanmuLink_Checked" Unchecked="checkBoxDanmuLink_Unchecked"/>
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="auto"/>
@@ -667,14 +668,16 @@
                     </Grid>
                     <Grid x:Name="DanmakuSider" Margin="0,15,0,0" Background="#FF75D2F6" Height="27">
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition />
                             <ColumnDefinition Width="auto"/>
                         </Grid.ColumnDefinitions>
-                        <Button x:Name="buttonDanmakuSwitch" Grid.Column="0" Content="启动公屏" Width="70" Background="White" Foreground="#FF77D3F5" BorderBrush="#FF01BBE2" Click="ButtonDanmakuSwitch_Click" />
-                        <Button Grid.Column="1" x:Name="buttonAutoDanmaku" Content="自动弹幕" Background="#FF01BCE1" Foreground="White" BorderBrush="#FF01BCE1" Click="ButtonAutoDanmaku_Click" Width="70"/>
-                        <Button x:Name="buttonDanmuSetting" Grid.Column="3" Background="#FF01BCE1" BorderBrush="#FF01BCE1" Click="ButtonDanmuSetting_Click" ToolTip="弹幕设置">
+                        <Button x:Name="buttonScreenSwitch" Grid.Column="0" Content="启动公屏" Width="70" Background="White" Foreground="#FF77D3F5" BorderBrush="#FF01BBE2" Click="buttonScreenSwitch_Click" />
+                        <Button x:Name="buttonDanmakuSwitch" Grid.Column="1" Content="连接弹幕" Width="70" Background="White" Foreground="#FF77D3F5" BorderBrush="#FF01BBE2" Click="ButtonDanmakuSwitch_Click" />
+                        <Button Grid.Column="2" x:Name="buttonAutoDanmaku" Content="自动弹幕" Background="#FF01BCE1" Foreground="White" BorderBrush="#FF01BCE1" Click="ButtonAutoDanmaku_Click" Width="70"/>
+                        <Button x:Name="buttonDanmuSetting" Grid.Column="4" Background="#FF01BCE1" BorderBrush="#FF01BCE1" Click="ButtonDanmuSetting_Click" ToolTip="弹幕设置">
                             <Image Source="gear_16xLG.png" RenderTransformOrigin="0.5,0.5" >
                                 <Image.RenderTransform>
                                     <TransformGroup>
