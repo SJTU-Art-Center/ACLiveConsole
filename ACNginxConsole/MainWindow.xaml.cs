@@ -2731,7 +2731,7 @@ namespace ACNginxConsole
         {
             if (BackLive.IsSelected)
             {
-                if (sc != null && sc.IsLoaded && Properties.Settings.Default.SmartPA == 1)  //J cut
+                if (sc != null && sc.IsLoaded && Properties.Settings.Default.SmartPA > 0)  //J cut
                 {
                     SJLcutter(selc, true);      //手动时不切 启动另一监视器声音。
                 }
@@ -3284,7 +3284,7 @@ namespace ACNginxConsole
                             Monitors.ElementAt(selectedItem - 1).Bing.Source = Monitors.ElementAt(selectedItem - 1).SourceProvider;
                             Monitors.ElementAt(selectedItem - 1).Bing.Path = new PropertyPath("VideoSource");
                                 
-                                
+                                 
                             //}
                             //else
                             //{
