@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using WPFSetVolume.VolumeHelper;
 
 namespace ACNginxConsole
 {
@@ -44,6 +45,27 @@ namespace ACNginxConsole
             SmartStateChanged();
 
             MainWindow.MSC += MainWindow_MSC;
+
+            WPFSetVolume.VolumeHelper.VolumeHelper.Init();
+            WPFSetVolume.VolumeHelper.VolumeHelper.AddVolumeChangeNotify(VolumeChange);
+            VolumeChange();
+        }
+
+        bool isVolumeChange;
+
+        private void VolumeChange()
+        {
+            isVolumeChange = true;
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                if (SliderAll.Value==0)
+                    buttonMuteAll.Background = MuteBrush;
+                else
+                    buttonMuteAll.Background = TranBrush;
+
+                SliderAll.Value = WPFSetVolume.VolumeHelper.VolumeHelper.GetVolume();
+            }));
+            isVolumeChange = false;
         }
 
         private void MainWindow_MSC(object sender, MainSelecChangedArgs e)
@@ -117,6 +139,21 @@ namespace ACNginxConsole
             Slider1.Value = MainWindow.Monitors.ElementAt(0).Volume;
             Slider2.Value = MainWindow.Monitors.ElementAt(1).Volume;
             Slider3.Value = MainWindow.Monitors.ElementAt(2).Volume;
+            if (Slider1.Value == 0)
+            {
+                buttonMute1.Background = MuteBrush;
+                soundControllers.ElementAt(0).Mute = true;
+            }
+            if (Slider2.Value == 0)
+            {
+                buttonMute2.Background = MuteBrush;
+                soundControllers.ElementAt(1).Mute = true;
+            }
+            if (Slider3.Value == 0)
+            {
+                buttonMute3.Background = MuteBrush;
+                soundControllers.ElementAt(2).Mute = true;
+            }
         }
 
         private void SetVolume()
@@ -394,6 +431,48 @@ namespace ACNginxConsole
             if (Properties.Settings.Default.SmartPA == 1)
                 Properties.Settings.Default.SmartPA = 2;
             SmartStateChanged();
+        }
+
+        private void buttonMuteAll_Click(object sender, RoutedEventArgs e)
+        {
+            SliderAll.Value = 0;
+        }
+
+        private void SliderAll_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (isVolumeChange)
+            {
+                return;
+            }
+
+            if (SliderAll.Value > 0)
+                buttonMuteAll.Background = TranBrush;
+            else
+                buttonMuteAll.Background = MuteBrush;
+
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                WPFSetVolume.VolumeHelper.VolumeHelper.SetVolume((int)SliderAll.Value);
+            }));
+        }
+
+
+        private void buttonONAll_Click(object sender, RoutedEventArgs e)
+        {
+            if (VolumeHelper.IsMute())
+            {
+                buttonONAll.Background = ONBrush;
+                buttonONAll.Foreground = BlackBrush;
+                VolumeHelper.SetMute(false);
+                SliderAll.IsEnabled = true;
+            }
+            else
+            {
+                buttonONAll.Background = TranBrush;
+                buttonONAll.Foreground = WhiteBrush;
+                VolumeHelper.SetMute(true);
+                SliderAll.IsEnabled = false;
+            }
         }
     }
 }
