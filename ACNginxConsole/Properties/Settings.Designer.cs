@@ -334,5 +334,29 @@ namespace ACNginxConsole.Properties {
                 this["SmartPA"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool danmuLink {
+            get {
+                return ((bool)(this["danmuLink"]));
+            }
+            set {
+                this["danmuLink"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int SizeMode {
+            get {
+                return ((int)(this["SizeMode"]));
+            }
+            set {
+                this["SizeMode"] = value;
+            }
+        }
     }
 }

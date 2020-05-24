@@ -35,15 +35,19 @@
         </Style>
     </Window.Resources>
 
-    <Canvas x:Name="grid" ClipToBounds="True">
-        <Image x:Name="ForeImg" Width="{Binding ActualWidth, ElementName=grid, Mode=OneWay}" Height="{Binding ActualHeight, ElementName=grid, Mode=OneWay}" />
-        <Image x:Name="TransitionImg" Width="{Binding ActualWidth, ElementName=grid, Mode=OneWay}" Height="{Binding ActualHeight, ElementName=grid, Mode=OneWay}" RenderTransformOrigin="0.5,0.5" >
+    <Grid x:Name="grid" ClipToBounds="True">
+        <Rectangle />
+        <Image x:Name="ForeImg" RenderTransformOrigin="0.5,0.5" ClipToBounds="True" />
+        <Image x:Name="TransitionImg" RenderTransformOrigin="0.5,0.5" ClipToBounds="True" >
             <Image.RenderTransform>
                 <TransformGroup>
                     <TranslateTransform/>
                     <ScaleTransform/>
                 </TransformGroup>
             </Image.RenderTransform>
+            <Image.Clip>
+                <RectangleGeometry x:Name="TranClipRect" />
+            </Image.Clip>
         </Image>
         <Image x:Name="BackImg" Width="{Binding ActualWidth, ElementName=grid, Mode=OneWay}" Height="{Binding ActualHeight, ElementName=grid, Mode=OneWay}" RenderTransformOrigin="0.5,0.5" >
             <Image.RenderTransform>
@@ -52,9 +56,12 @@
                     <ScaleTransform/>
                 </TransformGroup>
             </Image.RenderTransform>
+            <Image.Clip>
+                <RectangleGeometry x:Name="BackClipRect"/>
+            </Image.Clip>
         </Image>
         <Canvas x:Name="GridCanvas" />
         <Canvas x:Name="ThumbCanvas"/>
-    </Canvas>
+    </Grid>
 
 </Window>

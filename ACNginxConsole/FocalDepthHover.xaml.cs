@@ -119,20 +119,29 @@ namespace ACNginxConsole
             if (AllScreens.Length > 1)
             {//第二屏幕
                 Left = PrimaryScreen.WorkingArea.Width;
-                Top = 0;
-                WindowState = WindowState.Maximized;
+                Top = 0;   
             }
             else
             {
-                WindowState = WindowState.Maximized;
+                Left = 0;
+                Top = 0;
             }
-
+            switch (Properties.Settings.Default.SizeMode)
+            {
+                case 0: WindowState = WindowState.Maximized;break;
+                case 1: WindowState = WindowState.Normal;Width = 1920;Height = 1080;break;
+                case 2: WindowState = WindowState.Normal;Width = 1280;Height = 720;break;
+            }
+            
             //添加接收事件
             MainWindow.ReceivedDanmu += ReceiveDanmu;
 
             ForeColor = Color.FromArgb(255, 255, 255, 255);
 
             CornerRefreshTimer.Tick += CornerRefreshTimer_Tick;
+
+            
+
         }
 
         double myright_c;
@@ -375,6 +384,8 @@ namespace ACNginxConsole
         {
             INIT_TOP = 1.0 / 3;
             Regen_Layers();
+            BackClipRect.Rect = new Rect(0, 0, this.Width, this.Height);
+            TranClipRect.Rect = new Rect(0, 0, this.Width, this.Height);
         }
 
         private void Regen_Layers()

@@ -6,7 +6,7 @@
         xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker"
         xmlns:local="clr-namespace:ACNginxConsole"
         mc:Ignorable="d"
-        Title="AC Live Console" Height="686.25" Width="920.848" Closed="Window_Closed" SizeChanged="Window_SizeChanged" Loaded="Window_Loaded" MinHeight="30">
+        Title="AC Live Console" Height="749.25" Width="920.848" Closed="Window_Closed" SizeChanged="Window_SizeChanged" Loaded="Window_Loaded" MinHeight="30">
 
     <Window.Resources>
         <colorPicker:ColorToStringConverter x:Key="ColorToStringConverter"/>
@@ -322,18 +322,35 @@
                             <CheckBox x:Name="checkBoxCloseSniffing" Content="关闭播流地址自动获取" HorizontalAlignment="Left" Margin="0,5,0,0" Width="147" Checked="CheckBoxCloseSniffing_Checked" Unchecked="CheckBoxCloseSniffing_Unchecked"/>
                             <CheckBox x:Name="checkBoxClosingAnim" Content="计时器关闭推流时播放Closing.mp4" HorizontalAlignment="Left" Height="16" Margin="0,5,0,0" Width="242"/>
                             <CheckBox x:Name="checkBoxLowMoni" Content="使用低延迟监视器（弃用）" Margin="0,5,0.5,0" Checked="checkBoxLowMoni_Checked" Unchecked="checkBoxLowMoni_Unchecked" IsEnabled="False" Visibility="Collapsed"/>
-                            <CheckBox x:Name="checkBoxNetwork" Content="打开网络延迟设置" Margin="0,5,0.5,0" Checked="checkBoxNetwork_Checked" Unchecked="checkBoxNetwork_Unchecked" />
+                            
                             <CheckBox x:Name="checkBoxSystemTime" Margin="0,5,0.5,0" Content="显示系统时间" Checked="checkBoxSystemTime_Checked" Unchecked="checkBoxSystemTime_Unchecked"/>
                             <CheckBox x:Name="checkBoxDanmuLink" Margin="0,5,0.5,0" Content="只接收第一个B站地址的弹幕" Checked="checkBoxDanmuLink_Checked" Unchecked="checkBoxDanmuLink_Unchecked"/>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="auto"/>
-                                    <ColumnDefinition Width="2*"/>
-                                    <ColumnDefinition Width="2*"/>
-                                </Grid.ColumnDefinitions>
-                                <Label Content="过渡秒数"/>
-                                <Slider x:Name="SliderTransSec" Grid.Column="1" Minimum="0.2" Maximum="5" Value="1" AutoToolTipPlacement="TopLeft" ValueChanged="SliderTransSec_ValueChanged" VerticalAlignment="Center" AutoToolTipPrecision="1" />
-                            </Grid>
+                            
+                            <Border Background="White" CornerRadius="10" Margin="0,5,0,0">
+                                <StackPanel Margin="0,0,0,5">
+                                    <CheckBox x:Name="checkBoxNetwork" Content="打开网络延迟设置" Margin="0,5,0.5,0" Checked="checkBoxNetwork_Checked" Unchecked="checkBoxNetwork_Unchecked" />
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition />
+                                            <RowDefinition />
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="auto"/>
+                                            <ColumnDefinition Width="2*"/>
+                                            <ColumnDefinition Width="2*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Content="过渡秒数"/>
+                                        <Slider x:Name="SliderTransSec" Grid.Column="1" Minimum="0.2" Maximum="5" Value="1" AutoToolTipPlacement="TopLeft" ValueChanged="SliderTransSec_ValueChanged" VerticalAlignment="Center" AutoToolTipPrecision="1" />
+                                        <Label Grid.Row="1" Content="公屏大小"/>
+                                        <ComboBox x:Name="comboBoxSize" Grid.Row="1" Grid.Column="1">
+                                            <ComboBoxItem x:Name="SizeFullScreen" Content="全屏" Selected="SizeFullScreen_Selected" />
+                                            <ComboBoxItem x:Name="Size1080P" Content="1920x1080" Selected="Size1080P_Selected" />
+                                            <ComboBoxItem x:Name="Size720P" Content="1280x720" Selected="Size720P_Selected" />
+                                        </ComboBox>
+                                    </Grid>
+                                </StackPanel>
+                                
+                            </Border>
                             <Border Background="White" CornerRadius="10" Margin="0,5,0,0">
                                 <StackPanel  Margin="10">
                                     <Grid Height="40" Background="{DynamicResource CheckersBrush}" Opacity="{Binding Value, ElementName=OpacSlider}" Margin="0,5,0,0">

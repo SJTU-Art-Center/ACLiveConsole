@@ -806,6 +806,7 @@ namespace ACNginxConsole
             ColorComboBoxBubble.SelectedColor = Properties.Settings.Default.BubbleColor;
             (focaldephov.FindResource("BubbleBack") as SolidColorBrush).Color = ColorComboBoxBubble.SelectedColor;
             FilterRegex = new Regex(regex);
+            comboBoxSize.SelectedIndex = Properties.Settings.Default.SizeMode;
         }
 
         #region 主页
@@ -3750,7 +3751,7 @@ namespace ACNginxConsole
 
         bool screenSwitch = false;
 
-        private void buttonScreenSwitch_Click(object sender, RoutedEventArgs e)
+        private void ScreenSwitch()
         {
             var myblue = new SolidColorBrush(Color.FromArgb(255, 1, 188, 225));
             if (screenSwitch)
@@ -3776,7 +3777,11 @@ namespace ACNginxConsole
 
                 screenSwitch = true;
             }
+        }
 
+        private void buttonScreenSwitch_Click(object sender, RoutedEventArgs e)
+        {
+            ScreenSwitch();
         }
 
         bool DanmakuSwitch = false;
@@ -3876,6 +3881,8 @@ namespace ACNginxConsole
                         buttonDanmakuSwitch.Foreground = Brushes.White;
                         buttonDanmakuSwitch.Background = myblue;
                         buttonDanmakuSwitch.Content = "关闭连接";
+
+                        ScreenSwitch();
 
                         DanmakuSwitch = true;
 
@@ -5056,6 +5063,36 @@ namespace ACNginxConsole
         {
             Properties.Settings.Default.danmuLink = false;
             Rec2.Visibility = Visibility.Hidden;
+        }
+
+        private void SizeFullScreen_Selected(object sender, RoutedEventArgs e)
+        {
+            if (focaldephov != null && focaldephov.IsLoaded) {
+                focaldephov.WindowState = WindowState.Maximized;
+            }
+            Properties.Settings.Default.SizeMode = 0;
+        }
+
+        private void Size1080P_Selected(object sender, RoutedEventArgs e)
+        {
+            if (focaldephov != null && focaldephov.IsLoaded)
+            {
+                focaldephov.WindowState = WindowState.Normal;
+                focaldephov.Width = 1920;
+                focaldephov.Height = 1080;
+            }
+            Properties.Settings.Default.SizeMode = 1;
+        }
+
+        private void Size720P_Selected(object sender, RoutedEventArgs e)
+        {
+            if (focaldephov != null && focaldephov.IsLoaded)
+            {
+                focaldephov.WindowState = WindowState.Normal;
+                focaldephov.Width = 1280;
+                focaldephov.Height = 720;
+            }
+            Properties.Settings.Default.SizeMode = 2;
         }
 
         private void comboBoxAudio_DropDownOpened(object sender, EventArgs e)
