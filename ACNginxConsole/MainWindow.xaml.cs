@@ -5095,6 +5095,17 @@ namespace ACNginxConsole
             Properties.Settings.Default.SizeMode = 2;
         }
 
+        Subtitler sb;
+
+        private void buttonTitler_Click(object sender, RoutedEventArgs e)
+        {
+            if (sb == null || !sb.IsLoaded )
+            {
+                sb = new Subtitler();
+                sb.Show();
+            }
+        }
+
         private void comboBoxAudio_DropDownOpened(object sender, EventArgs e)
         {
             

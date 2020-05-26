@@ -322,10 +322,10 @@
                             <CheckBox x:Name="checkBoxCloseSniffing" Content="关闭播流地址自动获取" HorizontalAlignment="Left" Margin="0,5,0,0" Width="147" Checked="CheckBoxCloseSniffing_Checked" Unchecked="CheckBoxCloseSniffing_Unchecked"/>
                             <CheckBox x:Name="checkBoxClosingAnim" Content="计时器关闭推流时播放Closing.mp4" HorizontalAlignment="Left" Height="16" Margin="0,5,0,0" Width="242"/>
                             <CheckBox x:Name="checkBoxLowMoni" Content="使用低延迟监视器（弃用）" Margin="0,5,0.5,0" Checked="checkBoxLowMoni_Checked" Unchecked="checkBoxLowMoni_Unchecked" IsEnabled="False" Visibility="Collapsed"/>
-                            
+
                             <CheckBox x:Name="checkBoxSystemTime" Margin="0,5,0.5,0" Content="显示系统时间" Checked="checkBoxSystemTime_Checked" Unchecked="checkBoxSystemTime_Unchecked"/>
                             <CheckBox x:Name="checkBoxDanmuLink" Margin="0,5,0.5,0" Content="只接收第一个B站地址的弹幕" Checked="checkBoxDanmuLink_Checked" Unchecked="checkBoxDanmuLink_Unchecked"/>
-                            
+
                             <Border Background="White" CornerRadius="10" Margin="0,5,0,0">
                                 <StackPanel Margin="0,0,0,5">
                                     <CheckBox x:Name="checkBoxNetwork" Content="打开网络延迟设置" Margin="0,5,0.5,0" Checked="checkBoxNetwork_Checked" Unchecked="checkBoxNetwork_Unchecked" />
@@ -349,7 +349,7 @@
                                         </ComboBox>
                                     </Grid>
                                 </StackPanel>
-                                
+
                             </Border>
                             <Border Background="White" CornerRadius="10" Margin="0,5,0,0">
                                 <StackPanel  Margin="10">
@@ -690,11 +690,25 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition />
                             <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="auto"/>
                         </Grid.ColumnDefinitions>
                         <Button x:Name="buttonScreenSwitch" Grid.Column="0" Content="启动公屏" Width="70" Background="White" Foreground="#FF77D3F5" BorderBrush="#FF01BBE2" Click="buttonScreenSwitch_Click" />
                         <Button x:Name="buttonDanmakuSwitch" Grid.Column="1" Content="连接弹幕" Width="70" Background="White" Foreground="#FF77D3F5" BorderBrush="#FF01BBE2" Click="ButtonDanmakuSwitch_Click" />
                         <Button Grid.Column="2" x:Name="buttonAutoDanmaku" Content="自动弹幕" Background="#FF01BCE1" Foreground="White" BorderBrush="#FF01BCE1" Click="ButtonAutoDanmaku_Click" Width="70"/>
-                        <Button x:Name="buttonDanmuSetting" Grid.Column="4" Background="#FF01BCE1" BorderBrush="#FF01BCE1" Click="ButtonDanmuSetting_Click" ToolTip="弹幕设置">
+                        <Button Grid.Column="4" x:Name="buttonTitler" Background="#FF01BCE1" BorderBrush="#FF01BCE1" ToolTip="打开字幕机" Click="buttonTitler_Click">
+                            <Image RenderTransformOrigin="0.5,0.5" Source="lines_Text_indent_16xLG.png">
+                                <Image.RenderTransform>
+                                    <TransformGroup>
+                                        <ScaleTransform ScaleX="0.7" ScaleY="0.7"/>
+                                        <SkewTransform/>
+                                        <RotateTransform/>
+                                        <TranslateTransform/>
+                                    </TransformGroup>
+                                </Image.RenderTransform>
+
+                            </Image>
+                        </Button>
+                        <Button x:Name="buttonDanmuSetting" Grid.Column="5" Background="#FF01BCE1" BorderBrush="#FF01BCE1" Click="ButtonDanmuSetting_Click" ToolTip="弹幕设置">
                             <Image Source="gear_16xLG.png" RenderTransformOrigin="0.5,0.5" >
                                 <Image.RenderTransform>
                                     <TransformGroup>
