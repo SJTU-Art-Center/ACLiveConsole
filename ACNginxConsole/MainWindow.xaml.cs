@@ -77,7 +77,11 @@ using AForge.Video.DirectShow;
 using FFmpegDemo;
 using System.Windows.Interop;
 using Vlc.DotNet.Core.Interops;
-//using System.Windows.Forms;
+// Begin "Step 4: Basic RadialController menu customization"
+// Using directives for RadialController functionality.
+using Windows.UI.Input;
+using Windows.Storage.Streams;
+// End "Step 4: Basic RadialController menu customization"
 
 namespace ACNginxConsole
 {
@@ -247,6 +251,89 @@ namespace ACNginxConsole
 
         public delegate void MainSelecChangedEvt(object sender, MainSelecChangedArgs e);
         public static event MainSelecChangedEvt MSC;
+
+        #endregion
+
+        #region Surface Dial
+
+        private RadialController radialController;
+
+        bool radialControllerInit = false;
+
+        // Create and configure our radial controller.
+        private void InitializeController()
+        {
+            // Create a reference to the RadialController.
+            CreateController();
+            // Set rotation resolution to 5 degree of sensitivity.
+            radialController.RotationResolutionInDegrees = 5;
+
+            radialController.RotationChanged += RadialController_RotationChanged;
+            radialController.ButtonClicked += RadialController_ButtonClicked;
+
+            AddCustomItems();
+
+            radialControllerInit = true;
+        }
+
+        // Occurs when the wheel device is rotated while a custom 
+        // RadialController tool is active.
+        // NOTE: Your app does not receive this event when the RadialController 
+        // menu is active or a built-in tool is active
+        // Send rotation input to slider of active region.
+        private void RadialController_RotationChanged(RadialController sender,
+          RadialControllerRotationChangedEventArgs args)
+        {
+            System.Diagnostics.Debug.WriteLine("Rotated");
+            //args.RotationDeltaInDegrees
+            InvalidateVisual();
+        }
+
+        // Occurs when the wheel device is pressed and then released 
+        // while a customRadialController tool is active.
+        // NOTE: Your app does not receive this event when the RadialController 
+        // menu is active or a built-in tool is active
+        // Send click input to toggle button of active region.
+        private void RadialController_ButtonClicked(RadialController sender,
+          RadialControllerButtonClickedEventArgs args)
+        {
+            System.Diagnostics.Debug.WriteLine("Clicked");
+            InvalidateVisual();
+        }
+
+        [System.Runtime.InteropServices.Guid("1B0535C9-57AD-45C1-9D79-AD5C34360513")]
+        [System.Runtime.InteropServices.InterfaceType(System.Runtime.InteropServices.ComInterfaceType.InterfaceIsIInspectable)]
+        interface IRadialControllerInterop
+        {
+            RadialController CreateForWindow(
+            IntPtr hwnd,
+            [System.Runtime.InteropServices.In] ref Guid riid);
+        }
+
+        [System.Runtime.InteropServices.Guid("787cdaac-3186-476d-87e4-b9374a7b9970")]
+        [System.Runtime.InteropServices.InterfaceType(System.Runtime.InteropServices.ComInterfaceType.InterfaceIsIInspectable)]
+        interface IRadialControllerConfigurationInterop
+        {
+            RadialControllerConfiguration GetForWindow(
+            IntPtr hwnd,
+            [System.Runtime.InteropServices.In] ref Guid riid);
+        }
+
+        private void CreateController()
+        {
+            IRadialControllerInterop interop = (IRadialControllerInterop)System.Runtime.InteropServices.WindowsRuntime.WindowsRuntimeMarshal.GetActivationFactory(typeof(RadialController));
+            Guid guid = typeof(RadialController).GetInterface("IRadialController").GUID;
+
+            radialController = interop.CreateForWindow(new WindowInteropHelper(this).Handle, ref guid);
+        }
+
+        RadialControllerMenuItem rcsub;
+
+        private void AddCustomItems()
+        {
+            rcsub = RadialControllerMenuItem.CreateFromFontGlyph("字幕机", "⌨", "Segoe UI Emoji");
+            radialController.Menu.Items.Add(rcsub);
+        }
 
         #endregion
 
@@ -681,7 +768,7 @@ namespace ACNginxConsole
             else
             {
                 checkBoxLowMoni.IsChecked = false;
-                Rec2.Visibility = Visibility.Hidden;
+                Rec2.Visibility = Visibility.Collapsed;
             }
 
 
@@ -782,7 +869,7 @@ namespace ACNginxConsole
             SoundControl.VCE += SoundControl_VCE;
 
             checkBoxDanmuLink.IsChecked = Properties.Settings.Default.danmuLink;
-            Rec2.Visibility = Visibility.Hidden;
+            Rec2.Visibility = Visibility.Collapsed;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -807,6 +894,27 @@ namespace ACNginxConsole
             (focaldephov.FindResource("BubbleBack") as SolidColorBrush).Color = ColorComboBoxBubble.SelectedColor;
             FilterRegex = new Regex(regex);
             comboBoxSize.SelectedIndex = Properties.Settings.Default.SizeMode;
+
+            System.Diagnostics.Debug.WriteLine(Environment.OSVersion.Version.Major);
+
+            if(Environment.OSVersion.Version.Major < 10)
+            {
+                //Windows 10 以下
+                checkBoxSurfaceDial.IsChecked = false;
+                checkBoxSurfaceDial.IsEnabled = false;
+                buttonSurfaceDial.Visibility = Visibility.Collapsed;
+                Rec3.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                buttonSurfaceDial.Visibility = Visibility.Visible;
+                Rec3.Visibility = Visibility.Collapsed;
+                checkBoxSurfaceDial.IsChecked = Properties.Settings.Default.SurfaceDial;
+
+                if (Properties.Settings.Default.SurfaceDial)
+                    InitializeController();
+            }
+            
         }
 
         #region 主页
@@ -817,8 +925,8 @@ namespace ACNginxConsole
             tabItemConfig.Visibility = Visibility.Visible;
             tabItemTest.Visibility = Visibility.Visible;
             tabItemStream.Visibility = Visibility.Visible;
-            tabItemTutourial.Visibility = Visibility.Visible;
             TabItemSetting.Visibility = Visibility.Visible;
+            tabScreen.Visibility = Visibility.Visible;
             button4.Visibility = Visibility.Hidden;
             passwordBox.Visibility = Visibility.Hidden;
             label8.Visibility = Visibility.Hidden;
@@ -835,8 +943,8 @@ namespace ACNginxConsole
             tabItemConfig.Visibility = Visibility.Collapsed;
             tabItemTest.Visibility = Visibility.Collapsed;
             tabItemStream.Visibility = Visibility.Collapsed;
-            tabItemTutourial.Visibility = Visibility.Collapsed;
             TabItemSetting.Visibility = Visibility.Collapsed;
+            tabScreen.Visibility = Visibility.Collapsed;
             buttonSoftHelp.Visibility = Visibility.Hidden;
             buttonDanmakuEntry.Visibility = Visibility.Hidden;
         }
@@ -2388,7 +2496,7 @@ namespace ACNginxConsole
             //Rec1.Visibility = Visibility.Hidden;
             //labell1.Visibility = Visibility.Hidden;
             //labell2.Visibility = Visibility.Hidden;
-            Rec1.Visibility = Visibility.Hidden;
+            Rec1.Visibility = Visibility.Collapsed;
         }
 
         private void CheckBox2_Checked(object sender, RoutedEventArgs e)
@@ -3484,7 +3592,7 @@ namespace ACNginxConsole
 
         private void checkBoxLowMoni_Unchecked(object sender, RoutedEventArgs e)
         {
-            Rec2.Visibility = Visibility.Hidden;
+            Rec2.Visibility = Visibility.Collapsed;
             Properties.Settings.Default.LowMoni = false;
         }
 
@@ -4082,16 +4190,16 @@ namespace ACNginxConsole
             if(this.Width<= RightCol.Width.Value + 30)
             {
                 WinShrinkAction(RightCol.Width.Value + 537);
-                tabControl.SelectedIndex = 5;           //转至设置选项卡
+                tabControl.SelectedIndex = 4;           //转至设置选项卡
                 buttonDanmuSetting.Background = blueshallow;
             }
-            else if(tabControl.SelectedIndex == 5)
+            else if(tabControl.SelectedIndex == 4)
             {
                 WinShrinkAction(RightCol.Width.Value + 15);
                 buttonDanmuSetting.Background = blueback;
             }
             else
-                tabControl.SelectedIndex = 5;           //转至设置选项卡
+                tabControl.SelectedIndex = 4;           //转至设置选项卡
         }
 
         public static int Add_DanmakuConfig(string website = "")
@@ -5062,7 +5170,7 @@ namespace ACNginxConsole
         private void checkBoxDanmuLink_Unchecked(object sender, RoutedEventArgs e)
         {
             Properties.Settings.Default.danmuLink = false;
-            Rec2.Visibility = Visibility.Hidden;
+            Rec2.Visibility = Visibility.Collapsed;
         }
 
         private void SizeFullScreen_Selected(object sender, RoutedEventArgs e)
@@ -5095,15 +5203,24 @@ namespace ACNginxConsole
             Properties.Settings.Default.SizeMode = 2;
         }
 
-        Subtitler sb;
-
-        private void buttonTitler_Click(object sender, RoutedEventArgs e)
+        private void buttonSurfaceDial_Click(object sender, RoutedEventArgs e)
         {
-            if (sb == null || !sb.IsLoaded )
+            if(!radialControllerInit)
+                InitializeController();
+            if (radialController.Menu.Items.Contains(rcsub))
             {
-                sb = new Subtitler();
-                sb.Show();
+                radialController.Menu.SelectMenuItem(rcsub);
             }
+        }
+
+        private void checkBoxSurfaceDial_Checked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.SurfaceDial = true;
+        }
+
+        private void checkBoxSurfaceDial_Unchecked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.SurfaceDial = false;
         }
 
         private void comboBoxAudio_DropDownOpened(object sender, EventArgs e)

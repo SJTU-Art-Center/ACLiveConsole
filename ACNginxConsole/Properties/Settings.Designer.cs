@@ -358,5 +358,17 @@ namespace ACNginxConsole.Properties {
                 this["SizeMode"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool SurfaceDial {
+            get {
+                return ((bool)(this["SurfaceDial"]));
+            }
+            set {
+                this["SurfaceDial"] = value;
+            }
+        }
     }
 }

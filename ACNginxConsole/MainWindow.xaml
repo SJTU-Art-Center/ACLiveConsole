@@ -278,77 +278,34 @@
                         <Label x:Name="label10" Content="min" Height="25" Margin="0,138,1,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="37"/>
                     </Grid>
                 </TabItem>
-                <TabItem x:Name="tabItemTutourial" Header="教程" Width="70">
-                    <Grid Background="#FFE5E5E5">
-                        <RichTextBox x:Name="richTextBoxTu" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" IsReadOnly="True">
-                            <FlowDocument>
-                                <Paragraph>
-                                    <Run Text="Tutourial Error"/>
-                                </Paragraph>
-                            </FlowDocument>
-                        </RichTextBox>
-                    </Grid>
-
-                </TabItem>
-                <TabItem x:Name="TabItemSetting" Header="设置" Width="70">
-                    <Grid Background="#FFE5E5E5">
-
-                        <Grid x:Name="Rec1" Background="#FFF4F4F5" HorizontalAlignment="Right" Height="45" Margin="0,20,10.5,0" VerticalAlignment="Top" Width="332">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="60"/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <Image x:Name="WarPic" Source="StatusAnnotations_Warning_32xLG_color.png" Stretch="Fill" Width="32" Height="32" />
-                            <TextBlock x:Name="labell1" TextWrapping="Wrap" Text="       为保证测试准确性，请在测试开始后开启OBS推流。只有在有数据流时结果才是准确的。" Height="35" Grid.Column="1" Margin="5,7,5,3"/>
-                        </Grid>
-                        <Grid x:Name="Rec2" Background="#FFF4F4F5" HorizontalAlignment="Right" Height="45" Margin="0,70,10.5,0" VerticalAlignment="Top" Width="332">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="60"/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <Image x:Name="WarPic2" Source="StatusAnnotations_Warning_32xLG_color.png" Stretch="Fill" Width="32" Height="32" />
-                            <TextBlock x:Name="labell2" TextWrapping="Wrap" Text="       你需要重新连接弹幕，让弹幕接收设置生效。" Height="35" Grid.Column="1" Margin="5,0"/>
-                        </Grid>
-
-
-
-                        <Button x:Name="button6" Content="清除所有设置" HorizontalAlignment="Left" Margin="23,0,0,46" Width="170" Click="Button6_Click" Height="20" VerticalAlignment="Bottom"/>
-                        <Button x:Name="button7" Content="确认" HorizontalAlignment="Left" Margin="198,0,0,46" Width="42" Click="Button7_Click" Height="20" VerticalAlignment="Bottom"/>
-                        <StackPanel Margin="24,10,24,71" CanVerticallyScroll="True" ScrollViewer.CanContentScroll="True">
-                            <CheckBox x:Name="checkBoxtest" Content="测试时不使用ffmpeg" HorizontalAlignment="Left" VerticalAlignment="Top" Width="147" Checked="CheckBoxtest_Checked" Unchecked="CheckBoxtest_Unchecked" Margin="0,5,0,0"/>
-                            <CheckBox x:Name="checkBox2" Content="解决程序冲突时不再次启动推流" HorizontalAlignment="Left" VerticalAlignment="Top" Width="203" Checked="CheckBox2_Checked" Unchecked="CheckBox2_Unchecked" Margin="0,5,0,0"/>
-                            <CheckBox x:Name="checkBoxFullRange" Content="全局调试模式(较慢)" Checked="CheckBox_Checked" HorizontalAlignment="Left" Width="130" VerticalAlignment="Top" Unchecked="CheckBoxFullRange_Unchecked" Margin="0,5,0,0"/>
-                            <CheckBox x:Name="checkBoxCloseProtect" Content="关闭监视器保护模式" HorizontalAlignment="Left" Width="130" BorderThickness="1" Margin="0,5,0,0" Checked="CheckBoxCloseProtect_Checked" Unchecked="CheckBoxCloseProtect_Unchecked"/>
-                            <CheckBox x:Name="checkBoxCloseSniffing" Content="关闭播流地址自动获取" HorizontalAlignment="Left" Margin="0,5,0,0" Width="147" Checked="CheckBoxCloseSniffing_Checked" Unchecked="CheckBoxCloseSniffing_Unchecked"/>
-                            <CheckBox x:Name="checkBoxClosingAnim" Content="计时器关闭推流时播放Closing.mp4" HorizontalAlignment="Left" Height="16" Margin="0,5,0,0" Width="242"/>
-                            <CheckBox x:Name="checkBoxLowMoni" Content="使用低延迟监视器（弃用）" Margin="0,5,0.5,0" Checked="checkBoxLowMoni_Checked" Unchecked="checkBoxLowMoni_Unchecked" IsEnabled="False" Visibility="Collapsed"/>
-
-                            <CheckBox x:Name="checkBoxSystemTime" Margin="0,5,0.5,0" Content="显示系统时间" Checked="checkBoxSystemTime_Checked" Unchecked="checkBoxSystemTime_Unchecked"/>
-                            <CheckBox x:Name="checkBoxDanmuLink" Margin="0,5,0.5,0" Content="只接收第一个B站地址的弹幕" Checked="checkBoxDanmuLink_Checked" Unchecked="checkBoxDanmuLink_Unchecked"/>
-
+                <TabItem Header="公屏" Width="70">
+                    <Grid x:Name="tabScreen" Background="#FFE5E5E5">
+                        <StackPanel Margin="5">
                             <Border Background="White" CornerRadius="10" Margin="0,5,0,0">
-                                <StackPanel Margin="0,0,0,5">
-                                    <CheckBox x:Name="checkBoxNetwork" Content="打开网络延迟设置" Margin="0,5,0.5,0" Checked="checkBoxNetwork_Checked" Unchecked="checkBoxNetwork_Unchecked" />
-                                    <Grid>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition />
-                                            <RowDefinition />
-                                        </Grid.RowDefinitions>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="auto"/>
-                                            <ColumnDefinition Width="2*"/>
-                                            <ColumnDefinition Width="2*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Label Content="过渡秒数"/>
-                                        <Slider x:Name="SliderTransSec" Grid.Column="1" Minimum="0.2" Maximum="5" Value="1" AutoToolTipPlacement="TopLeft" ValueChanged="SliderTransSec_ValueChanged" VerticalAlignment="Center" AutoToolTipPrecision="1" />
-                                        <Label Grid.Row="1" Content="公屏大小"/>
-                                        <ComboBox x:Name="comboBoxSize" Grid.Row="1" Grid.Column="1">
-                                            <ComboBoxItem x:Name="SizeFullScreen" Content="全屏" Selected="SizeFullScreen_Selected" />
-                                            <ComboBoxItem x:Name="Size1080P" Content="1920x1080" Selected="Size1080P_Selected" />
-                                            <ComboBoxItem x:Name="Size720P" Content="1280x720" Selected="Size720P_Selected" />
-                                        </ComboBox>
-                                    </Grid>
-                                </StackPanel>
+                                <Grid Margin="10">
+                                    <StackPanel Margin="0,0,0,5">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition />
+                                                <RowDefinition />
+                                            </Grid.RowDefinitions>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="auto"/>
+                                                <ColumnDefinition Width="2*"/>
+                                                <ColumnDefinition Width="2*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Label Content="过渡秒数"/>
+                                            <Slider x:Name="SliderTransSec" Grid.Column="1" Minimum="0.2" Maximum="5" Value="1" AutoToolTipPlacement="TopLeft" ValueChanged="SliderTransSec_ValueChanged" VerticalAlignment="Center" AutoToolTipPrecision="1" />
+                                            <Label Grid.Row="1" Content="公屏大小"/>
+                                            <ComboBox x:Name="comboBoxSize" Grid.Row="1" Grid.Column="1">
+                                                <ComboBoxItem x:Name="SizeFullScreen" Content="全屏" Selected="SizeFullScreen_Selected" />
+                                                <ComboBoxItem x:Name="Size1080P" Content="1920x1080" Selected="Size1080P_Selected" />
+                                                <ComboBoxItem x:Name="Size720P" Content="1280x720" Selected="Size720P_Selected" />
+                                            </ComboBox>
+                                        </Grid>
+                                    </StackPanel>
+
+                                </Grid>
 
                             </Border>
                             <Border Background="White" CornerRadius="10" Margin="0,5,0,0">
@@ -480,13 +437,79 @@
                                 </StackPanel>
 
                             </Border>
-
-
+                            <Border Background="White" CornerRadius="10" Margin="0,5,0,0">
+                                <StackPanel Margin="10">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button x:Name="buttonSurfaceDial" Click="buttonSurfaceDial_Click" ToolTip="启用 Surface Dial 控制">
+                                            <Image Source="SurfaceDial.png" Height="20"/>
+                                        </Button>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
                         </StackPanel>
-                        <Button x:Name="buttonTest" Content="试验性界面" HorizontalAlignment="Left" Height="66" Margin="331,152,0,0" VerticalAlignment="Top" Width="85" Click="ButtonTest_Click" Visibility="Hidden"/>
                     </Grid>
                 </TabItem>
 
+                <TabItem x:Name="TabItemSetting" Header="设置" Width="70">
+                    <Grid Background="#FFE5E5E5" Height="665" VerticalAlignment="Bottom">
+                        <StackPanel Height="158" VerticalAlignment="Top" Margin="0,10,25,0" HorizontalAlignment="Right" Width="340">
+                            <Grid x:Name="Rec1" Background="#FFF4F4F5" HorizontalAlignment="Right" Height="45" VerticalAlignment="Top" Width="332" Margin="0,2.5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="60"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <Image x:Name="WarPic" Source="StatusAnnotations_Warning_32xLG_color.png" Stretch="Fill" Width="32" Height="32" />
+                                <TextBlock x:Name="labell1" TextWrapping="Wrap" Text="       为保证测试准确性，请在测试开始后开启 OBS 推流。只有在有数据流时结果才是准确的。" Height="35" Grid.Column="1" Margin="5,7,5,3"/>
+                            </Grid>
+                            <Grid x:Name="Rec2" Background="#FFF4F4F5" HorizontalAlignment="Right" Height="45"  VerticalAlignment="Top" Width="332" Margin="0,2.5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="60"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <Image x:Name="WarPic2" Source="StatusAnnotations_Warning_32xLG_color.png" Stretch="Fill" Width="32" Height="32" />
+                                <TextBlock x:Name="labell2" TextWrapping="Wrap" Text="       你需要重新连接弹幕，让弹幕接收设置生效。" Height="35" Grid.Column="1" Margin="5,0"/>
+                            </Grid>
+                            <Grid x:Name="Rec3" Background="#FFF4F4F5" HorizontalAlignment="Right" Height="45"  VerticalAlignment="Top" Width="332" Margin="0,2.5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="60"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <Image x:Name="WarPic3" Source="StatusAnnotations_Warning_32xLG_color.png" Stretch="Fill" Width="32" Height="32" />
+                                <TextBlock x:Name="labell3" TextWrapping="Wrap" Text="       启用 Surface Dial 功能需要操作系统为 Windows 10 版本。" Height="35" Grid.Column="1" Margin="5,0"/>
+                            </Grid>
+
+                        </StackPanel>
+
+                        <RichTextBox x:Name="richTextBoxTu" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" IsReadOnly="True" Margin="25,252,25,25">
+                            <FlowDocument>
+                                <Paragraph>
+                                    <Run Text="Tutourial Error"/>
+                                </Paragraph>
+                            </FlowDocument>
+                        </RichTextBox>
+
+                        <Button x:Name="button6" Content="清除所有设置" HorizontalAlignment="Left" Margin="25,0,0,425" Width="170" Click="Button6_Click" Height="20" VerticalAlignment="Bottom"/>
+                        <Button x:Name="button7" Content="确认" HorizontalAlignment="Left" Margin="200,0,0,425" Width="42" Click="Button7_Click" Height="20" VerticalAlignment="Bottom"/>
+                        <StackPanel Margin="24,10,24,447" CanVerticallyScroll="True" ScrollViewer.CanContentScroll="True">
+                            <CheckBox x:Name="checkBoxtest" Content="测试时不使用ffmpeg" HorizontalAlignment="Left" VerticalAlignment="Top" Width="147" Checked="CheckBoxtest_Checked" Unchecked="CheckBoxtest_Unchecked" Margin="0,5,0,0"/>
+                            <CheckBox x:Name="checkBox2" Content="解决程序冲突时不再次启动推流" HorizontalAlignment="Left" VerticalAlignment="Top" Width="203" Checked="CheckBox2_Checked" Unchecked="CheckBox2_Unchecked" Margin="0,5,0,0"/>
+                            <CheckBox x:Name="checkBoxFullRange" Content="全局调试模式(较慢)" Checked="CheckBox_Checked" HorizontalAlignment="Left" Width="130" VerticalAlignment="Top" Unchecked="CheckBoxFullRange_Unchecked" Margin="0,5,0,0"/>
+                            <CheckBox x:Name="checkBoxCloseProtect" Content="关闭监视器保护模式" HorizontalAlignment="Left" Width="130" BorderThickness="1" Margin="0,5,0,0" Checked="CheckBoxCloseProtect_Checked" Unchecked="CheckBoxCloseProtect_Unchecked"/>
+                            <CheckBox x:Name="checkBoxCloseSniffing" Content="关闭播流地址自动获取" HorizontalAlignment="Left" Margin="0,5,0,0" Width="147" Checked="CheckBoxCloseSniffing_Checked" Unchecked="CheckBoxCloseSniffing_Unchecked"/>
+                            <CheckBox x:Name="checkBoxClosingAnim" Content="计时器关闭推流时播放Closing.mp4" HorizontalAlignment="Left" Height="16" Margin="0,5,0,0" Width="242"/>
+                            <CheckBox x:Name="checkBoxLowMoni" Content="使用低延迟监视器（弃用）" Margin="0,5,0.5,0" Checked="checkBoxLowMoni_Checked" Unchecked="checkBoxLowMoni_Unchecked" IsEnabled="False" Visibility="Collapsed"/>
+
+                            <CheckBox x:Name="checkBoxSystemTime" Margin="0,5,0.5,0" Content="显示系统时间" Checked="checkBoxSystemTime_Checked" Unchecked="checkBoxSystemTime_Unchecked"/>
+                            <CheckBox x:Name="checkBoxNetwork" Content="打开网络延迟设置" Margin="0,5,0.5,0" Checked="checkBoxNetwork_Checked" Unchecked="checkBoxNetwork_Unchecked" />
+                            <CheckBox x:Name="checkBoxDanmuLink" Margin="0,5,0.5,0" Content="只接收第一个B站地址的弹幕" Checked="checkBoxDanmuLink_Checked" Unchecked="checkBoxDanmuLink_Unchecked"/>
+
+                            <CheckBox x:Name="checkBoxSurfaceDial" Margin="0,5,0.5,0" Content="启动时初始化 Surface Dial" Checked="checkBoxSurfaceDial_Checked" Unchecked="checkBoxSurfaceDial_Unchecked"/>
+                        </StackPanel>
+                        <Button x:Name="buttonTest" Content="试验性界面" HorizontalAlignment="Left" Height="66" Margin="331,152,0,0" VerticalAlignment="Top" Width="85" Click="ButtonTest_Click" Visibility="Hidden"/>
+
+                    </Grid>
+                </TabItem>
+                
             </TabControl>
             <GridSplitter x:Name="ColumnSplit" Grid.Column="1" Width="5" HorizontalAlignment="Stretch"/>
             <Grid Grid.Column="2" Background="{DynamicResource {x:Static SystemColors.InactiveBorderBrushKey}}">
@@ -695,21 +718,9 @@
                         <Button x:Name="buttonScreenSwitch" Grid.Column="0" Content="启动公屏" Width="70" Background="White" Foreground="#FF77D3F5" BorderBrush="#FF01BBE2" Click="buttonScreenSwitch_Click" />
                         <Button x:Name="buttonDanmakuSwitch" Grid.Column="1" Content="连接弹幕" Width="70" Background="White" Foreground="#FF77D3F5" BorderBrush="#FF01BBE2" Click="ButtonDanmakuSwitch_Click" />
                         <Button Grid.Column="2" x:Name="buttonAutoDanmaku" Content="自动弹幕" Background="#FF01BCE1" Foreground="White" BorderBrush="#FF01BCE1" Click="ButtonAutoDanmaku_Click" Width="70"/>
-                        <Button Grid.Column="4" x:Name="buttonTitler" Background="#FF01BCE1" BorderBrush="#FF01BCE1" ToolTip="打开字幕机" Click="buttonTitler_Click">
-                            <Image RenderTransformOrigin="0.5,0.5" Source="lines_Text_indent_16xLG.png">
-                                <Image.RenderTransform>
-                                    <TransformGroup>
-                                        <ScaleTransform ScaleX="0.7" ScaleY="0.7"/>
-                                        <SkewTransform/>
-                                        <RotateTransform/>
-                                        <TranslateTransform/>
-                                    </TransformGroup>
-                                </Image.RenderTransform>
 
-                            </Image>
-                        </Button>
-                        <Button x:Name="buttonDanmuSetting" Grid.Column="5" Background="#FF01BCE1" BorderBrush="#FF01BCE1" Click="ButtonDanmuSetting_Click" ToolTip="弹幕设置">
-                            <Image Source="gear_16xLG.png" RenderTransformOrigin="0.5,0.5" >
+                        <Button x:Name="buttonDanmuSetting" Grid.Column="5" Background="#FF01BCE1" BorderBrush="#FF01BCE1" Click="ButtonDanmuSetting_Click" ToolTip="字幕机与设置">
+                            <Image RenderTransformOrigin="0.5,0.5" Source="lines_Text_indent_16xLG.png">
                                 <Image.RenderTransform>
                                     <TransformGroup>
                                         <ScaleTransform ScaleX="0.7" ScaleY="0.7"/>
