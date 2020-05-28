@@ -370,5 +370,17 @@ namespace ACNginxConsole.Properties {
                 this["SurfaceDial"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.1")]
+        public double SubBasel {
+            get {
+                return ((double)(this["SubBasel"]));
+            }
+            set {
+                this["SubBasel"] = value;
+            }
+        }
     }
 }

@@ -89,5 +89,8 @@
     <Setting Name="SurfaceDial" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="SubBasel" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">0.1</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

@@ -443,5 +443,6 @@
         <Button x:Name="buttonSmartPA"  Grid.Row="6" Content="智慧型音控" Height="30" Background="#FFD8B51B" Foreground="Black" Click="buttonSmartPA_Click"/>
         <Button x:Name="buttonJcut"  Grid.Row="6" Grid.Column="1" Content="J CUT" Height="30" Background="#FFD8B51B" Foreground="Black" Click="buttonJcut_Click"/>
         <Button x:Name="buttonLcut"  Grid.Row="6" Grid.Column="2" Content="L CUT" Height="30" Background="{x:Null}" Foreground="#FFFFFFF1" Click="buttonLcut_Click"/>
+        <Button x:Name="buttonFade"  Grid.Row="6" Grid.Column="3" Content="FADE" Background="{x:Null}" Foreground="#FFFFFFF1" Click="buttonFade_Click" />
     </Grid>
 </Window>

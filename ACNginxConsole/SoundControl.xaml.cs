@@ -76,29 +76,35 @@ namespace ACNginxConsole
         void SmartStateChanged()
         {
             int state = Properties.Settings.Default.SmartPA;
-            if (state == 0)
+            buttonSmartPA.Background = TranBrush;
+            buttonSmartPA.Foreground = WhiteBrush;
+            buttonJcut.Background = TranBrush;
+            buttonJcut.Foreground = WhiteBrush;
+            buttonLcut.Background = TranBrush;
+            buttonLcut.Foreground = WhiteBrush;
+            buttonFade.Background = TranBrush;
+            buttonFade.Foreground = WhiteBrush;
+            if (state > 0)
             {
-                buttonSmartPA.Background = TranBrush;
-                buttonSmartPA.Foreground = WhiteBrush;
-                buttonJcut.Background = TranBrush;
-                buttonJcut.Foreground = WhiteBrush;
-                buttonLcut.Background = TranBrush;
-                buttonLcut.Foreground = WhiteBrush;
-            } else {
                 buttonSmartPA.Background = SmartBrush;
                 buttonSmartPA.Foreground = BlackBrush;
-                if (state == 1) {
+                if (state == 1)
+                {
                     buttonJcut.Background = SmartBrush;
                     buttonJcut.Foreground = BlackBrush;
-                    buttonLcut.Background = TranBrush;
-                    buttonLcut.Foreground = WhiteBrush;
-                } else if (state == 2) {
-                    buttonJcut.Background = TranBrush;
-                    buttonJcut.Foreground = WhiteBrush;
+                }
+                else if (state == 2)
+                {
                     buttonLcut.Background = SmartBrush;
                     buttonLcut.Foreground = BlackBrush;
                 }
-            }
+                else if (state == 3)
+                {
+                    buttonFade.Background = SmartBrush;
+                    buttonFade.Foreground = BlackBrush;
+                }
+            }  
+            
         }
 
         public class SoundController
@@ -421,15 +427,19 @@ namespace ACNginxConsole
 
         private void buttonJcut_Click(object sender, RoutedEventArgs e)
         {
-            if (Properties.Settings.Default.SmartPA == 2)
-                Properties.Settings.Default.SmartPA = 1;
+            Properties.Settings.Default.SmartPA = 1;
             SmartStateChanged();
         }
 
         private void buttonLcut_Click(object sender, RoutedEventArgs e)
         {
-            if (Properties.Settings.Default.SmartPA == 1)
-                Properties.Settings.Default.SmartPA = 2;
+            Properties.Settings.Default.SmartPA = 2;
+            SmartStateChanged();
+        }
+
+        private void buttonFade_Click(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.SmartPA = 3;
             SmartStateChanged();
         }
 
@@ -474,5 +484,7 @@ namespace ACNginxConsole
                 SliderAll.IsEnabled = false;
             }
         }
+
+        
     }
 }

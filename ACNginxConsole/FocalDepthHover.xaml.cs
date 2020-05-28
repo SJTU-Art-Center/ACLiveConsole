@@ -449,6 +449,10 @@ namespace ACNginxConsole
                 Canvas.SetBottom(corner_thumb, mybottom_c);
             }
 
+            
+           
+           
+
         }
 
         //只需要进行纵向移动

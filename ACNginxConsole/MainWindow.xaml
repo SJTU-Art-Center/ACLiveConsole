@@ -437,52 +437,62 @@
                                 </StackPanel>
 
                             </Border>
-                            <Border Background="White" CornerRadius="10" Margin="0,5,0,0">
-                                <StackPanel Margin="10">
-                                    <StackPanel Orientation="Horizontal">
-                                        
-                                        
-                                    </StackPanel>
-                                    <Grid Height="180">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="1*"/>
-                                            <ColumnDefinition Width="2*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <StackPanel Grid.Column="0">
-                                            <Button x:Name="buttonSurfaceDial" Click="buttonSurfaceDial_Click" ToolTip="启用 Surface Dial 控制">
-                                                <Image Source="SurfaceDial.png" Height="20"/>
+                            <Border Background="White" CornerRadius="10" Margin="0,5,0,0" Height="233" KeyDown="Border_KeyDown">
+                                <Grid x:Name="GridSubtitler" Margin="15" IsEnabled="False">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1*"/>
+                                        <ColumnDefinition Width="2*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <Button x:Name="buttonSurfaceDial" Click="buttonSurfaceDial_Click" ToolTip="启用 Surface Dial 控制">
+                                            <Image Source="SurfaceDial.png" Height="20"/>
+                                        </Button>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition/>
+                                            </Grid.ColumnDefinitions>
+                                            <Button x:Name="buttonPrev" Click="buttonPrev_Click" ToolTip="上一条([,⤴)" >
+                                                <Image Source="arrow_Previous_16xLG_color.png" Width="20" ></Image>
                                             </Button>
-                                            <Button ToolTip="打开字幕机">
-                                                <Image RenderTransformOrigin="0.5,0.5" Source="lines_Text_indent_16xLG.png" Height="20" Width="20">
-                                                    
-                                                </Image>
+                                            <Button x:Name="buttonNext" Grid.Column="1" Click="buttonNext_Click" ToolTip="下一条(],⤵)">
+                                                <Image Source="arrow_Next_16xLG_color.png" Width="20" />
                                             </Button>
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition/>
-                                                    <ColumnDefinition/>
-                                                </Grid.ColumnDefinitions>
-                                                <Button x:Name="buttonPrev" Click="buttonPrev_Click" >
-                                                    <Image Source="arrow_Previous_16xLG_color.png" Width="20" ></Image>
-                                                </Button>
-                                                <Button x:Name="buttonNext" Grid.Column="1" Click="buttonNext_Click">
-                                                    <Image Source="arrow_Next_16xLG_color.png" Width="20" />
-                                                </Button>
-                                            </Grid>
-                                        </StackPanel>
-                                        <Grid Grid.Column="1">
-                                            
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition x:Name="RowPrevSub"/>
-                                                <RowDefinition x:Name="RowCurrentSub" Height="30"/>
-                                                <RowDefinition x:Name="RowNextSub"/>
-                                            </Grid.RowDefinitions>
-                                            <TextBox x:Name="textboxPrevSub" Grid.Row="0" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
-                                            <TextBox x:Name="textboxCurrentSub" Grid.Row="1" FontSize="22" VerticalContentAlignment="Center"/>
-                                            <TextBox x:Name="textboxNextSub" Grid.Row="2" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
+                                            <Button x:Name="buttonClearHistory" Grid.Column="2" Click="buttonClearHistory_Click" ToolTip="清空历史(\,🔘)">
+                                                <Image Source="Clearwindowcontent_6304.png" Width="15"/>
+                                            </Button>
                                         </Grid>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="1*"/>
+                                                <ColumnDefinition Width="2*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition/>
+                                                <RowDefinition/>
+                                                <RowDefinition/>
+                                            </Grid.RowDefinitions>
+                                            <Button x:Name="buttonSubtitler" ToolTip="打开字幕机/关闭字幕机" Click="buttonSubtitler_Click" Background="#FF6DC2F9">
+                                                <Image RenderTransformOrigin="0.5,0.5" Source="lines_Text_code_16xLG.png" Height="20" Width="20"/>
+                                            </Button>
+                                            <Slider Grid.Column="1" x:Name="SliderSubTran" VerticalContentAlignment="Center" VerticalAlignment="Center" Maximum="1" ToolTip="字幕机不透明度" AutoToolTipPrecision="1" AutoToolTipPlacement="TopLeft" ValueChanged="SliderSubTran_ValueChanged"/>
+                                            <Label Grid.Row="1" Content="边距比例"/>
+                                            <Slider x:Name="SliderSubBazelDist" Grid.Row="1" Grid.Column="1" VerticalContentAlignment="Center" VerticalAlignment="Center" Maximum="1" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="3" Value="0.1" IsSelectionRangeEnabled="True" SelectionEnd="0.25" ValueChanged="SliderSubBazelDist_ValueChanged"/>
+                                        </Grid>
+                                    </StackPanel>
+                                    <Grid Grid.Column="1">
+
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition x:Name="RowPrevSub" Height="0"/>
+                                            <RowDefinition x:Name="RowCurrentSub" Height="30"/>
+                                            <RowDefinition x:Name="RowNextSub"/>
+                                        </Grid.RowDefinitions>
+                                        <TextBox x:Name="textboxPrevSub" Grid.Row="0" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" BorderBrush="{x:Null}" Background="#FFEAEAEA"/>
+                                        <TextBox x:Name="textboxCurrentSub" Grid.Row="1" FontSize="22" VerticalContentAlignment="Center" BorderBrush="{x:Null}" Background="WhiteSmoke" TextChanged="textboxCurrentSub_TextChanged"/>
+                                        <TextBox x:Name="textboxNextSub" Grid.Row="2" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" BorderBrush="{x:Null}" Background="#FFFAFAFA"/>
                                     </Grid>
-                                </StackPanel>
+                                </Grid>
                             </Border>
                         </StackPanel>
                     </Grid>

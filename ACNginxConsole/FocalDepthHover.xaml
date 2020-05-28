@@ -60,8 +60,12 @@
                 <RectangleGeometry x:Name="BackClipRect"/>
             </Image.Clip>
         </Image>
-        <Canvas x:Name="GridCanvas" />
-        <Canvas x:Name="ThumbCanvas"/>
+        <Canvas x:Name="GridCanvas">
+            <Label x:Name="labelSubtitler" Content="" Height="45" Canvas.Left="45" Canvas.Top="365" Width="450" Opacity="0" Foreground="White"/>
+        </Canvas>
+        <Canvas x:Name="ThumbCanvas">
+            
+        </Canvas>
     </Grid>
 
 </Window>

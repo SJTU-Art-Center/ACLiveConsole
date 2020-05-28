@@ -284,7 +284,7 @@ namespace ACNginxConsole
         private void RadialController_RotationChanged(RadialController sender,
           RadialControllerRotationChangedEventArgs args)
         {
-            System.Diagnostics.Debug.WriteLine("Rotated");
+            //System.Diagnostics.Debug.WriteLine("Rotated");
             if (args.RotationDeltaInDegrees < 0) PrevSub();
             else NextSub();
             InvalidateVisual();
@@ -299,6 +299,7 @@ namespace ACNginxConsole
           RadialControllerButtonClickedEventArgs args)
         {
             System.Diagnostics.Debug.WriteLine("Clicked");
+            ClearHistorySub();
             InvalidateVisual();
         }
 
@@ -915,7 +916,9 @@ namespace ACNginxConsole
                 if (Properties.Settings.Default.SurfaceDial)
                     InitializeController();
             }
-            
+
+            SliderSubBazelDist.Value = Properties.Settings.Default.SubBasel;
+
         }
 
         #region 主页
@@ -1219,7 +1222,7 @@ namespace ACNginxConsole
                             ":dshow-adev="+ AudStr,
                             ":live-caching = 100",//本地缓存毫秒数 
                             ":dshow-aspect-ratio=16:9",
-                            ":dshow-tuner-country=0",//不设置这个，录像没有声音，原因不明
+                            //":dshow-tuner-country=0",//不设置这个，录像没有声音，原因不明
                         };
                         }
                     }
@@ -3926,6 +3929,12 @@ namespace ACNginxConsole
 
                 screenSwitch = true;
             }
+            //手动更新字幕机
+            focaldephov.labelSubtitler.FontSize = SliderTextSize.Value;
+            focaldephov.labelSubtitler.Width = focaldephov.Width * 2 / 3;
+            focaldephov.labelSubtitler.Height = SliderTextSize.Value / 0.65;
+            Canvas.SetLeft(focaldephov.labelSubtitler, SliderSubBazelDist.Value * focaldephov.Width);
+            Canvas.SetTop(focaldephov.labelSubtitler, focaldephov.Height - SliderSubBazelDist.Value * focaldephov.Width);
         }
 
         private void buttonScreenSwitch_Click(object sender, RoutedEventArgs e)
@@ -4295,6 +4304,10 @@ namespace ACNginxConsole
             DanmuSetting.IsEnabled = true;
 
             FadeOutAnim(buttonWinTrans, OpacSlider);
+
+            FadeOutAnim(buttonSubtitler, SliderSubTran);
+
+            GridSubtitler.IsEnabled = true;
         }
 
         private void Close_DanmakuWindow()
@@ -4310,6 +4323,8 @@ namespace ACNginxConsole
 
             FadeOutAnim(buttonWinTrans, OpacSlider);
             this.Topmost = false;
+            FadeOutAnim(buttonSubtitler, SliderSubTran);
+            GridSubtitler.IsEnabled = false;
         }
 
         public static event ReceivedDanmuEvt ReceivedDanmu;
@@ -4698,18 +4713,48 @@ namespace ACNginxConsole
             FullFadeOut_sb.Children.Add(FullFadeOut);
             if (sends == OpacSlider)
                 FullFadeOut_sb.Completed += OpacFadeOut_Storyboard_Remove;
-            else
+            else if(sends == OpacSliderFore)
                 FullFadeOut_sb.Completed += DanmuFadeOut_Storyboard_Remove;
+            else
+                FullFadeOut_sb.Completed += SubtitlerFadeOut_sb_Completed;
 
             FullFadeOut_sb.Begin(sends, HandoffBehavior.SnapshotAndReplace, true);
 
             sendb.IsEnabled = false;
         }
 
+        private void SubtitlerFadeOut_sb_Completed(object sender, EventArgs e)
+        {
+            Fade_Storyboard_Remove_slider(buttonSubtitler, SliderSubTran);
+        }
+
         private void Fade_Storyboard_Remove(object senderbutton, object senderslider)
         {
             var sendb = senderbutton as Button;
             var sends = senderslider as ColorPicker.ColorSlider;
+
+            var opacs_temp = sends.Value;
+            FullFadeOut_sb.Remove(sends);
+            sends.Value = opacs_temp;
+            sendb.IsEnabled = true;
+
+            //动画结束后对按钮态转换
+            if (opacs_temp == sends.Minimum)
+            {
+                sendb.Background = bluefore;
+                sendb.Foreground = blueback;
+            }
+            else
+            {
+                sendb.Background = blueback;
+                sendb.Foreground = bluefore;
+            }
+        }
+
+        private void Fade_Storyboard_Remove_slider(object senderbutton, object senderslider)
+        {
+            var sendb = senderbutton as Button;
+            var sends = senderslider as Slider;
 
             var opacs_temp = sends.Value;
             FullFadeOut_sb.Remove(sends);
@@ -4854,7 +4899,13 @@ namespace ACNginxConsole
             FocalDepthHover.FocalPt_inSize = SliderTextSize.Value;
             FocalDepthHover.SettingModified = true;
             Properties.Settings.Default.MaxFontSize = SliderTextSize.Value;
-            
+            if (focaldephov != null && focaldephov.IsLoaded)
+            {
+                focaldephov.labelSubtitler.FontSize = SliderTextSize.Value;
+                focaldephov.labelSubtitler.Width = focaldephov.Width * 2 / 3;
+                focaldephov.labelSubtitler.Height = SliderTextSize.Value / 0.65;
+            }
+
         }
 
         private void SliderLayer_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -4885,7 +4936,7 @@ namespace ACNginxConsole
             FocalDepthHover.INIT_TOP = SliderRatio.Value;
             FocalDepthHover.SettingModified = true;
             Properties.Settings.Default.InitTop = SliderRatio.Value;
-            
+
 
         }
 
@@ -5095,6 +5146,9 @@ namespace ACNginxConsole
                         ProgressTran.Value += 0.02;
                     }
                     break;
+                case Key.OemCloseBrackets: NextSub(); break;
+                case Key.OemOpenBrackets: PrevSub(); break;
+                case Key.OemBackslash: ClearHistorySub(); break;
             }
         }
 
@@ -5259,10 +5313,16 @@ namespace ACNginxConsole
             Properties.Settings.Default.SurfaceDial = true;
         }
 
+        //仍然有bug 换行问题
+
         private void NextSub()
         {
-            if (textboxCurrentSub.Text.Length != 0 || textboxNextSub.Text.Length != 0)
+            string nextstr = textboxNextSub.Text;
+            if (!((textboxCurrentSub.Text.Length == 0 || textboxCurrentSub.Text==Environment.NewLine) &&
+                    (nextstr.Length == 0 || nextstr.Replace(Environment.NewLine,"").Length==0)))
             {
+                RowPrevSub.Height = new GridLength(0.5, GridUnitType.Star);
+                RowNextSub.Height = new GridLength(1, GridUnitType.Star);
                 textboxPrevSub.AppendText(textboxCurrentSub.Text);
                 textboxCurrentSub.Text = textboxNextSub.GetLineText(0);
                 if (textboxNextSub.Text.IndexOf(Environment.NewLine) == -1)
@@ -5272,21 +5332,38 @@ namespace ACNginxConsole
                         textboxNextSub.Text.Remove(0,
                         textboxNextSub.Text.IndexOf(Environment.NewLine) + Environment.NewLine.Length);
                 textboxPrevSub.ScrollToEnd();
+                textboxNextSub.ScrollToHome();
             }
         }
 
         private void PrevSub()
         {
-            if (textboxCurrentSub.Text.Length != 0 || textboxPrevSub.Text.Length != 0)
+            string prevstr = textboxPrevSub.Text;
+            if (!((textboxCurrentSub.Text.Length == 0 || textboxCurrentSub.Text == Environment.NewLine) &&
+                    (prevstr.Length == 0 || prevstr.Replace(Environment.NewLine,"").Length==0)))
             {
-                textboxNextSub.Text = textboxCurrentSub.Text + Environment.NewLine.ToString() + textboxNextSub.Text;
+                RowPrevSub.Height = new GridLength(0.5, GridUnitType.Star);
+                RowNextSub.Height = new GridLength(1, GridUnitType.Star);
+                textboxNextSub.Text = textboxCurrentSub.Text + (textboxCurrentSub.Text.IndexOf(Environment.NewLine)==-1?Environment.NewLine.ToString():"") + textboxNextSub.Text;
                 textboxCurrentSub.Text = textboxPrevSub.GetLineText(textboxPrevSub.GetLastVisibleLineIndex());
                 if (textboxPrevSub.Text.IndexOf(Environment.NewLine) == -1)
                     textboxPrevSub.Clear();
                 else
                     textboxPrevSub.Text = textboxPrevSub.Text.Remove(textboxPrevSub.Text.LastIndexOf(Environment.NewLine));
                 textboxPrevSub.ScrollToEnd();
+                textboxNextSub.ScrollToHome();
             }
+            else
+            {
+                RowPrevSub.Height = new GridLength(0,GridUnitType.Pixel);
+            }
+        }
+
+        private void ClearHistorySub()
+        {
+            textboxPrevSub.Clear();
+            textboxCurrentSub.Clear();
+            RowPrevSub.Height = new GridLength(0, GridUnitType.Pixel);
         }
 
         private void buttonNext_Click(object sender, RoutedEventArgs e)
@@ -5297,6 +5374,49 @@ namespace ACNginxConsole
         private void buttonPrev_Click(object sender, RoutedEventArgs e)
         {
             PrevSub();
+        }
+
+        private void buttonClearHistory_Click(object sender, RoutedEventArgs e)
+        {
+            ClearHistorySub();
+        }
+
+        private void Border_KeyDown(object sender, KeyEventArgs e)
+        {
+            switch (e.Key)
+            {
+                case Key.OemCloseBrackets: NextSub(); break;
+                case Key.OemOpenBrackets: PrevSub(); break;
+                case Key.OemBackslash: ClearHistorySub(); break;
+            }
+        }
+
+        private void buttonSubtitler_Click(object sender, RoutedEventArgs e)
+        {
+            FadeOutAnim(buttonSubtitler, SliderSubTran);
+        }
+
+        private void textboxCurrentSub_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (focaldephov != null && focaldephov.IsLoaded)
+                focaldephov.labelSubtitler.Content = textboxCurrentSub.Text;
+        }
+
+        private void SliderSubTran_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (focaldephov != null && focaldephov.IsLoaded)
+                focaldephov.labelSubtitler.Opacity = SliderSubTran.Value;
+        }
+
+        private void SliderSubBazelDist_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (focaldephov != null && focaldephov.IsLoaded)
+            {
+                Canvas.SetLeft(focaldephov.labelSubtitler, SliderSubBazelDist.Value * focaldephov.Width);
+                Canvas.SetTop(focaldephov.labelSubtitler, focaldephov.Height - SliderSubBazelDist.Value * focaldephov.Width);
+            }
+            if(this.IsLoaded)
+                Properties.Settings.Default.SubBasel = SliderSubBazelDist.Value;
         }
 
         private void checkBoxSurfaceDial_Unchecked(object sender, RoutedEventArgs e)
