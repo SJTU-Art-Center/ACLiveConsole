@@ -285,7 +285,8 @@ namespace ACNginxConsole
           RadialControllerRotationChangedEventArgs args)
         {
             System.Diagnostics.Debug.WriteLine("Rotated");
-            //args.RotationDeltaInDegrees
+            if (args.RotationDeltaInDegrees < 0) PrevSub();
+            else NextSub();
             InvalidateVisual();
         }
 
@@ -2773,6 +2774,25 @@ namespace ACNginxConsole
                 ProgressTran.Visibility = Visibility.Visible;
                 ProgressTran.Value = 0;
             }
+
+            //对Fade模式记录原音量
+            if (sc != null && sc.IsLoaded)
+            {
+                switch (selectedItem)
+                {
+                    case 1: fade_selc_ori = sc.Slider1.Value; break;
+                    case 2: fade_selc_ori = sc.Slider2.Value; break;
+                    case 3: fade_selc_ori = sc.Slider3.Value; break;
+                }
+
+                switch (tranto)
+                {
+                    case 1: fade_to_ori = sc.Slider1.Value; break;
+                    case 2: fade_to_ori = sc.Slider2.Value; break;
+                    case 3: fade_to_ori = sc.Slider3.Value; break;
+                }
+                
+            }
             
         }
 
@@ -2854,6 +2874,8 @@ namespace ACNginxConsole
             }
         }
 
+        double fade_selc_ori, fade_to_ori;
+
         private void ProgressTran_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             if (ProgressTran.Visibility == Visibility.Visible)
@@ -2865,6 +2887,25 @@ namespace ACNginxConsole
                 else
                     focaldephov.BackImg.Opacity = (ProgressTran.Value > 0.5) ? 2 * (1 - ProgressTran.Value) : 1;
                 TranEffectStyle();
+
+                if (sc != null && sc.IsLoaded && Properties.Settings.Default.SmartPA == 3 && tranto != selectedItem)
+                {
+                    //音频交叉淡化
+                    switch (tranto)
+                    {
+                        case 1: sc.Slider1.Value = fade_to_ori * (1 - ProgressTran.Value); if (sc.Slider1.Value == 0) { sc.Slider1.Value = fade_to_ori; } break;
+                        case 2: sc.Slider2.Value = fade_to_ori * (1 - ProgressTran.Value); if (sc.Slider2.Value == 0) { sc.Slider2.Value = fade_to_ori; } break;
+                        case 3: sc.Slider3.Value = fade_to_ori * (1 - ProgressTran.Value); if (sc.Slider3.Value == 0) { sc.Slider3.Value = fade_to_ori; } break;
+                    }
+                    switch (selectedItem)
+                    {
+                        case 1: sc.Slider1.Value = fade_selc_ori * ProgressTran.Value; if (sc.Slider1.Value == 0) { sc.Slider1.Value = fade_selc_ori; } break;
+                        case 2: sc.Slider2.Value = fade_selc_ori * ProgressTran.Value; if (sc.Slider2.Value == 0) { sc.Slider2.Value = fade_selc_ori; } break;
+                        case 3: sc.Slider3.Value = fade_selc_ori * ProgressTran.Value; if (sc.Slider3.Value == 0) { sc.Slider3.Value = fade_selc_ori; } break;
+                    }
+                }
+                
+                MSC.Invoke(this, new MainSelecChangedArgs() { });
 
                 if (ProgressTran.Value == 0)
                 {
@@ -5216,6 +5257,46 @@ namespace ACNginxConsole
         private void checkBoxSurfaceDial_Checked(object sender, RoutedEventArgs e)
         {
             Properties.Settings.Default.SurfaceDial = true;
+        }
+
+        private void NextSub()
+        {
+            if (textboxCurrentSub.Text.Length != 0 || textboxNextSub.Text.Length != 0)
+            {
+                textboxPrevSub.AppendText(textboxCurrentSub.Text);
+                textboxCurrentSub.Text = textboxNextSub.GetLineText(0);
+                if (textboxNextSub.Text.IndexOf(Environment.NewLine) == -1)
+                    textboxNextSub.Clear();
+                else
+                    textboxNextSub.Text =
+                        textboxNextSub.Text.Remove(0,
+                        textboxNextSub.Text.IndexOf(Environment.NewLine) + Environment.NewLine.Length);
+                textboxPrevSub.ScrollToEnd();
+            }
+        }
+
+        private void PrevSub()
+        {
+            if (textboxCurrentSub.Text.Length != 0 || textboxPrevSub.Text.Length != 0)
+            {
+                textboxNextSub.Text = textboxCurrentSub.Text + Environment.NewLine.ToString() + textboxNextSub.Text;
+                textboxCurrentSub.Text = textboxPrevSub.GetLineText(textboxPrevSub.GetLastVisibleLineIndex());
+                if (textboxPrevSub.Text.IndexOf(Environment.NewLine) == -1)
+                    textboxPrevSub.Clear();
+                else
+                    textboxPrevSub.Text = textboxPrevSub.Text.Remove(textboxPrevSub.Text.LastIndexOf(Environment.NewLine));
+                textboxPrevSub.ScrollToEnd();
+            }
+        }
+
+        private void buttonNext_Click(object sender, RoutedEventArgs e)
+        {
+            NextSub();
+        }
+
+        private void buttonPrev_Click(object sender, RoutedEventArgs e)
+        {
+            PrevSub();
         }
 
         private void checkBoxSurfaceDial_Unchecked(object sender, RoutedEventArgs e)

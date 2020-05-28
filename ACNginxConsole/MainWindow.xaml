@@ -440,10 +440,48 @@
                             <Border Background="White" CornerRadius="10" Margin="0,5,0,0">
                                 <StackPanel Margin="10">
                                     <StackPanel Orientation="Horizontal">
-                                        <Button x:Name="buttonSurfaceDial" Click="buttonSurfaceDial_Click" ToolTip="启用 Surface Dial 控制">
-                                            <Image Source="SurfaceDial.png" Height="20"/>
-                                        </Button>
+                                        
+                                        
                                     </StackPanel>
+                                    <Grid Height="180">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="1*"/>
+                                            <ColumnDefinition Width="2*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <Button x:Name="buttonSurfaceDial" Click="buttonSurfaceDial_Click" ToolTip="启用 Surface Dial 控制">
+                                                <Image Source="SurfaceDial.png" Height="20"/>
+                                            </Button>
+                                            <Button ToolTip="打开字幕机">
+                                                <Image RenderTransformOrigin="0.5,0.5" Source="lines_Text_indent_16xLG.png" Height="20" Width="20">
+                                                    
+                                                </Image>
+                                            </Button>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition/>
+                                                    <ColumnDefinition/>
+                                                </Grid.ColumnDefinitions>
+                                                <Button x:Name="buttonPrev" Click="buttonPrev_Click" >
+                                                    <Image Source="arrow_Previous_16xLG_color.png" Width="20" ></Image>
+                                                </Button>
+                                                <Button x:Name="buttonNext" Grid.Column="1" Click="buttonNext_Click">
+                                                    <Image Source="arrow_Next_16xLG_color.png" Width="20" />
+                                                </Button>
+                                            </Grid>
+                                        </StackPanel>
+                                        <Grid Grid.Column="1">
+                                            
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition x:Name="RowPrevSub"/>
+                                                <RowDefinition x:Name="RowCurrentSub" Height="30"/>
+                                                <RowDefinition x:Name="RowNextSub"/>
+                                            </Grid.RowDefinitions>
+                                            <TextBox x:Name="textboxPrevSub" Grid.Row="0" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
+                                            <TextBox x:Name="textboxCurrentSub" Grid.Row="1" FontSize="22" VerticalContentAlignment="Center"/>
+                                            <TextBox x:Name="textboxNextSub" Grid.Row="2" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
+                                        </Grid>
+                                    </Grid>
                                 </StackPanel>
                             </Border>
                         </StackPanel>
