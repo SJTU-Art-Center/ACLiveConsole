@@ -919,6 +919,10 @@ namespace ACNginxConsole
 
             SliderSubBazelDist.Value = Properties.Settings.Default.SubBasel;
 
+            GridSubtitler.IsEnabled = false;
+
+            checkBoxSubtitleAlways.IsChecked = Properties.Settings.Default.SubAlways;
+
         }
 
         #region 主页
@@ -1223,6 +1227,7 @@ namespace ACNginxConsole
                             ":live-caching = 100",//本地缓存毫秒数 
                             ":dshow-aspect-ratio=16:9",
                             //":dshow-tuner-country=0",//不设置这个，录像没有声音，原因不明
+
                         };
                         }
                     }
@@ -2191,6 +2196,10 @@ namespace ACNginxConsole
         {
             textBoxLiveTime.Text = System.DateTime.Now.ToString("HH:mm:ss")
                 + " " + System.DateTime.Now.Millisecond.ToString("000");
+            if (screenSwitch)
+            {
+                CreateBitmapFromVisual();
+            }
         }
 
         /// <summary>
@@ -2560,18 +2569,18 @@ namespace ACNginxConsole
         private void checkBoxSystemTime_Checked(object sender, RoutedEventArgs e)
         {
             Properties.Settings.Default.SysTime = true;
+            Rec4.Visibility = Visibility.Visible;
         }
 
         private void checkBoxSystemTime_Unchecked(object sender, RoutedEventArgs e)
         {
             Properties.Settings.Default.SysTime = false;
+            Rec4.Visibility = Visibility.Collapsed;
         }
 
         #endregion
 
         #region 监视器
-
-        // TODO: 将窗口的图像使用 WriteableBitmap 覆盖到监视器上。
 
         double RightCol_Now;
 
@@ -3897,7 +3906,8 @@ namespace ACNginxConsole
 
             }
 
-            CreateBitmapFromVisual();
+            if (!Properties.Settings.Default.SysTime || tabControl.SelectedIndex != 3) 
+                CreateBitmapFromVisual();
 
         }
 
@@ -4040,7 +4050,8 @@ namespace ACNginxConsole
                         buttonDanmakuSwitch.Background = myblue;
                         buttonDanmakuSwitch.Content = "关闭连接";
 
-                        ScreenSwitch();
+                        if(!screenSwitch)       //关闭时打开
+                            ScreenSwitch();
 
                         DanmakuSwitch = true;
 
@@ -4323,8 +4334,12 @@ namespace ACNginxConsole
 
             FadeOutAnim(buttonWinTrans, OpacSlider);
             this.Topmost = false;
-            FadeOutAnim(buttonSubtitler, SliderSubTran);
-            GridSubtitler.IsEnabled = false;
+
+            if (!Properties.Settings.Default.SubAlways)
+            {
+                FadeOutAnim(buttonSubtitler, SliderSubTran);
+                GridSubtitler.IsEnabled = false;
+            }
         }
 
         public static event ReceivedDanmuEvt ReceivedDanmu;
@@ -4965,7 +4980,8 @@ namespace ACNginxConsole
                 new FontFamily(FontStr);
             FocalDepthHover.SettingModified = true;
             Properties.Settings.Default.ForeFont = FontStr;
-            
+            if (focaldephov != null && focaldephov.IsLoaded)
+                focaldephov.labelSubtitler.FontFamily = new FontFamily(FontStr);
         }
 
         private void ColorComboBoxBubble_SelectedColorChanged(object sender, RoutedPropertyChangedEventArgs<Color> e)
@@ -5417,6 +5433,18 @@ namespace ACNginxConsole
             }
             if(this.IsLoaded)
                 Properties.Settings.Default.SubBasel = SliderSubBazelDist.Value;
+        }
+
+        private void checkBoxSubtitleAlways_Checked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.SubAlways = true;
+            FadeOutAnim(buttonSubtitler, SliderSubTran);
+            GridSubtitler.IsEnabled = true;
+        }
+
+        private void checkBoxSubtitleAlways_Unchecked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.SubAlways = false;
         }
 
         private void checkBoxSurfaceDial_Unchecked(object sender, RoutedEventArgs e)
