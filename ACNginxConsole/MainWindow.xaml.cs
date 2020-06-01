@@ -891,6 +891,7 @@ namespace ACNginxConsole
             SliderTransSec.Value = Properties.Settings.Default.TranSec;
 
             checkBoxNetwork.IsChecked = Properties.Settings.Default.OpenNetworkCaching;
+            Rec4.Visibility = Visibility.Collapsed;
             checkBoxSystemTime.IsChecked = Properties.Settings.Default.SysTime;
 
             SoundControl.VCE += SoundControl_VCE;
@@ -5992,6 +5993,7 @@ namespace ACNginxConsole
             {
                 sc = new SoundControl();
                 sc.Show();
+                sc.Topmost = true;
             }
         }
 

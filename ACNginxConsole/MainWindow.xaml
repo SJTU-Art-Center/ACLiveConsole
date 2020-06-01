@@ -705,7 +705,7 @@
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="1*"/>
                                     <ColumnDefinition Width="auto"/>
-                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="1*"/>
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0">
                                     <Button x:Name="buttonSurfaceDial" Click="buttonSurfaceDial_Click" ToolTip="启用 Surface Dial 控制">
