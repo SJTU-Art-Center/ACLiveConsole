@@ -296,6 +296,7 @@ namespace ACNginxConsole
             else if (radialController.Menu.GetSelectedMenuItem() == rcplayer)
             {
                 if (args.RotationDeltaInDegrees > 0) ForeNextFile();
+                else ForeNextFile(false);
             }
                 
             InvalidateVisual();
@@ -5197,6 +5198,9 @@ namespace ACNginxConsole
                 case Key.OemCloseBrackets: NextSub(); break;
                 case Key.OemOpenBrackets: PrevSub(); break;
                 case Key.OemBackslash: ClearHistorySub(); break;
+                case Key.I: ForePlay(); break;
+                case Key.O: ForeStop(); break;
+                case Key.P: ForeNextFile(); break;
             }
         }
 
@@ -5436,6 +5440,9 @@ namespace ACNginxConsole
                 case Key.OemCloseBrackets: NextSub(); break;
                 case Key.OemOpenBrackets: PrevSub(); break;
                 case Key.OemBackslash: ClearHistorySub(); break;
+                case Key.I: ForePlay(); break;
+                case Key.O: ForeStop(); break;
+                case Key.P: ForeNextFile(); break;
             }
         }
 
@@ -5491,7 +5498,31 @@ namespace ACNginxConsole
                 return;
             }
             m_Dir = m_Dialog.SelectedPath.Trim();
+            
+            foreach (string appe in supportedFormat)
+            {
+                string[] files = System.IO.Directory.GetFiles(m_Dir, appe, SearchOption.AllDirectories);
+                foreach (string s in files)
+                {
+                    System.IO.FileInfo fi = null;
+                    try
+                    {
+                        fi = new System.IO.FileInfo(s);
+                    }
+                    catch (System.IO.FileNotFoundException ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                        continue;
+                    }
+                    //this.show.Text += fi.Name;
+                    fis.Add(fi);
+                }
+            }
+            fis.OrderBy(u => u.Name);
+            currentIndex = -1;
+
             FileSearchBox.IsEnabled = true;
+            buttonNextFile.IsEnabled = true;
         }
 
         private FileInfo FindFile(string[] appendix)
@@ -5523,7 +5554,11 @@ namespace ACNginxConsole
                     }
                 }
                 if (output != null)
+                {
+                    currentIndex = -1;
+                    UpdateCurrentInd();
                     break;
+                }
             }
             return output;
             
@@ -5567,7 +5602,7 @@ namespace ACNginxConsole
             timerque.Clear();
             textboxPrevSub.Clear();
             textboxNextSub.Clear();
-            if (System.IO.File.Exists(fi.FullName))
+            if (fi!=null&&System.IO.File.Exists(fi.FullName))
             {
                 try
                 {
@@ -5697,12 +5732,13 @@ namespace ACNginxConsole
         }
 
         FileInfo loadfi = null, loadlrc = null;
+        string[] supportedFormat = new string[] { "*.mp3", "*.wav", "*.wma", "*.mp4", "*.mov" };
 
         private void FileSearchBox_TextChanged(object sender, TextChangedEventArgs e)
         {
 
             //寻找前缀文件
-            loadfi = FindFile(new string[] { "*.mp3", "*.wav", "*.wma", "*.mp4", "*.mov" });
+            loadfi = FindFile(supportedFormat);
             if (loadfi != null)
             {
                 TextBlockStatus.Text = "载入：" + loadfi.Name;
@@ -5782,7 +5818,9 @@ namespace ACNginxConsole
                 sourceProvider_fore.MediaPlayer.Stop();
                 buttonPlay.IsEnabled = true;
                 buttonStop.IsEnabled = false;
-                TextBlockStatus.Text = "停止：" + loadfi.Name;
+                if (loadfi != null)
+                    TextBlockStatus.Text = "停止：" + loadfi.Name;
+                else TextBlockStatus.Text = "停止";
                 currentTime = 0;
                 timerque.Clear();
                 IsSubStopped = true;
@@ -5805,13 +5843,18 @@ namespace ACNginxConsole
                     if (ForePic.IsSelected || ForeVid.IsSelected)
                         ForeNone.IsSelected = true;
 
+                    if (sourceProvider_fore != null && sourceProvider_fore.MediaPlayer.IsPlaying().Equals(true))
+                    {
+                        sourceProvider_fore.MediaPlayer.Stop();
+                    }
+
                     string PlayStream = loadfi.FullName;
                     this.sourceProvider_fore = new VlcVideoSourceProvider(this.Dispatcher);
                     this.sourceProvider_fore.CreatePlayer(libDirectory, "--file-logging", "-vvv", "--logfile=Logs.log");
                     var mediaOptions = new[]
                     {""};
 
-                    this.sourceProvider_fore.MediaPlayer.EndReached += MediaPlayer_EndReached_1; ;
+                    //this.sourceProvider_fore.MediaPlayer.EndReached += MediaPlayer_EndReached_1; ;
                     this.sourceProvider_fore.MediaPlayer.Log += new EventHandler<VlcMediaPlayerLogEventArgs>(MediaPlayer_Log);
                     this.sourceProvider_fore.MediaPlayer.Manager.SetFullScreen(this.sourceProvider_fore.MediaPlayer.Manager.CreateMediaPlayer(), true);
                     //this.sourceProvider_fore.MediaPlayer.Audio.IsMute = true;    //这个版本中被静音
@@ -5844,10 +5887,52 @@ namespace ACNginxConsole
             }
         }
 
-        private void ForeNextFile()
+        List<FileInfo> fis = new List<FileInfo>();
+
+
+        int currentIndex = -1;
+
+        private void UpdateCurrentInd()
+        {
+            if (currentIndex == -1)
+            {
+                for (int i = 0; i < fis.Count; ++i)
+                {
+                    FileInfo fi = fis.ElementAt(i);
+                    if (fi.Name.Contains(FileSearchBox.Text))
+                    {
+                        currentIndex = i;
+                        break;
+                    }
+                }
+            }
+            textblockListNum.Text = currentIndex + "/" + fis.Count;
+        }
+
+        private void ForeNextFile(bool next = true)
         {
 
+            UpdateCurrentInd();
+            
+            if (next)
+            {
+                if (currentIndex + 1 < fis.Count)
+                { FileSearchBox.Text = fis.ElementAt(currentIndex + 1).Name; }
+                else
+                { FileSearchBox.Text = fis.ElementAt(0).Name; }
+            }
+            else
+            {
+                if (currentIndex - 1 >= 0)
+                { FileSearchBox.Text = fis.ElementAt(currentIndex - 1).Name;  }
+                else
+                { FileSearchBox.Text = fis.ElementAt(fis.Count - 1).Name; }
+            }
+
+            textblockListNum.Text = currentIndex + "/" + fis.Count;
+
         }
+
 
         private void buttonStop_Click(object sender, RoutedEventArgs e)
         {
@@ -5859,18 +5944,27 @@ namespace ACNginxConsole
             ForePlay();
         }
 
+        private void PlayerStack_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (radialControllerInit && radialController.Menu.Items.Contains(rcplayer))
+            {
+                radialController.Menu.SelectMenuItem(rcplayer);
+            }
+        }
+
+        private void SubtitlerStack_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (radialControllerInit && radialController.Menu.Items.Contains(rcsub))
+            {
+                radialController.Menu.SelectMenuItem(rcsub);
+            }
+        }
+
         private void buttonNextFile_Click(object sender, RoutedEventArgs e)
         {
             ForeNextFile();
         }
 
-        private void MediaPlayer_EndReached_1(object sender, VlcMediaPlayerEndReachedEventArgs e)
-        {
-            buttonPlay.IsEnabled = true;
-            buttonStop.IsEnabled = false;
-            //停止
-            ForeStop();
-        }
 
         private void checkBoxSurfaceDial_Unchecked(object sender, RoutedEventArgs e)
         {

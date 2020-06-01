@@ -704,76 +704,90 @@
                             <Grid x:Name="GridSubtitler" Margin="15">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="1*"/>
+                                    <ColumnDefinition Width="auto"/>
                                     <ColumnDefinition Width="2*"/>
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0">
                                     <Button x:Name="buttonSurfaceDial" Click="buttonSurfaceDial_Click" ToolTip="启用 Surface Dial 控制">
                                         <Image Source="SurfaceDial.png" Height="20"/>
                                     </Button>
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition/>
-                                            <ColumnDefinition/>
-                                            <ColumnDefinition/>
-                                        </Grid.ColumnDefinitions>
-                                        <Button x:Name="buttonPrev" Click="buttonPrev_Click" ToolTip="上一条([,⤴)" >
-                                            <Image Source="arrow_Previous_16xLG_color.png" Width="20" ></Image>
-                                        </Button>
-                                        <Button x:Name="buttonNext" Grid.Column="1" Click="buttonNext_Click" ToolTip="下一条(],⤵)">
-                                            <Image Source="arrow_Next_16xLG_color.png" Width="20" />
-                                        </Button>
-                                        <Button x:Name="buttonClearHistory" Grid.Column="2" Click="buttonClearHistory_Click" ToolTip="清空历史(\,🔘)">
-                                            <Image Source="Clearwindowcontent_6304.png" Width="15"/>
-                                        </Button>
-                                    </Grid>
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="1*"/>
-                                            <ColumnDefinition Width="2*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition/>
-                                            <RowDefinition/>
-                                            <RowDefinition/>
-                                        </Grid.RowDefinitions>
-                                        <Button x:Name="buttonSubtitler" ToolTip="打开字幕机/关闭字幕机" Click="buttonSubtitler_Click" Background="#FF6DC2F9">
-                                            <Image RenderTransformOrigin="0.5,0.5" Source="lines_Text_code_16xLG.png" Height="20" Width="20"/>
-                                        </Button>
-                                        <Slider Grid.Column="1" x:Name="SliderSubTran" VerticalContentAlignment="Center" VerticalAlignment="Center" Maximum="1" ToolTip="字幕机不透明度" AutoToolTipPrecision="1" AutoToolTipPlacement="TopLeft" ValueChanged="SliderSubTran_ValueChanged"/>
-                                        <Label Grid.Row="1" Content="边距比例"/>
-                                        <Slider x:Name="SliderSubBazelDist" Grid.Row="1" Grid.Column="1" VerticalContentAlignment="Center" VerticalAlignment="Center" Maximum="1" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="3" Value="0.1" IsSelectionRangeEnabled="True" SelectionEnd="0.25" ValueChanged="SliderSubBazelDist_ValueChanged"/>
-                                    </Grid>
-                                    <TextBlock x:Name="TextBlockStatus" Text="就绪" FontSize="16" FontWeight="Bold" Background="#FFF1F2F7" Padding="0,5,0,0"/>
-                                    <TextBlock x:Name="textblockTimeProc" Text="00:00.000/00:00.000" TextAlignment="Right" Background="#FFF1F2F7" Padding="0,0,5,0"/>
-                                    <Slider x:Name="sliderProgress" Style="{DynamicResource SliderStyleRound}" Margin="0" Background="#FFF1F2F7" IsEnabled="False"/>
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition/>
-                                            <ColumnDefinition/>
-                                            <ColumnDefinition/>
-                                        </Grid.ColumnDefinitions>
-                                        <Button x:Name="buttonPlay" Click="buttonPlay_Click" IsEnabled="False">
-                                            <Image Source="Symbols_Play_32xLG.png" Width="20"/>
-                                        </Button>
-                                        <Button x:Name="buttonStop" Grid.Column="1" IsEnabled="False" Click="buttonStop_Click">
-                                            <Image  Width="15" Source="StatusAnnotations_Stop_32xLG_color.png"  />
-                                        </Button>
-                                        <Button Grid.Column="2">
-                                            <Image Source="Nextrequest_10302.png" Width="15" />
-                                        </Button>
-                                    </Grid>
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="1*"/>
-                                            <ColumnDefinition Width="2*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Button x:Name="buttonOpenFolder" Click="buttonOpenFolder_Click" >
-                                            <Image Source="Folder(special)_5843_32x.png" Width="20" />
-                                        </Button>
-                                        <TextBox x:Name="FileSearchBox" Grid.Column="1" BorderBrush="#FF707070" VerticalContentAlignment="Center" IsEnabled="False" TextChanged="FileSearchBox_TextChanged"/>
-                                    </Grid>
+                                    <StackPanel x:Name="SubtitlerStack" GotFocus="SubtitlerStack_GotFocus">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition/>
+                                            </Grid.ColumnDefinitions>
+                                            <Button x:Name="buttonPrev" Click="buttonPrev_Click" ToolTip="上一条([,⤴)" >
+                                                <Image Source="arrow_Previous_16xLG_color.png" Width="20" ></Image>
+                                            </Button>
+                                            <Button x:Name="buttonNext" Grid.Column="1" Click="buttonNext_Click" ToolTip="下一条(],⤵)">
+                                                <Image Source="arrow_Next_16xLG_color.png" Width="20" />
+                                            </Button>
+                                            <Button x:Name="buttonClearHistory" Grid.Column="2" Click="buttonClearHistory_Click" ToolTip="清空历史(\,🔘)">
+                                                <Image Source="Clearwindowcontent_6304.png" Width="15"/>
+                                            </Button>
+                                        </Grid>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="1*"/>
+                                                <ColumnDefinition Width="2*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition/>
+                                                <RowDefinition/>
+                                                <RowDefinition/>
+                                            </Grid.RowDefinitions>
+                                            <Button x:Name="buttonSubtitler" ToolTip="打开字幕机/关闭字幕机" Click="buttonSubtitler_Click" Background="#FF6DC2F9">
+                                                <Image RenderTransformOrigin="0.5,0.5" Source="lines_Text_code_16xLG.png" Height="20" Width="20"/>
+                                            </Button>
+                                            <Slider Grid.Column="1" x:Name="SliderSubTran" VerticalContentAlignment="Center" VerticalAlignment="Center" Maximum="1" ToolTip="字幕机不透明度" AutoToolTipPrecision="1" AutoToolTipPlacement="TopLeft" ValueChanged="SliderSubTran_ValueChanged"/>
+                                            <Label Grid.Row="1" Content="边距比例"/>
+                                            <Slider x:Name="SliderSubBazelDist" Grid.Row="1" Grid.Column="1" VerticalContentAlignment="Center" VerticalAlignment="Center" Maximum="1" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="3" Value="0.1" IsSelectionRangeEnabled="True" SelectionEnd="0.25" ValueChanged="SliderSubBazelDist_ValueChanged"/>
+                                        </Grid>
+                                    </StackPanel>
+                                    <StackPanel x:Name="PlayerStack" GotFocus="PlayerStack_GotFocus">
+                                        <TextBlock x:Name="TextBlockStatus" Text="就绪" FontSize="16" FontWeight="Bold" Background="#FFF1F2F7" Padding="0,5,0,0"/>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="1*"/>
+                                                <ColumnDefinition Width="3*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="1" x:Name="textblockTimeProc" Text="00:00.000/00:00.000" TextAlignment="Right" Background="#FFF1F2F7" Padding="0,0,5,0"/>
+                                            <TextBlock x:Name="textblockListNum" Text="0/0" Background="#FFF1F2F7" />
+                                        </Grid>
+                                        <Slider x:Name="sliderProgress" Style="{DynamicResource SliderStyleRound}" Margin="0" Background="#FFF1F2F7" IsEnabled="False"/>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition/>
+                                            </Grid.ColumnDefinitions>
+                                            <Button x:Name="buttonPlay" Click="buttonPlay_Click" IsEnabled="False" ToolTip="播放(I,🔘)">
+                                                <Image Source="Symbols_Play_32xLG.png" Width="20"/>
+                                            </Button>
+                                            <Button x:Name="buttonStop" Grid.Column="1" IsEnabled="False" Click="buttonStop_Click" ToolTip="停止(O,🔘)">
+                                                <Image  Width="15" Source="StatusAnnotations_Stop_32xLG_color.png"  />
+                                            </Button>
+                                            <Button x:Name="buttonNextFile" Grid.Column="2" Click="buttonNextFile_Click" IsEnabled="False" ToolTip="下一首(P,⤵)">
+                                                <Image Source="Nextrequest_10302.png" Width="15" />
+                                            </Button>
+                                        </Grid>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="1*"/>
+                                                <ColumnDefinition Width="2*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Button x:Name="buttonOpenFolder" Click="buttonOpenFolder_Click" >
+                                                <Image Source="Folder(special)_5843_32x.png" Width="20" />
+                                            </Button>
+                                            <TextBox x:Name="FileSearchBox" Grid.Column="1" BorderBrush="#FF707070" VerticalContentAlignment="Center" IsEnabled="False" TextChanged="FileSearchBox_TextChanged"/>
+                                        </Grid>
+                                    </StackPanel>
+                                    
                                 </StackPanel>
-                                <Grid Grid.Column="1">
+                                <GridSplitter Width="5" Grid.Column="1" HorizontalAlignment="Stretch"/>
+                                <Grid Grid.Column="2">
 
                                     <Grid.RowDefinitions>
                                         <RowDefinition x:Name="RowPrevSub" Height="0"/>
