@@ -3970,7 +3970,7 @@ namespace ACNginxConsole
             //手动更新字幕机
             focaldephov.labelSubtitler.FontSize = SliderTextSize.Value;
             focaldephov.labelSubtitler.Width = focaldephov.Width * 2 / 3;
-            focaldephov.labelSubtitler.Height = SliderTextSize.Value / 0.65;
+            focaldephov.labelSubtitler.Height = SliderTextSize.Value / 0.6;
             Canvas.SetLeft(focaldephov.labelSubtitler, SliderSubBazelDist.Value * focaldephov.Width);
             Canvas.SetTop(focaldephov.labelSubtitler, focaldephov.Height - SliderSubBazelDist.Value * focaldephov.Width);
         }
@@ -4952,7 +4952,7 @@ namespace ACNginxConsole
             {
                 focaldephov.labelSubtitler.FontSize = SliderTextSize.Value;
                 focaldephov.labelSubtitler.Width = focaldephov.Width * 2 / 3;
-                focaldephov.labelSubtitler.Height = SliderTextSize.Value / 0.65;
+                focaldephov.labelSubtitler.Height = SliderTextSize.Value / 0.6;
             }
 
         }
@@ -5499,7 +5499,9 @@ namespace ACNginxConsole
                 return;
             }
             m_Dir = m_Dialog.SelectedPath.Trim();
-            
+
+            fis.Clear();
+
             foreach (string appe in supportedFormat)
             {
                 string[] files = System.IO.Directory.GetFiles(m_Dir, appe, SearchOption.AllDirectories);
