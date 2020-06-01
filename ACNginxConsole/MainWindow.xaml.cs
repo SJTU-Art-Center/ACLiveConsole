@@ -81,6 +81,9 @@ using Vlc.DotNet.Core.Interops;
 // Using directives for RadialController functionality.
 using Windows.UI.Input;
 using Windows.Storage.Streams;
+using System.Collections.Specialized;
+using System.Collections;
+using Windows.ApplicationModel.Activation;
 // End "Step 4: Basic RadialController menu customization"
 
 namespace ACNginxConsole
@@ -285,8 +288,16 @@ namespace ACNginxConsole
           RadialControllerRotationChangedEventArgs args)
         {
             //System.Diagnostics.Debug.WriteLine("Rotated");
-            if (args.RotationDeltaInDegrees < 0) PrevSub();
-            else NextSub();
+            if (radialController.Menu.GetSelectedMenuItem() == rcsub)
+            {
+                if (args.RotationDeltaInDegrees < 0) PrevSub();
+                else NextSub();
+            }
+            else if (radialController.Menu.GetSelectedMenuItem() == rcplayer)
+            {
+                if (args.RotationDeltaInDegrees > 0) ForeNextFile();
+            }
+                
             InvalidateVisual();
         }
 
@@ -298,8 +309,18 @@ namespace ACNginxConsole
         private void RadialController_ButtonClicked(RadialController sender,
           RadialControllerButtonClickedEventArgs args)
         {
-            System.Diagnostics.Debug.WriteLine("Clicked");
-            ClearHistorySub();
+            //System.Diagnostics.Debug.WriteLine("Clicked");
+            if (radialController.Menu.GetSelectedMenuItem() == rcsub)
+            {
+                ClearHistorySub();
+            }
+            else if (radialController.Menu.GetSelectedMenuItem() == rcplayer)
+            {
+                if (buttonPlay.IsEnabled)
+                    ForePlay();
+                else ForeStop();
+            }
+
             InvalidateVisual();
         }
 
@@ -330,11 +351,14 @@ namespace ACNginxConsole
         }
 
         RadialControllerMenuItem rcsub;
+        RadialControllerMenuItem rcplayer;
 
         private void AddCustomItems()
         {
             rcsub = RadialControllerMenuItem.CreateFromFontGlyph("字幕机", "⌨", "Segoe UI Emoji");
             radialController.Menu.Items.Add(rcsub);
+            rcplayer = RadialControllerMenuItem.CreateFromFontGlyph("音频电脑", "💻", "Segoe UI Emoji");
+            radialController.Menu.Items.Add(rcplayer);
         }
 
         #endregion
@@ -3625,6 +3649,7 @@ namespace ACNginxConsole
                 dispatcherTimerMon.Stop();
                 labelMonitor.Foreground = Brushes.Black;
                 labelMonitor.Background = Brushes.Transparent;
+                LiveRD.Visibility = Visibility.Hidden;              //关闭警报时将监视隐藏
                 DismissImg.Opacity = 1;
                 //monred = false;
             }
@@ -3632,6 +3657,7 @@ namespace ACNginxConsole
             {
                 dismiss = false;
                 DismissImg.Opacity = 0.5;
+                LiveRD.Visibility = Visibility.Visible; 
             }
 
 
@@ -4316,7 +4342,10 @@ namespace ACNginxConsole
 
             FadeOutAnim(buttonWinTrans, OpacSlider);
 
-            FadeOutAnim(buttonSubtitler, SliderSubTran);
+            if (SliderSubTran.Value == 0)
+                FadeOutAnim(buttonSubtitler, SliderSubTran);
+            else
+                focaldephov.labelSubtitler.Opacity = SliderSubTran.Value;
 
             GridSubtitler.IsEnabled = true;
         }
@@ -4392,6 +4421,12 @@ namespace ACNginxConsole
             Properties.Settings.Default.Save();
             if (sc != null && sc.IsLoaded)
                 sc.Close(); //手动关闭
+            if (sourceProvider_fore != null)
+            {
+                if (sourceProvider_fore.MediaPlayer.IsPlaying().Equals(true))
+                    sourceProvider_fore.MediaPlayer.Stop();
+                sourceProvider_fore.Dispose();
+            }
             GC.Collect();
             Application.Current.Shutdown();
         }
@@ -4499,10 +4534,10 @@ namespace ACNginxConsole
                 //focaldephov.BackImg.Source = new ImageSourceConverter().ConvertFromString(openFileDialog.FileName) as ImageSource;
                 PlayStream_local = openFileDialog.FileName;
                 bing_sub = new Binding();
-                var currentAssembly = Assembly.GetEntryAssembly();
-                var currentDirectory = new FileInfo(currentAssembly.Location).DirectoryName;
-                // Default installation path of VideoLAN.LibVLC.Windows
-                var libDirectory = new DirectoryInfo(System.IO.Path.Combine(currentDirectory, "libvlc\\" + (IntPtr.Size == 4 ? "win-x86" : "win-x64")));
+                //var currentAssembly = Assembly.GetEntryAssembly();
+                //var currentDirectory = new FileInfo(currentAssembly.Location).DirectoryName;
+                //// Default installation path of VideoLAN.LibVLC.Windows
+                //var libDirectory = new DirectoryInfo(System.IO.Path.Combine(currentDirectory, "libvlc\\" + (IntPtr.Size == 4 ? "win-x86" : "win-x64")));
 
                 this.sourceProvider_local = new VlcVideoSourceProvider(this.Dispatcher);
                 this.sourceProvider_local.CreatePlayer(libDirectory, "--file-logging", "-vvv", "--logfile=Logs.log");
@@ -4564,7 +4599,8 @@ namespace ACNginxConsole
             }
         }
 
-        private VlcVideoSourceProvider sourceProvider_fore;
+        public VlcVideoSourceProvider sourceProvider_fore;
+        public static int foreVol = 0;
         Binding bing_sub_fore;
 
         private void ForeVid_Selected(object sender, RoutedEventArgs e)
@@ -4586,11 +4622,6 @@ namespace ACNginxConsole
             {
                 //focaldephov.BackImg.Source = new ImageSourceConverter().ConvertFromString(openFileDialog.FileName) as ImageSource;
                 string PlayStream = openFileDialog.FileName;
-                var currentAssembly = Assembly.GetEntryAssembly();
-                var currentDirectory = new FileInfo(currentAssembly.Location).DirectoryName;
-                // Default installation path of VideoLAN.LibVLC.Windows
-                var libDirectory = new DirectoryInfo(System.IO.Path.Combine(currentDirectory, "libvlc\\" + (IntPtr.Size == 4 ? "win-x86" : "win-x64")));
-
                 this.sourceProvider_fore = new VlcVideoSourceProvider(this.Dispatcher);
                 this.sourceProvider_fore.CreatePlayer(libDirectory, "--file-logging", "-vvv", "--logfile=Logs.log");
                 var mediaOptions = new[]
@@ -4600,8 +4631,9 @@ namespace ACNginxConsole
                 this.sourceProvider_fore.MediaPlayer.Play(new Uri(PlayStream), mediaOptions);
                 this.sourceProvider_fore.MediaPlayer.Log += new EventHandler<VlcMediaPlayerLogEventArgs>(MediaPlayer_Log);
                 this.sourceProvider_fore.MediaPlayer.Manager.SetFullScreen(this.sourceProvider_fore.MediaPlayer.Manager.CreateMediaPlayer(), true);
-                this.sourceProvider_fore.MediaPlayer.Audio.IsMute = true;    //这个版本中被静音
-                                                                              //音量接口：this.sourceProvider_fore.MediaPlayer.Audio.Volume，本版本暂时不用
+                //this.sourceProvider_fore.MediaPlayer.Audio.IsMute = true;    //这个版本中被静音
+                //音量接口：this.sourceProvider_fore.MediaPlayer.Audio.Volume，本版本暂时不用
+                this.sourceProvider_fore.MediaPlayer.Audio.Volume = foreVol;
                 this.sourceProvider_fore.MediaPlayer.EncounteredError += new EventHandler<VlcMediaPlayerEncounteredErrorEventArgs>(MediaPlayer_ErrorEncountered);
 
                 bing_sub_fore = new Binding();
@@ -5447,6 +5479,399 @@ namespace ACNginxConsole
             Properties.Settings.Default.SubAlways = false;
         }
 
+        string m_Dir;
+
+        private void buttonOpenFolder_Click(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Forms.FolderBrowserDialog m_Dialog = new System.Windows.Forms.FolderBrowserDialog();
+            System.Windows.Forms.DialogResult result = m_Dialog.ShowDialog();
+
+            if (result == System.Windows.Forms.DialogResult.Cancel)
+            {
+                return;
+            }
+            m_Dir = m_Dialog.SelectedPath.Trim();
+            FileSearchBox.IsEnabled = true;
+        }
+
+        private FileInfo FindFile(string[] appendix)
+        {
+            FileInfo output = null;
+            string[] files;
+
+            foreach (string appe in appendix)
+            {
+                files = System.IO.Directory.GetFiles(m_Dir, appe, SearchOption.AllDirectories);
+                foreach (string s in files)
+                {
+                    System.IO.FileInfo fi = null;
+                    try
+                    {
+                        fi = new System.IO.FileInfo(s);
+                    }
+                    catch (System.IO.FileNotFoundException ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                        continue;
+                    }
+                    //this.show.Text += fi.Name;
+                    if (fi.Name.Contains(FileSearchBox.Text))
+                    {
+                        //TextBlockStatus.Text = "载入：" + fi.Name;
+                        output = fi;
+                        break;
+                    }
+                }
+                if (output != null)
+                    break;
+            }
+            return output;
+            
+        }
+
+        struct lrcline {
+            public string lrc;
+            public int startTime;              // 毫秒数
+
+            public lrcline(int st,string lrcstr)
+            {
+                lrc = lrcstr;
+                startTime = st;
+            }
+        };
+
+        //lrc播放队列
+        Queue<lrcline> lrcque = new Queue<lrcline>();
+        Queue<int> timerque = new Queue<int>();
+
+        /// <summary>
+        /// 将时间字符串转换成int类型
+        /// </summary>
+        /// <param name="timeStr"></param>
+        /// <returns></returns>
+        private int strToDouble(string timeStr)
+        {
+            //输入timeStr时间字符串格式如  01:02.50                      
+            string[] s = timeStr.Split(':');//分:秒
+            string[] ss = s[1].Split('.');//秒.毫秒
+            double min, sec,mss;
+            min = Convert.ToDouble(s[0]);
+            sec = Convert.ToDouble(s[1]);
+            mss = Convert.ToDouble(ss[1]);
+            return (int)((min * 60 + sec) * 1000 + mss);
+        }
+
+        private void LoadLrc(FileInfo fi)
+        {
+            lrcque.Clear();
+            timerque.Clear();
+            textboxPrevSub.Clear();
+            textboxNextSub.Clear();
+            if (System.IO.File.Exists(fi.FullName))
+            {
+                try
+                {
+                    string[] lines = System.IO.File.ReadAllLines(fi.FullName, Encoding.Default);
+                    foreach (string line in lines)
+                    {
+                        //解析歌词文本的每行
+                        //parserLine(line);
+                        if (line.StartsWith("[ti:"))
+                        {
+                            try
+                            {
+                                textboxPrevSub.AppendText("标题：" + line.Substring(4, line.Length - 5) + Environment.NewLine);
+                            }
+                            catch
+                            {
+                                textboxPrevSub.AppendText("标题：未知" + Environment.NewLine);
+                            }
+                        }
+                        //取得歌手名
+                        else if (line.StartsWith("[ar:"))
+                        {
+                            try
+                            {
+                                textboxPrevSub.AppendText("歌手：" + line.Substring(4, line.Length - 5) + Environment.NewLine);
+                            }
+                            catch
+                            {
+                                textboxPrevSub.AppendText("歌手：未知" + Environment.NewLine);
+                            }
+                        }
+                        else if (line.StartsWith("[al:"))
+                        {
+                            try
+                            {
+                                textboxPrevSub.AppendText("专辑：" + line.Substring(4, line.Length - 5) + Environment.NewLine);
+                            }
+                            catch
+                            {
+                                textboxPrevSub.AppendText("专辑：未知" + Environment.NewLine);
+                            }
+                        }
+                        else
+                        {
+                            //正则表达式
+                            string regStr = "\\[(\\d{2}:\\d{2}\\.\\d{2})\\]";//匹配[00:00.00]....
+                            Regex regex = new Regex(regStr);
+                            string regTimeStr = "\\d{2}:\\d{2}\\.\\d{2}";
+                            Regex regexTime = new Regex(regTimeStr);//匹配00:00.00
+                            if (regex.IsMatch(line) == true)
+                            {
+                                //得到当前行匹配的所有内容并再次按正则表达式分割(分割的结果含时间和歌词)存放到数组里                  
+                                string[] Content = regex.Split(line);
+                                //时间数组.最大20个时间。您可以设置成更大。但是一般最多是3个时间对应一句歌词。本文件底下的"李克勤-红日"歌词文件有5个时间对应一句“哦”歌词的
+                                string[] timesStr = new string[20];
+                                int currentTime;
+                                string currentTxt = null;//歌词(每一行歌词信息是只有一句歌词和可以有多个时间)
+                                                         //在内容数组里轮询查找符合正则表达式的时间。找出时间并存放在数组里和找出歌词
+                                int i = 0;
+                                string correctLyricTxt = null;//正确歌词,因为数组Content里歌词有可能是null
+                                foreach (string content in Content)
+                                {
+                                    //时间匹配正则表达式成功  
+                                    if (regexTime.IsMatch(content) == true)
+                                    {
+                                        timesStr[i] = content;//这是时间
+                                    }
+                                    else
+                                    {
+                                        currentTxt = content;//这是歌词  
+                                        if (!string.IsNullOrEmpty(content))
+                                        {
+                                            correctLyricTxt = content;
+                                        }
+                                    }
+                                    i++;
+                                }
+                                //存放歌词时间和对应的歌词到资源字典里
+                                //存放前先把时间转换成double型的毫秒
+                                foreach (string time in timesStr)
+                                {
+                                    if (!string.IsNullOrEmpty(time))
+                                    {
+                                        try
+                                        {
+                                            currentTime = strToDouble(time);
+                                            //此处模型做了简化，使用队列
+                                            lrcque.Enqueue(new lrcline(currentTime, correctLyricTxt));
+                                        }
+                                        catch
+                                        {
+                                            //如果以上时间解析错误就不加入.说明该时间有误
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    //升序排序
+                    lrcque.OrderBy(u => u.startTime);
+
+                    //输出
+                    while (lrcque.Any())
+                    {
+                        lrcline ll = lrcque.Dequeue();
+                        timerque.Enqueue(ll.startTime);
+                        textboxNextSub.AppendText(ll.lrc + Environment.NewLine);
+                    }
+
+                    if (textboxPrevSub.Text.Length > 0)
+                    {
+                        RowPrevSub.Height = new GridLength(0.5, GridUnitType.Star);
+                        RowNextSub.Height = new GridLength(1, GridUnitType.Star);
+                    }
+                    else
+                    {
+                        RowPrevSub.Height = new GridLength(0, GridUnitType.Pixel);
+                    }
+
+                }
+                catch
+                {
+
+                }
+            }
+        }
+
+        FileInfo loadfi = null, loadlrc = null;
+
+        private void FileSearchBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+
+            //寻找前缀文件
+            loadfi = FindFile(new string[] { "*.mp3", "*.wav", "*.wma", "*.mp4", "*.mov" });
+            if (loadfi != null)
+            {
+                TextBlockStatus.Text = "载入：" + loadfi.Name;
+
+                //以.为分界符 寻找lrc结尾
+                loadlrc = FindFile(new string[] { "*.lrc" });
+                //载入lrc文件
+                if (loadlrc != null)
+                    LoadLrc(loadlrc);
+
+                buttonPlay.IsEnabled = true;
+            }
+
+        }
+
+        private string MsToString(int ms)
+        {
+            int min, sec, mss;
+            mss = ms % 1000;
+            min = ms / 60000;
+            sec = ms / 1000 - min * 60;
+            return min.ToString("00") + ":" + sec.ToString("00") + "." + mss.ToString("000");
+        }
+
+        private void UpdateProc()
+        {
+            if (timerque.Any())
+            {
+                textblockTimeProc.Text = MsToString(currentTime) + "/" + MsToString(timerque.Last());
+                sliderProgress.Maximum = timerque.Last();
+                sliderProgress.Value = currentTime;
+            }
+            else
+            {
+                textblockTimeProc.Text = "00:00.000/00:00.000";
+                sliderProgress.Maximum = 0;
+                sliderProgress.Value = 0;
+                    
+            }
+        }
+
+        int currentTime;
+
+        delegate void NextSubDelegate();
+        delegate void ProgressUpdDelegate();
+
+        private void NextSubDel()
+        {
+            NextSubDelegate nsd = new NextSubDelegate(NextSub);
+            ProgressUpdDelegate pud = new ProgressUpdDelegate(UpdateProc);
+            this.Dispatcher.Invoke(nsd);
+            this.Dispatcher.Invoke(pud);
+        }
+
+        private void LrcProc()
+        {
+            while (timerque.Any() && !IsSubStopped)
+            {
+                int tmp = timerque.Dequeue();
+                if (tmp > currentTime)
+                {
+                    Thread.Sleep(tmp - currentTime);
+                    NextSubDel();
+                    currentTime = tmp;
+                }
+                else break;
+            }
+            return ;
+        }
+
+        bool IsSubStopped = false;
+
+        private void ForeStop()
+        {
+            if (buttonStop.IsEnabled)
+            {
+                sourceProvider_fore.MediaPlayer.Stop();
+                buttonPlay.IsEnabled = true;
+                buttonStop.IsEnabled = false;
+                TextBlockStatus.Text = "停止：" + loadfi.Name;
+                currentTime = 0;
+                timerque.Clear();
+                IsSubStopped = true;
+                textboxCurrentSub.Clear();
+                LoadLrc(loadlrc);
+                if (currentTime > 0)
+                    PrevSub();
+                if (SliderSubTran.Value > 0)
+                    FadeOutAnim(buttonSubtitler, SliderSubTran);
+            }
+            
+        }
+
+        private void ForePlay()
+        {
+            if (buttonPlay.IsEnabled)
+            {
+                if (focaldephov != null && focaldephov.IsLoaded && loadfi != null)
+                {
+                    if (ForePic.IsSelected || ForeVid.IsSelected)
+                        ForeNone.IsSelected = true;
+
+                    string PlayStream = loadfi.FullName;
+                    this.sourceProvider_fore = new VlcVideoSourceProvider(this.Dispatcher);
+                    this.sourceProvider_fore.CreatePlayer(libDirectory, "--file-logging", "-vvv", "--logfile=Logs.log");
+                    var mediaOptions = new[]
+                    {""};
+
+                    this.sourceProvider_fore.MediaPlayer.EndReached += MediaPlayer_EndReached_1; ;
+                    this.sourceProvider_fore.MediaPlayer.Log += new EventHandler<VlcMediaPlayerLogEventArgs>(MediaPlayer_Log);
+                    this.sourceProvider_fore.MediaPlayer.Manager.SetFullScreen(this.sourceProvider_fore.MediaPlayer.Manager.CreateMediaPlayer(), true);
+                    //this.sourceProvider_fore.MediaPlayer.Audio.IsMute = true;    //这个版本中被静音
+                    //音量接口：this.sourceProvider_fore.MediaPlayer.Audio.Volume，本版本暂时不用
+                    this.sourceProvider_fore.MediaPlayer.Audio.Volume = foreVol;
+                    this.sourceProvider_fore.MediaPlayer.EncounteredError += new EventHandler<VlcMediaPlayerEncounteredErrorEventArgs>(MediaPlayer_ErrorEncountered);
+                    this.sourceProvider_fore.MediaPlayer.Play(new Uri(PlayStream), mediaOptions);
+
+                    bing_sub_fore = new Binding();
+                    bing_sub_fore.Source = sourceProvider_fore;
+                    bing_sub_fore.Path = new PropertyPath("VideoSource");
+                    //输出图片
+                    focaldephov.BackImg.SetBinding(Image.SourceProperty, bing_sub_fore);
+
+                    IsSubStopped = false;
+
+                    currentTime = 0;
+                    Thread lrctimer = new Thread(new ThreadStart(LrcProc));
+                    lrctimer.IsBackground = true;
+                    lrctimer.Start();
+
+                    buttonStop.IsEnabled = true;
+                    buttonPlay.IsEnabled = false;
+
+                    TextBlockStatus.Text = "播放：" + loadfi.Name;
+                    if (SliderSubTran.Value == 0)
+                        FadeOutAnim(buttonSubtitler, SliderSubTran);
+                }
+
+            }
+        }
+
+        private void ForeNextFile()
+        {
+
+        }
+
+        private void buttonStop_Click(object sender, RoutedEventArgs e)
+        {
+            ForeStop();
+        }
+
+        private void buttonPlay_Click(object sender, RoutedEventArgs e)
+        {
+            ForePlay();
+        }
+
+        private void buttonNextFile_Click(object sender, RoutedEventArgs e)
+        {
+            ForeNextFile();
+        }
+
+        private void MediaPlayer_EndReached_1(object sender, VlcMediaPlayerEndReachedEventArgs e)
+        {
+            buttonPlay.IsEnabled = true;
+            buttonStop.IsEnabled = false;
+            //停止
+            ForeStop();
+        }
+
         private void checkBoxSurfaceDial_Unchecked(object sender, RoutedEventArgs e)
         {
             Properties.Settings.Default.SurfaceDial = false;
@@ -5481,6 +5906,8 @@ namespace ACNginxConsole
             ProgressLU.Value = Monitors.ElementAt(0).Volume;
             ProgressRU.Value = Monitors.ElementAt(1).Volume;
             ProgressLD.Value = Monitors.ElementAt(2).Volume;
+            if (sourceProvider_fore != null)
+                this.sourceProvider_fore.MediaPlayer.Audio.Volume = foreVol;
             //Monitors.ElementAt(0).Volume = (int)ProgressLU.Value;
             //Monitors.ElementAt(1).Volume = (int)ProgressRU.Value;
             //Monitors.ElementAt(2).Volume = (int)ProgressLD.Value;

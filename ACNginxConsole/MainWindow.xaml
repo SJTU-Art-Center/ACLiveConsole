@@ -6,7 +6,7 @@
         xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker"
         xmlns:local="clr-namespace:ACNginxConsole"
         mc:Ignorable="d"
-        Title="AC Live Console" Height="759.25" Width="920.848" Closed="Window_Closed" SizeChanged="Window_SizeChanged" Loaded="Window_Loaded" MinHeight="30">
+        Title="AC Live Console" Height="776.5" Width="920.848" Closed="Window_Closed" SizeChanged="Window_SizeChanged" Loaded="Window_Loaded" MinHeight="30">
 
     <Window.Resources>
         <colorPicker:ColorToStringConverter x:Key="ColorToStringConverter"/>
@@ -536,7 +536,7 @@
                         <Label x:Name="label10" Content="min" Height="25" Margin="0,138,1,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="37"/>
                     </Grid>
                 </TabItem>
-                <TabItem Header="公屏" Width="70" Height="21" Margin="0,-2,0,0" VerticalAlignment="Bottom">
+                <TabItem Header="公屏" Width="70">
                     <Grid x:Name="tabScreen" Background="#FFE5E5E5">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="auto"/>
@@ -743,20 +743,20 @@
                                         <Label Grid.Row="1" Content="边距比例"/>
                                         <Slider x:Name="SliderSubBazelDist" Grid.Row="1" Grid.Column="1" VerticalContentAlignment="Center" VerticalAlignment="Center" Maximum="1" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="3" Value="0.1" IsSelectionRangeEnabled="True" SelectionEnd="0.25" ValueChanged="SliderSubBazelDist_ValueChanged"/>
                                     </Grid>
-                                    <TextBlock Text="就绪" FontSize="16" FontWeight="Bold" Background="#FFF1F2F7" Padding="0,5,0,0"/>
-                                    <TextBlock Text="00:00:00/00:00:00" TextAlignment="Right" Background="#FFF1F2F7" Padding="0,0,5,0"/>
-                                    <Slider Style="{DynamicResource SliderStyleRound}" Margin="0" Background="#FFF1F2F7"/>
+                                    <TextBlock x:Name="TextBlockStatus" Text="就绪" FontSize="16" FontWeight="Bold" Background="#FFF1F2F7" Padding="0,5,0,0"/>
+                                    <TextBlock x:Name="textblockTimeProc" Text="00:00.000/00:00.000" TextAlignment="Right" Background="#FFF1F2F7" Padding="0,0,5,0"/>
+                                    <Slider x:Name="sliderProgress" Style="{DynamicResource SliderStyleRound}" Margin="0" Background="#FFF1F2F7" IsEnabled="False"/>
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition/>
                                             <ColumnDefinition/>
                                             <ColumnDefinition/>
                                         </Grid.ColumnDefinitions>
-                                        <Button>
+                                        <Button x:Name="buttonPlay" Click="buttonPlay_Click" IsEnabled="False">
                                             <Image Source="Symbols_Play_32xLG.png" Width="20"/>
                                         </Button>
-                                        <Button Grid.Column="1">
-                                            <Image Source="Symbols_Pause_32xLG.png" Width="20"  />
+                                        <Button x:Name="buttonStop" Grid.Column="1" IsEnabled="False" Click="buttonStop_Click">
+                                            <Image  Width="15" Source="StatusAnnotations_Stop_32xLG_color.png"  />
                                         </Button>
                                         <Button Grid.Column="2">
                                             <Image Source="Nextrequest_10302.png" Width="15" />
@@ -767,10 +767,10 @@
                                             <ColumnDefinition Width="1*"/>
                                             <ColumnDefinition Width="2*"/>
                                         </Grid.ColumnDefinitions>
-                                        <Button x:Name="buttonOpenFolder" >
+                                        <Button x:Name="buttonOpenFolder" Click="buttonOpenFolder_Click" >
                                             <Image Source="Folder(special)_5843_32x.png" Width="20" />
                                         </Button>
-                                        <TextBox x:Name="FileSearchBox" Grid.Column="1" BorderBrush="#FF707070" VerticalContentAlignment="Center"/>
+                                        <TextBox x:Name="FileSearchBox" Grid.Column="1" BorderBrush="#FF707070" VerticalContentAlignment="Center" IsEnabled="False" TextChanged="FileSearchBox_TextChanged"/>
                                     </Grid>
                                 </StackPanel>
                                 <Grid Grid.Column="1">

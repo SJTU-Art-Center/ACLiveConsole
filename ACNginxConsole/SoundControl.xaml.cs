@@ -9,6 +9,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using WPFSetVolume.VolumeHelper;
@@ -33,6 +34,7 @@ namespace ACNginxConsole
             InitializeComponent();
             soundControllers = new List<SoundController>()
             {
+                new SoundController(true,false,false),
                 new SoundController(true,false,false),
                 new SoundController(true,false,false),
                 new SoundController(true,false,false),
@@ -145,6 +147,7 @@ namespace ACNginxConsole
             Slider1.Value = MainWindow.Monitors.ElementAt(0).Volume;
             Slider2.Value = MainWindow.Monitors.ElementAt(1).Volume;
             Slider3.Value = MainWindow.Monitors.ElementAt(2).Volume;
+            Slider4.Value = MainWindow.foreVol;
             if (Slider1.Value == 0)
             {
                 buttonMute1.Background = MuteBrush;
@@ -160,6 +163,11 @@ namespace ACNginxConsole
                 buttonMute3.Background = MuteBrush;
                 soundControllers.ElementAt(2).Mute = true;
             }
+            if(Slider4.Value == 0)
+            {
+                buttonMute4.Background = MuteBrush;
+                soundControllers.ElementAt(3).Mute = true;
+            }
         }
 
         private void SetVolume()
@@ -167,6 +175,7 @@ namespace ACNginxConsole
             MainWindow.Monitors.ElementAt(0).Volume = (int)Slider1.Value;
             MainWindow.Monitors.ElementAt(1).Volume = (int)Slider2.Value;
             MainWindow.Monitors.ElementAt(2).Volume = (int)Slider3.Value;
+            MainWindow.foreVol = (int)Slider4.Value;
         }
 
         private void NameUpdate()
@@ -269,7 +278,34 @@ namespace ACNginxConsole
                 buttonSolo3.Background = SoloBrush;
             else
                 buttonSolo3.Background = TranBrush;
-                  
+
+            if (soundControllers.ElementAt(3).On)
+            {
+                buttonON4.Background = ONBrush;
+                buttonON4.Foreground = BlackBrush;
+                MainWindow.foreVol = (int)Slider4.Value;
+            }
+            else
+            {
+                buttonON4.Background = TranBrush;
+                buttonON4.Foreground = WhiteBrush;
+                MainWindow.foreVol = 0;
+            }
+            Slider4.IsEnabled = soundControllers.ElementAt(3).On;
+
+            if (soundControllers.ElementAt(3).Mute)
+            {
+                buttonMute4.Background = MuteBrush;
+                Slider4.Value = 0;
+            }
+            else
+                buttonMute4.Background = TranBrush;
+
+            if (soundControllers.ElementAt(3).Solo)
+                buttonSolo4.Background = SoloBrush;
+            else
+                buttonSolo4.Background = TranBrush;
+
 
         }
 
@@ -299,6 +335,13 @@ namespace ACNginxConsole
             Update();
         }
 
+        private void buttonON4_Click(object sender, RoutedEventArgs e)
+        {
+            soundControllers.ElementAt(3).On = !soundControllers.ElementAt(3).On;
+            Update();
+            VCE?.Invoke(this, new VolChangedArgs { });
+        }
+
         private void buttonMute1_Click(object sender, RoutedEventArgs e)
         {
             if(!soundControllers.ElementAt(0).Mute)
@@ -320,21 +363,31 @@ namespace ACNginxConsole
             Update();
         }
 
+        private void buttonMute4_Click(object sender, RoutedEventArgs e)
+        {
+            if (!soundControllers.ElementAt(3).Mute)
+                soundControllers.ElementAt(3).Mute = true;
+            Update();
+        }
+
         private void Solo()
         {
             if (!soundControllers.ElementAt(0).Solo &&
                 !soundControllers.ElementAt(1).Solo &&
-                !soundControllers.ElementAt(2).Solo)
+                !soundControllers.ElementAt(2).Solo &&
+                !soundControllers.ElementAt(3).Solo)
             {
                 soundControllers.ElementAt(0).On = true;
                 soundControllers.ElementAt(1).On = true;
                 soundControllers.ElementAt(2).On = true;
+                soundControllers.ElementAt(3).On = true;
             }
             else
             {
                 soundControllers.ElementAt(0).On = soundControllers.ElementAt(0).Solo;
                 soundControllers.ElementAt(1).On = soundControllers.ElementAt(1).Solo;
                 soundControllers.ElementAt(2).On = soundControllers.ElementAt(2).Solo;
+                soundControllers.ElementAt(3).On = soundControllers.ElementAt(3).Solo;
             }
         }
 
@@ -355,6 +408,13 @@ namespace ACNginxConsole
         private void buttonSolo3_Click(object sender, RoutedEventArgs e)
         {
             soundControllers.ElementAt(2).Solo = !soundControllers.ElementAt(2).Solo;
+            Solo();
+            Update();
+        }
+
+        private void buttonSolo4_Click(object sender, RoutedEventArgs e)
+        {
+            soundControllers.ElementAt(3).Solo = !soundControllers.ElementAt(3).Solo;
             Solo();
             Update();
         }
@@ -414,6 +474,21 @@ namespace ACNginxConsole
                 VCE?.Invoke(this, new VolChangedArgs { });
                 Update();
             }
+        }
+
+        private void Slider4_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (Slider4.Value > 0)
+            {
+                soundControllers.ElementAt(3).Mute = false;
+            }
+            else
+            {
+                soundControllers.ElementAt(3).Mute = true;
+            }
+            SetVolume();
+            VCE?.Invoke(this, new VolChangedArgs { });
+            Update();
         }
 
         private void buttonSmartPA_Click(object sender, RoutedEventArgs e)

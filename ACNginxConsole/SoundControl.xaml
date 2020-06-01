@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ACNginxConsole"
         mc:Ignorable="d"
-        Title="SoundControl" Height="560.5" Width="417.785" Background="#FF1A2537">
+        Title="SoundControl" Height="560.5" Width="447.285" Background="#FF1A2537">
     <Window.Resources>
         <SolidColorBrush x:Key="SliderThumb.Static.Foreground" Color="#FFBFC1D0" />
         <SolidColorBrush x:Key="SliderThumb.MouseOver.Background" Color="#FFDCECFC"/>
@@ -402,6 +402,7 @@
             <ColumnDefinition/>
             <ColumnDefinition/>
             <ColumnDefinition/>
+            <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
@@ -418,28 +419,35 @@
         <Label Grid.Column="1" Content="2" HorizontalContentAlignment="Center" FontWeight="Bold" Foreground="#FFBBC7DA" FontSize="16"/>
         <Label Grid.Column="2" Content="LINE" Foreground="#FFBBC7DA" FontSize="8"/>
         <Label Grid.Column="2" Content="3" HorizontalContentAlignment="Center" FontWeight="Bold" Foreground="#FFBBC7DA" FontSize="16"/>
-        <Grid Grid.Column="3">
+        <Label Grid.Column="3" Content="LINE" Foreground="#FFBBC7DA" FontSize="8"/>
+        <Label Grid.Column="3" Content="4" HorizontalContentAlignment="Center" FontWeight="Bold" Foreground="#FFBBC7DA" FontSize="16"/>
+        <Grid Grid.Column="4">
             <Label Grid.Column="3" Content="STEREO OUT" Foreground="#FF1F2A3C" Background="#FFADB6C7" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
         </Grid>
 
         <Label x:Name="labelSN1" Grid.Row="1" Foreground="#FFBBC5D8" HorizontalContentAlignment="Center" />
         <Label x:Name="labelSN2" Grid.Row="1" Grid.Column="1" Foreground="#FFBBC5D8" HorizontalContentAlignment="Center" />
         <Label x:Name="labelSN3" Grid.Row="1" Grid.Column="2" Foreground="#FFBBC5D8" HorizontalContentAlignment="Center" />
+        <Label x:Name="labelSN4" Grid.Row="1" Grid.Column="3" Foreground="#FFBBC5D8" HorizontalContentAlignment="Center" Content="音频电脑"/>
         <Button x:Name="buttonON1" Grid.Row="2" Content="ON" Height="30" Background="#FFFAEB5B" Click="buttonON1_Click"/>
         <Button x:Name="buttonON2" Grid.Column="1" Grid.Row="2" Content="ON" Height="30" Background="#FFFAEB5B" Click="buttonON2_Click" />
         <Button x:Name="buttonON3" Grid.Column="2" Grid.Row="2" Content="ON" Height="30" Background="#FFFAEB5B" Click="buttonON3_Click"  />
-        <Button x:Name="buttonONAll" Grid.Column="3" Grid.Row="2" Content="ON" Height="30" Background="#FFFAEB5B" Click="buttonONAll_Click"  />
+        <Button x:Name="buttonON4" Grid.Column="3" Grid.Row="2" Content="ON" Height="30" Background="#FFFAEB5B" Click="buttonON4_Click"  />
+        <Button x:Name="buttonONAll" Grid.Column="4" Grid.Row="2" Content="ON" Height="30" Background="#FFFAEB5B" Click="buttonONAll_Click"  />
         <Slider x:Name="Slider1" Grid.Row="3" Orientation="Vertical" Maximum="100" LargeChange="10" SmallChange="2" TickPlacement="Both" TickFrequency="10" HorizontalAlignment="Center" AutoToolTipPlacement="TopLeft" Padding="0" Margin="0,10,0,10.5" Foreground="#FF89919E" BorderBrush="{x:Null}" Background="{x:Null}" Style="{DynamicResource SliderStyleSoundControl}" ValueChanged="Slider1_ValueChanged"/>
         <Slider x:Name="Slider2" Grid.Column="1" Grid.Row="3" Orientation="Vertical" Maximum="100" LargeChange="10" SmallChange="2" TickPlacement="Both" TickFrequency="10" HorizontalAlignment="Center" AutoToolTipPlacement="TopLeft" Padding="0" Margin="0,10,0,10.5" Foreground="#FF89919E" BorderBrush="{x:Null}" Background="{x:Null}" Style="{DynamicResource SliderStyleSoundControl}" ValueChanged="Slider2_ValueChanged" />
         <Slider x:Name="Slider3" Grid.Column="2" Grid.Row="3" Orientation="Vertical" Maximum="100" LargeChange="10" SmallChange="2" TickPlacement="Both" TickFrequency="10" HorizontalAlignment="Center" AutoToolTipPlacement="TopLeft" Padding="0" Margin="0,10,0,10.5" Foreground="#FF89919E" BorderBrush="{x:Null}" Background="{x:Null}" Style="{DynamicResource SliderStyleSoundControl}" ValueChanged="Slider3_ValueChanged"  />
-        <Slider x:Name="SliderAll" Grid.Column="3" Grid.Row="3" Orientation="Vertical" Maximum="100" LargeChange="10" SmallChange="2" TickPlacement="Both" TickFrequency="10" HorizontalAlignment="Center" AutoToolTipPlacement="TopLeft" Padding="0" Margin="0,10,0,10.5" Foreground="#FF89919E" BorderBrush="{x:Null}" Background="{x:Null}" Style="{DynamicResource SliderStyleRed}" ValueChanged="SliderAll_ValueChanged" />
+        <Slider x:Name="Slider4" Grid.Column="3" Grid.Row="3" Orientation="Vertical" Maximum="100" LargeChange="10" SmallChange="2" TickPlacement="Both" TickFrequency="10" HorizontalAlignment="Center" AutoToolTipPlacement="TopLeft" Padding="0" Margin="0,10,0,10.5" Foreground="#FF89919E" BorderBrush="{x:Null}" Background="{x:Null}" Style="{DynamicResource SliderStyleSoundControl}" ValueChanged="Slider4_ValueChanged"  />
+        <Slider x:Name="SliderAll" Grid.Column="4" Grid.Row="3" Orientation="Vertical" Maximum="100" LargeChange="10" SmallChange="2" TickPlacement="Both" TickFrequency="10" HorizontalAlignment="Center" AutoToolTipPlacement="TopLeft" Padding="0" Margin="0,10,0,10.5" Foreground="#FF89919E" BorderBrush="{x:Null}" Background="{x:Null}" Style="{DynamicResource SliderStyleRed}" ValueChanged="SliderAll_ValueChanged" />
         <Button x:Name="buttonMute1" Grid.Row="4" Content="M" Height="30" Background="{x:Null}" Foreground="White" Click="buttonMute1_Click" />
         <Button x:Name="buttonMute2" Grid.Column="1" Grid.Row="4" Content="M" Height="30" Background="{x:Null}" Foreground="White" Click="buttonMute2_Click"  />
         <Button x:Name="buttonMute3" Grid.Column="2" Grid.Row="4" Content="M" Height="30" Background="{x:Null}" Foreground="White" Click="buttonMute3_Click"  />
-        <Button x:Name="buttonMuteAll" Grid.Column="3" Grid.Row="4" Content="M" Height="30" Background="{x:Null}" Foreground="White" Click="buttonMuteAll_Click" />
+        <Button x:Name="buttonMute4" Grid.Column="3" Grid.Row="4" Content="M" Height="30" Background="{x:Null}" Foreground="White" Click="buttonMute4_Click"  />
+        <Button x:Name="buttonMuteAll" Grid.Column="4" Grid.Row="4" Content="M" Height="30" Background="{x:Null}" Foreground="White" Click="buttonMuteAll_Click" />
         <Button x:Name="buttonSolo1" Grid.Row="5" Content="S" Height="30" Background="{x:Null}" Foreground="White" Click="buttonSolo1_Click" />
         <Button x:Name="buttonSolo2" Grid.Column="1" Grid.Row="5" Content="S" Height="30" Background="{x:Null}" Foreground="White" Click="buttonSolo2_Click" />
         <Button x:Name="buttonSolo3" Grid.Column="2" Grid.Row="5" Content="S" Height="30" Background="{x:Null}" Foreground="White" Click="buttonSolo3_Click" />
+        <Button x:Name="buttonSolo4" Grid.Column="3" Grid.Row="5" Content="S" Height="30" Background="{x:Null}" Foreground="White" Click="buttonSolo4_Click" />
         <Button x:Name="buttonSmartPA"  Grid.Row="6" Content="智慧型音控" Height="30" Background="#FFD8B51B" Foreground="Black" Click="buttonSmartPA_Click"/>
         <Button x:Name="buttonJcut"  Grid.Row="6" Grid.Column="1" Content="J CUT" Height="30" Background="#FFD8B51B" Foreground="Black" Click="buttonJcut_Click"/>
         <Button x:Name="buttonLcut"  Grid.Row="6" Grid.Column="2" Content="L CUT" Height="30" Background="{x:Null}" Foreground="#FFFFFFF1" Click="buttonLcut_Click"/>
