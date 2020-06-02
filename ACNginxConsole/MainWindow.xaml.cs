@@ -960,7 +960,7 @@ namespace ACNginxConsole
             tabItemTest.Visibility = Visibility.Visible;
             tabItemStream.Visibility = Visibility.Visible;
             TabItemSetting.Visibility = Visibility.Visible;
-            tabScreen.Visibility = Visibility.Visible;
+            TabItemScreen.Visibility = Visibility.Visible;
             button4.Visibility = Visibility.Hidden;
             passwordBox.Visibility = Visibility.Hidden;
             label8.Visibility = Visibility.Hidden;
@@ -978,7 +978,7 @@ namespace ACNginxConsole
             tabItemTest.Visibility = Visibility.Collapsed;
             tabItemStream.Visibility = Visibility.Collapsed;
             TabItemSetting.Visibility = Visibility.Collapsed;
-            tabScreen.Visibility = Visibility.Collapsed;
+            TabItemScreen.Visibility = Visibility.Collapsed;
             buttonSoftHelp.Visibility = Visibility.Hidden;
             buttonDanmakuEntry.Visibility = Visibility.Hidden;
         }
@@ -2690,7 +2690,7 @@ namespace ACNginxConsole
                 {
                     comboBoxSource.SelectedIndex = Monitors.ElementAt(selec - 1).PlayId;
 
-                    if (DanmakuSwitch && BackLive.IsSelected)
+                    if (screenSwitch && BackLive.IsSelected)
                     {
                         if (focaldephov.ForeImg.Opacity == 1)
                             ImgFadeOutAnim(buttonForeImg, focaldephov.ForeImg);
@@ -2726,7 +2726,7 @@ namespace ACNginxConsole
                 LabelDanmu.Visibility = Visibility.Visible;
                 comboBoxSource.IsEnabled = false;
                 comboBoxSource.SelectedIndex = -1;
-                if (DanmakuSwitch && BackLive.IsSelected)
+                if (screenSwitch && BackLive.IsSelected)
                 {//切为前景图片
                     if (focaldephov.ForeImg.Opacity == 0)
                         ImgFadeOutAnim(buttonForeImg, focaldephov.ForeImg);
@@ -3984,7 +3984,7 @@ namespace ACNginxConsole
 
         private async void ButtonDanmakuSwitch_Click(object sender, RoutedEventArgs e)
         {
-            var myblue = new SolidColorBrush(Color.FromArgb(255, 1, 188, 225));
+            var myblue = new SolidColorBrush(Color.FromArgb(255, 1, 188, 255));
             if (DanmakuSwitch)
             {
                 while (danmuqueue.Any())        //队列全部清空
@@ -4350,6 +4350,52 @@ namespace ACNginxConsole
                 focaldephov.labelSubtitler.Opacity = SliderSubTran.Value;
 
             GridSubtitler.IsEnabled = true;
+
+            switch (Properties.Settings.Default.SizeMode)
+            {
+                case 0: focaldephov.WindowState = WindowState.Maximized; break;
+                case 1:
+                    focaldephov.WindowState = WindowState.Normal;
+                    focaldephov.Width = 1920;
+                    focaldephov.Height = 1080;
+                    break;
+                case 2:
+                    focaldephov.WindowState = WindowState.Normal;
+                    focaldephov.Width = 1280;
+                    focaldephov.Height = 720;
+                    break;
+            }
+        }
+
+        private void SizeFullScreen_Selected(object sender, RoutedEventArgs e)
+        {
+            if (focaldephov != null && focaldephov.IsLoaded)
+            {
+                focaldephov.WindowState = WindowState.Maximized;
+            }
+            Properties.Settings.Default.SizeMode = 0;
+        }
+
+        private void Size1080P_Selected(object sender, RoutedEventArgs e)
+        {
+            if (focaldephov != null && focaldephov.IsLoaded)
+            {
+                focaldephov.WindowState = WindowState.Normal;
+                focaldephov.Width = 1920;
+                focaldephov.Height = 1080;
+            }
+            Properties.Settings.Default.SizeMode = 1;
+        }
+
+        private void Size720P_Selected(object sender, RoutedEventArgs e)
+        {
+            if (focaldephov != null && focaldephov.IsLoaded)
+            {
+                focaldephov.WindowState = WindowState.Normal;
+                focaldephov.Width = 1280;
+                focaldephov.Height = 720;
+            }
+            Properties.Settings.Default.SizeMode = 2;
         }
 
         private void Close_DanmakuWindow()
@@ -5321,35 +5367,7 @@ namespace ACNginxConsole
             Rec2.Visibility = Visibility.Collapsed;
         }
 
-        private void SizeFullScreen_Selected(object sender, RoutedEventArgs e)
-        {
-            if (focaldephov != null && focaldephov.IsLoaded) {
-                focaldephov.WindowState = WindowState.Maximized;
-            }
-            Properties.Settings.Default.SizeMode = 0;
-        }
-
-        private void Size1080P_Selected(object sender, RoutedEventArgs e)
-        {
-            if (focaldephov != null && focaldephov.IsLoaded)
-            {
-                focaldephov.WindowState = WindowState.Normal;
-                focaldephov.Width = 1920;
-                focaldephov.Height = 1080;
-            }
-            Properties.Settings.Default.SizeMode = 1;
-        }
-
-        private void Size720P_Selected(object sender, RoutedEventArgs e)
-        {
-            if (focaldephov != null && focaldephov.IsLoaded)
-            {
-                focaldephov.WindowState = WindowState.Normal;
-                focaldephov.Width = 1280;
-                focaldephov.Height = 720;
-            }
-            Properties.Settings.Default.SizeMode = 2;
-        }
+        
 
         private void buttonSurfaceDial_Click(object sender, RoutedEventArgs e)
         {
@@ -5601,12 +5619,13 @@ namespace ACNginxConsole
 
         private void LoadLrc(FileInfo fi)
         {
-            lrcque.Clear();
-            timerque.Clear();
-            textboxPrevSub.Clear();
-            textboxNextSub.Clear();
+            
             if (fi!=null&&System.IO.File.Exists(fi.FullName))
             {
+                lrcque.Clear();
+                timerque.Clear();
+                textboxPrevSub.Clear();
+                textboxNextSub.Clear();
                 try
                 {
                     string[] lines = System.IO.File.ReadAllLines(fi.FullName, Encoding.Default);
@@ -5962,6 +5981,7 @@ namespace ACNginxConsole
                 radialController.Menu.SelectMenuItem(rcsub);
             }
         }
+
 
         private void buttonNextFile_Click(object sender, RoutedEventArgs e)
         {

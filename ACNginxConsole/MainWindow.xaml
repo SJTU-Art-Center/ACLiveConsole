@@ -536,7 +536,7 @@
                         <Label x:Name="label10" Content="min" Height="25" Margin="0,138,1,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="37"/>
                     </Grid>
                 </TabItem>
-                <TabItem Header="公屏" Width="70">
+                <TabItem x:Name="TabItemScreen" Header="公屏" Width="70">
                     <Grid x:Name="tabScreen" Background="#FFE5E5E5">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="auto"/>
