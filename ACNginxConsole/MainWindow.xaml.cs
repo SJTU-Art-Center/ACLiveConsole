@@ -2942,8 +2942,9 @@ namespace ACNginxConsole
                         case 3: sc.Slider3.Value = fade_selc_ori * ProgressTran.Value; if (sc.Slider3.Value == 0) { sc.Slider3.Value = fade_selc_ori; } break;
                     }
                 }
-                
-                MSC.Invoke(this, new MainSelecChangedArgs() { });
+
+                if (MSC != null)
+                    MSC.Invoke(this, new MainSelecChangedArgs() { });
 
                 if (ProgressTran.Value == 0)
                 {
@@ -3984,7 +3985,7 @@ namespace ACNginxConsole
 
         private async void ButtonDanmakuSwitch_Click(object sender, RoutedEventArgs e)
         {
-            var myblue = new SolidColorBrush(Color.FromArgb(255, 1, 188, 255));
+            var myblue = new SolidColorBrush(Color.FromArgb(255, 1, 188, 225));
             if (DanmakuSwitch)
             {
                 while (danmuqueue.Any())        //队列全部清空
