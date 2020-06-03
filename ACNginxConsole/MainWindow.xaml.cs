@@ -508,6 +508,7 @@ namespace ACNginxConsole
                     case 2: this.Type = "自定义"; break;
                     case 3: this.Type = "局域网"; break;
                     case 4: this.Type = "捕获设备"; break;
+                    case 5: this.Type = "腾讯云";break;
                 }
                 this.SourceName = sourceName;
                 this.StreamCode = streamCode;
@@ -644,6 +645,43 @@ namespace ACNginxConsole
                 else if (Type == "微博")
                 {
                     realplay = website; //暂时保持不变
+                }
+                else if (Type =="腾讯云")
+                {
+                    if (Properties.Settings.Default.CloseYouget == false)
+                    {
+
+                        //Regex re = new Regex(@"(?<=rtmp?://live\.bilibili\.com/)\b\w+\b"); //正则表达式
+                        try
+                        {
+                            Regex re = new Regex(@"rtmp");
+                            realplay = re.Replace(website, "https");
+
+                            try
+                            {
+                                re = new Regex(@"livepush");
+                                realplay = re.Replace(realplay, "liveplay");
+
+                                try
+                                {
+                                    realplay = realplay.Split('?')[0];
+                                    realplay = realplay + ".flv";
+                                }
+                                catch
+                                {
+                                    return "腾讯云地址复制不够完全(-3)";
+                                }
+                            }
+                            catch
+                            {
+                                return "不是正确的腾讯云推流地址(-2)";
+                            }
+                        }
+                        catch
+                        {
+                            return "不是正确的rtmp地址(-1)";
+                        }
+                    }
                 }
                 else
                 {
@@ -949,6 +987,8 @@ namespace ACNginxConsole
 
             checkBoxSubtitleAlways.IsChecked = Properties.Settings.Default.SubAlways;
 
+            checkBoxTxCloud.IsEnabled = false;
+
         }
 
         #region 主页
@@ -1148,11 +1188,14 @@ namespace ACNginxConsole
             }
             else if (radioButtonLAN.IsChecked == true)
             {
-                if (radioButtonRecord.IsChecked == true || 
-                    radioButtonScreen.IsChecked == true)
-                    sourceType = 4;
-                else
-                    sourceType = 3;
+                if (radioButtonReceiver.IsChecked == true &&
+                    checkBoxTxCloud.IsChecked == true)
+                    sourceType = 5;
+                else if (radioButtonRecord.IsChecked == true || 
+                        radioButtonScreen.IsChecked == true)
+                        sourceType = 4;
+                     else
+                        sourceType = 3;
             } 
 
         }
@@ -1618,7 +1661,15 @@ namespace ACNginxConsole
             textBoxMan.Visibility = Visibility.Hidden;
             textBoxSourceName.Text = "流" + configcount;
             textBoxWebsite.IsReadOnly = false;
+
+            checkBoxTxCloud.IsEnabled = true;
         }
+
+        private void radioButtonReceiver_Unchecked(object sender, RoutedEventArgs e)
+        {
+            checkBoxTxCloud.IsEnabled = false;
+        }
+
 
         #endregion
 
@@ -5983,6 +6034,17 @@ namespace ACNginxConsole
             }
         }
 
+        private void checkBoxTxCloud_Checked(object sender, RoutedEventArgs e)
+        {
+            RefreshOutput();
+            labelWebsite.Content = "推流地址";
+        }
+
+        private void checkBoxTxCloud_Unchecked(object sender, RoutedEventArgs e)
+        {
+            RefreshOutput();
+            labelWebsite.Content = "播流地址";
+        }
 
         private void buttonNextFile_Click(object sender, RoutedEventArgs e)
         {

@@ -411,7 +411,7 @@
                         </Button>
                         <Grid x:Name="GridLANTip" Height="127" Margin="145,47,300.5,0" VerticalAlignment="Top" Background="#FFE5E5E5">
                             <RadioButton x:Name="radioButtonSender" Content="发送" HorizontalAlignment="Left" Height="19" Margin="0,7,0,0" VerticalAlignment="Top" Width="47" Checked="radioButtonSender_Checked"/>
-                            <RadioButton x:Name="radioButtonReceiver" Content="接收" HorizontalAlignment="Left" Height="18" Margin="0,40,0,0" VerticalAlignment="Top" Width="54" Checked="radioButtonReceiver_Checked"/>
+                            <RadioButton x:Name="radioButtonReceiver" Content="接收" HorizontalAlignment="Left" Height="18" Margin="0,40,0,0" VerticalAlignment="Top" Width="54" Checked="radioButtonReceiver_Checked" Unchecked="radioButtonReceiver_Unchecked"/>
                             <TextBlock x:Name="textBlockTip" Height="47" Margin="59,6,0,0" TextWrapping="Wrap" Text="请把播流地址传给直播主机。" VerticalAlignment="Top"/>
                             <Image x:Name="ImgRightArrow" Margin="0,0,6,65" Source="arrow_Forward_color_32xLG.png" Stretch="Fill" Height="28" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="28"/>
                             <ComboBox x:Name="comboBoxVideo" Height="19" Margin="122,71,6,0" VerticalAlignment="Top" VerticalContentAlignment="Center" SelectionChanged="comboBoxVideo_SelectionChanged" DropDownOpened="comboBoxVideo_DropDownOpened"/>
@@ -420,6 +420,7 @@
                             <Label x:Name="label9" Content="视频" HorizontalAlignment="Left" Height="24" Margin="81,66,0,0" VerticalAlignment="Top" Width="36"/>
                             <Label x:Name="label9_Copy" Content="音频" HorizontalAlignment="Left" Height="24" Margin="81,97,0,0" VerticalAlignment="Top" Width="36"/>
                             <RadioButton x:Name="radioButtonScreen" Content="桌面" HorizontalAlignment="Left" Height="15" Margin="0,103,0,0" VerticalAlignment="Top" Width="81" Checked="radioButtonScreen_Checked"/>
+                            <CheckBox x:Name="checkBoxTxCloud" Content="腾讯云" HorizontalAlignment="Left" Height="18" Margin="59,40,0,0" VerticalAlignment="Top" Width="68" Checked="checkBoxTxCloud_Checked" Unchecked="checkBoxTxCloud_Unchecked"/>
 
                         </Grid>
                         <CheckBox x:Name="checkBoxSolo" Content="接收端独立" Margin="0,0,124.5,17" HorizontalAlignment="Right" Width="107" Height="22" VerticalAlignment="Bottom" ToolTip="作为信号接收器但又需要分流直播时，请勾选此项。"/>
