@@ -4883,6 +4883,11 @@ namespace ACNginxConsole
         private void SubtitlerFadeOut_sb_Completed(object sender, EventArgs e)
         {
             Fade_Storyboard_Remove_slider(buttonSubtitler, SliderSubTran);
+            
+            if (AudioStop) {
+                AudioStop = false;
+                ForeRealStop();
+            } 
         }
 
         private void Fade_Storyboard_Remove(object senderbutton, object senderslider)
@@ -5561,6 +5566,22 @@ namespace ACNginxConsole
         {
             if (focaldephov != null && focaldephov.IsLoaded)
                 focaldephov.labelSubtitler.Opacity = SliderSubTran.Value;
+
+            if(sc!=null && sc.IsLoaded && 
+                Properties.Settings.Default.SmartPA == 3 && AudioStop)
+            {
+                // Follow the Slider Value.
+
+                sc.Slider4.Value = SliderSubTran.Value * sc_AudioChannel_ori;
+                if (sc.Slider4.Value == 0)
+                {
+                    sc.Slider4.Value = sc_AudioChannel_ori;
+                    SoundControl.soundControllers.ElementAt(3).On = false;
+                }
+
+                if (MSC != null)
+                    MSC.Invoke(this, new MainSelecChangedArgs() { });
+            }
         }
 
         private void SliderSubBazelDist_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -5914,25 +5935,65 @@ namespace ACNginxConsole
 
         bool IsSubStopped = false;
 
+        double sc_AudioChannel_ori;
+        
+        private void ForeRealStop()
+        {
+            if (sourceProvider_fore != null)
+                sourceProvider_fore.MediaPlayer.Stop();
+            buttonPlay.IsEnabled = true;
+            buttonStop.IsEnabled = false;
+            if (loadfi != null)
+                TextBlockStatus.Text = "停止：" + loadfi.Name;
+            else TextBlockStatus.Text = "停止";
+            currentTime = 0;
+            timerque.Clear();
+            IsSubStopped = true;
+            textboxCurrentSub.Clear();
+            LoadLrc(loadlrc);
+            if (currentTime > 0)
+                PrevSub();
+            
+        }
+
+        bool AudioStop = false;
+
         private void ForeStop()
         {
             if (buttonStop.IsEnabled)
             {
-                sourceProvider_fore.MediaPlayer.Stop();
-                buttonPlay.IsEnabled = true;
-                buttonStop.IsEnabled = false;
-                if (loadfi != null)
-                    TextBlockStatus.Text = "停止：" + loadfi.Name;
-                else TextBlockStatus.Text = "停止";
-                currentTime = 0;
-                timerque.Clear();
-                IsSubStopped = true;
-                textboxCurrentSub.Clear();
-                LoadLrc(loadlrc);
-                if (currentTime > 0)
-                    PrevSub();
-                if (SliderSubTran.Value > 0)
-                    FadeOutAnim(buttonSubtitler, SliderSubTran);
+                if (sc!=null && sc.IsLoaded && Properties.Settings.Default.SmartPA == 3)
+                {
+                    // Fade Out
+                    // Nothing happened.
+                    // I have to use Slider binding to achieve that.
+                    sc_AudioChannel_ori = sc.Slider4.Value;
+
+                    AudioStop = true;
+
+                    if (SliderSubTran.Value > 0)
+                        FadeOutAnim(buttonSubtitler, SliderSubTran);
+                    //DoubleAnimation audioFadeOut = new DoubleAnimation(sc_AudioChannel_ori, 0,
+                    //   TimeSpan.FromSeconds(Properties.Settings.Default.TranSec))
+                    //{ EasingFunction = new ExponentialEase() { EasingMode = EasingMode.EaseOut } };
+
+                    //Storyboard AudioFOs = new Storyboard();
+                    //Storyboard.SetTarget(audioFadeOut, sc.Slider4);
+                    //Storyboard.SetTargetProperty(audioFadeOut, new PropertyPath("(Slider.Value)"));
+                    //AudioFOs.Children.Add(audioFadeOut);
+                    //AudioFOs.Completed += AudioFOs_Completed;
+                    //AudioFOs.Begin();
+                }
+                else
+                {
+                    AudioStop = false;
+
+                    ForeRealStop();
+                    if (SliderSubTran.Value > 0)
+                        FadeOutAnim(buttonSubtitler, SliderSubTran);
+                }
+
+                
             }
             
         }
@@ -5985,6 +6046,13 @@ namespace ACNginxConsole
                     TextBlockStatus.Text = "播放：" + loadfi.Name;
                     if (SliderSubTran.Value == 0)
                         FadeOutAnim(buttonSubtitler, SliderSubTran);
+
+                    if (sc != null && sc.IsLoaded && Properties.Settings.Default.SmartPA == 3)
+                    {
+                        SoundControl.soundControllers.ElementAt(3).On = true;
+                        if (MSC != null)
+                            MSC.Invoke(this, new MainSelecChangedArgs() { });
+                    }
                 }
 
             }
