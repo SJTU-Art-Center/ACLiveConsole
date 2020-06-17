@@ -709,6 +709,7 @@ namespace ACNginxConsole
             private int timepass;     //经过次数
             private bool isSelected;
             private bool isAdmin;
+            private string userName;
 
             public string Danmaku
             {
@@ -746,6 +747,12 @@ namespace ACNginxConsole
                 set { isAdmin = value; }
             }
 
+            public string UserName
+            {
+                get { return userName; }
+                set { userName = value; }
+            }
+
             public double Opacity
             {
                 get { return timepass * 1.0 / EXPIRE_TIME; }
@@ -757,12 +764,13 @@ namespace ACNginxConsole
             }
 
             public DanmakuItem() { }
-            public DanmakuItem(string DanmakuIn = "", bool isAdm = false)
+            public DanmakuItem(string DanmakuIn = "", bool isAdm = false, string un = "")
             {
                 Danmaku = DanmakuIn;
                 Timepass = 0;
                 IsSelected = AutoDanmaku ? true : false;
                 IsAdmin = isAdm;
+                UserName = un;
             }
 
         }
@@ -3928,7 +3936,7 @@ namespace ACNginxConsole
 
                         }
                         
-
+                        
                         if (danmaku.MsgType == MsgTypeEnum.Comment && ignorespam_enabled)
                         {
                             try
@@ -4228,7 +4236,7 @@ namespace ACNginxConsole
                 //    ListBoxItem newDanmakuL = new ListBoxItem();
                 //    newDanmakuL.Content = danmakuModel.CommentText;
                 //    listBoxDanmaku.Items.Add(newDanmakuL);
-                DanmakuPool.Enqueue(new DanmakuItem(danmakuModel.CommentText, danmakuModel.isAdmin));
+                DanmakuPool.Enqueue(new DanmakuItem(danmakuModel.CommentText, danmakuModel.isAdmin, danmakuModel.UserName));
             }
         }
 
@@ -5045,6 +5053,14 @@ namespace ACNginxConsole
             FocalDepthHover.DM_Style = FocalDepthHover.DanmuStyle.BottomBar;
             FocalDepthHover.SettingModified = true;
             focaldephov.CornerRefreshTimer.Stop();
+        }
+
+        private void DanmuBottomBarWithUserName_Selected(object sender, RoutedEventArgs e)
+        {
+            FocalDepthHover.DM_Style = FocalDepthHover.DanmuStyle.BottomBarWithUserName;
+            FocalDepthHover.SettingModified = true;
+            focaldephov.CornerRefreshTimer.Stop();
+
         }
 
         private void SliderHovTime_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -6068,6 +6084,8 @@ namespace ACNginxConsole
         {
             Properties.Settings.Default.BottomBarAuto = false;
         }
+
+        
 
         private void buttonNextFile_Click(object sender, RoutedEventArgs e)
         {

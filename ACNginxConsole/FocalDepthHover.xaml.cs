@@ -18,6 +18,7 @@ using static System.Windows.Forms.Screen;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows.Controls.Primitives;
+using Windows.UI.Text;
 //using System.Windows.Forms;
 
 namespace ACNginxConsole
@@ -33,7 +34,7 @@ namespace ACNginxConsole
 
         public static bool SettingModified = false;        //设置是否被修改
 
-        public enum DanmuStyle { Plain, Bubble, BubbleFloat, BubbleCorner, BottomBar };
+        public enum DanmuStyle { Plain, Bubble, BubbleFloat, BubbleCorner, BottomBar, BottomBarWithUserName };
         public static DanmuStyle DM_Style = DanmuStyle.Plain;
 
         public static double HOVER_TIME = 10;       //悬浮时间
@@ -261,7 +262,7 @@ namespace ACNginxConsole
                 CanvasBottomBar.Children.Add(label);
                 Canvas.SetTop(label, 0);
 
-                double labelWidth = label.Content.ToString().Length * FocalPt_inSize / 0.75;
+                double labelWidth = label.Content.ToString().Length * FocalPt_inSize / (label.FontWeight ==System.Windows.FontWeights.Light?0.9:0.75);
                 DoubleAnimation doubleAnimation_b = new DoubleAnimation(
                     this.Width, this.Width - labelWidth,
                     new Duration(TimeSpan.FromSeconds(HOVER_TIME * labelWidth / this.Width)));
@@ -281,7 +282,7 @@ namespace ACNginxConsole
             // 第二段：展示段 
 
             Label label = Storyboard.GetTarget((sender as ClockGroup).Timeline.Children[0]) as Label;
-            double labelWidth = label.Content.ToString().Length * FocalPt_inSize / 0.75;
+            double labelWidth = label.Content.ToString().Length * FocalPt_inSize / (label.FontWeight == System.Windows.FontWeights.Light ? 0.9 : 0.75);
             DoubleAnimation doubleAnimation_b = new DoubleAnimation(
                         this.Width - labelWidth, -labelWidth,
                         new Duration(TimeSpan.FromSeconds(HOVER_TIME)));
@@ -487,6 +488,33 @@ namespace ACNginxConsole
                     }
 
                     break;
+
+                case DanmuStyle.BottomBarWithUserName:
+                    //多进一个Label
+                    Label labelUserName = new Label();
+                    labelUserName.Content = e.Danmu.UserName;
+                    labelUserName.Foreground = new SolidColorBrush((this.FindResource("BubbleFore") as SolidColorBrush).Color);
+                    labelUserName.FontWeight = System.Windows.FontWeights.Light;
+                    labelUserName.Opacity = 0.5;
+
+                    danmakuLabels.Enqueue(labelUserName);
+                    danmakuLabels.Enqueue(label);
+
+                    // 链式反应的引子
+                    if (CanvasBottomBar.Children.Count == 0)
+                    {
+                        BottomFirstStage();
+                        if (CanvasBottomBar.Children.Count == 0 && Properties.Settings.Default.BottomBarAuto)
+                        {
+                            // 初始化：弹出段
+                            // 如果没有元素，则弹出底栏
+                            if (!bottomBarPoped)
+                                BottomBarPopUp();
+                        }
+                    }
+
+                    break;
+                    
             }
         }
 
@@ -571,7 +599,7 @@ namespace ACNginxConsole
                 Canvas.SetBottom(corner_thumb, mybottom_c);
             }
 
-            if (DM_Style == DanmuStyle.BottomBar)
+            if (DM_Style == DanmuStyle.BottomBar||DM_Style==DanmuStyle.BottomBarWithUserName)
             {
                 CanvasBottomBar.Visibility = Visibility.Visible;
                 CanvasBottomBar.Height = FocalPt_inSize / 0.6;

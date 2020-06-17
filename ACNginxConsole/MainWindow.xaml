@@ -660,7 +660,8 @@
                                                         <ComboBoxItem x:Name="DanmuBubble" Content="气泡" Selected="DanmuBubble_Selected"/>
                                                         <ComboBoxItem x:Name="DanmuBubbleFloat" Content="气泡悬浮" Selected="DanmuBubbleFloat_Selected"/>
                                                         <ComboBoxItem x:Name="DanmuBubbleCorner" Content="气泡右下" Selected="DanmuBubbleCorner_Selected"/>
-                                                        <ComboBoxItem x:Name="DanmuBottomBar" Content="底部弹幕" Selected="DanmuBottomBar_Selected"/>
+                                                        <ComboBoxItem x:Name="DanmuBottomBar" Content="底部滚动条" Selected="DanmuBottomBar_Selected"/>
+                                                        <ComboBoxItem x:Name="DanmuBottomBarWithUserName" Content="底部滚动条(含用户名)" Selected="DanmuBottomBarWithUserName_Selected" />
                                                     </ComboBox>
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
