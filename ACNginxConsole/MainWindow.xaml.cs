@@ -989,6 +989,8 @@ namespace ACNginxConsole
 
             checkBoxTxCloud.IsEnabled = false;
 
+            checkBoxBottomBarAuto.IsChecked = Properties.Settings.Default.BottomBarAuto;
+
         }
 
         #region 主页
@@ -5013,25 +5015,36 @@ namespace ACNginxConsole
         private void DanmuPlain_Selected(object sender, RoutedEventArgs e)
         {
             FocalDepthHover.DM_Style = FocalDepthHover.DanmuStyle.Plain;
+            FocalDepthHover.SettingModified = true;
             focaldephov.CornerRefreshTimer.Stop();
         }
 
         private void DanmuBubble_Selected(object sender, RoutedEventArgs e)
         {
             FocalDepthHover.DM_Style = FocalDepthHover.DanmuStyle.Bubble;
+            FocalDepthHover.SettingModified = true;
             focaldephov.CornerRefreshTimer.Stop();
         }
 
         private void DanmuBubbleFloat_Selected(object sender, RoutedEventArgs e)
         {
             FocalDepthHover.DM_Style = FocalDepthHover.DanmuStyle.BubbleFloat;
+            FocalDepthHover.SettingModified = true;
             focaldephov.CornerRefreshTimer.Stop();
         }
 
         private void DanmuBubbleCorner_Selected(object sender, RoutedEventArgs e)
         {
             FocalDepthHover.DM_Style = FocalDepthHover.DanmuStyle.BubbleCorner;
+            FocalDepthHover.SettingModified = true;
             focaldephov.CornerRefreshTimer.Start();
+        }
+
+        private void DanmuBottomBar_Selected(object sender, RoutedEventArgs e)
+        {
+            FocalDepthHover.DM_Style = FocalDepthHover.DanmuStyle.BottomBar;
+            FocalDepthHover.SettingModified = true;
+            focaldephov.CornerRefreshTimer.Stop();
         }
 
         private void SliderHovTime_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -6044,6 +6057,16 @@ namespace ACNginxConsole
         {
             RefreshOutput();
             labelWebsite.Content = "播流地址";
+        }
+
+        private void checkBoxBottomBarAuto_Checked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.BottomBarAuto = true;
+        }
+
+        private void checkBoxBottomBarAuto_Unchecked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.BottomBarAuto = false;
         }
 
         private void buttonNextFile_Click(object sender, RoutedEventArgs e)

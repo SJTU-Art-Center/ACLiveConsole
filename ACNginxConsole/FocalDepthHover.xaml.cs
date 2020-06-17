@@ -16,6 +16,8 @@ using System.Windows.Threading;
 using System.Windows.Media.Effects;
 using static System.Windows.Forms.Screen;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.Windows.Controls.Primitives;
 //using System.Windows.Forms;
 
 namespace ACNginxConsole
@@ -31,7 +33,7 @@ namespace ACNginxConsole
 
         public static bool SettingModified = false;        //设置是否被修改
 
-        public enum DanmuStyle { Plain, Bubble, BubbleFloat, BubbleCorner };
+        public enum DanmuStyle { Plain, Bubble, BubbleFloat, BubbleCorner, BottomBar };
         public static DanmuStyle DM_Style = DanmuStyle.Plain;
 
         public static double HOVER_TIME = 10;       //悬浮时间
@@ -147,6 +149,7 @@ namespace ACNginxConsole
         double myright_c;
         double mybottom_c;
         System.Windows.Controls.Primitives.Thumb corner_thumb;
+        Storyboard bottombars = new Storyboard();
 
         private void CornerRefreshTimer_Tick(object sender, EventArgs e)
         {
@@ -156,58 +159,159 @@ namespace ACNginxConsole
 
                 label.Foreground = new SolidColorBrush((this.FindResource("BubbleFore") as SolidColorBrush).Color);
 
-                label.Style = this.FindResource("tipLable") as Style;
-                GridCanvas.Children.Add(label);
-                Canvas.SetBottom(label, mybottom_c);
-                Canvas.SetRight(label, myright_c);
+                if (DM_Style == DanmuStyle.BubbleCorner) {
+                    label.Style = this.FindResource("tipLable") as Style;
+                    GridCanvas.Children.Add(label);
+                    Canvas.SetBottom(label, mybottom_c);
+                    Canvas.SetRight(label, myright_c);
 
-                label.FontSize = 5;     //起点是5号字
-                //没有模糊
+                    label.FontSize = 5;     //起点是5号字
+                                            //没有模糊
 
-                var Blur = label.Effect as BlurEffect;
+                    var Blur = label.Effect as BlurEffect;
 
-                //故事板
-                Storyboard storyboard_Corner = new Storyboard();
+                    //故事板
+                    Storyboard storyboard_Corner = new Storyboard();
 
-                //添加字号动画
-                DoubleAnimation SizeAnim = new DoubleAnimation(
-                    5, hoverLayers.ElementAt(0).TextSize, 
-                    TimeSpan.FromSeconds(hoverLayers.ElementAt(0).Hover_time / 8))
-                {
-                    EasingFunction = new ExponentialEase()
+                    //添加字号动画
+                    DoubleAnimation SizeAnim = new DoubleAnimation(
+                        5, hoverLayers.ElementAt(0).TextSize,
+                        TimeSpan.FromSeconds(hoverLayers.ElementAt(0).Hover_time / 8))
                     {
-                        Exponent = 9,
-                        EasingMode = EasingMode.EaseOut
-                    }
-                };
-                Storyboard.SetTarget(SizeAnim, label);
-                Storyboard.SetTargetProperty(SizeAnim, new PropertyPath("(Label.FontSize)"));
-                storyboard_Corner.Children.Add(SizeAnim);
+                        EasingFunction = new ExponentialEase()
+                        {
+                            Exponent = 9,
+                            EasingMode = EasingMode.EaseOut
+                        }
+                    };
+                    Storyboard.SetTarget(SizeAnim, label);
+                    Storyboard.SetTargetProperty(SizeAnim, new PropertyPath("(Label.FontSize)"));
+                    storyboard_Corner.Children.Add(SizeAnim);
 
-                //添加Y轴方向的动画
-                DoubleAnimation doubleAnimation_c = new DoubleAnimation(
-                    mybottom_c, mybottom_c + this.Height / 3,
-                    new Duration(TimeSpan.FromSeconds(hoverLayers.ElementAt(0).Hover_time)));
-                Storyboard.SetTarget(doubleAnimation_c, label);
-                Storyboard.SetTargetProperty(doubleAnimation_c, new PropertyPath("(Canvas.Bottom)"));
-                storyboard_Corner.Children.Add(doubleAnimation_c);
+                    //添加Y轴方向的动画
+                    DoubleAnimation doubleAnimation_c = new DoubleAnimation(
+                        mybottom_c, mybottom_c + this.Height / 3,
+                        new Duration(TimeSpan.FromSeconds(hoverLayers.ElementAt(0).Hover_time)));
+                    Storyboard.SetTarget(doubleAnimation_c, label);
+                    Storyboard.SetTargetProperty(doubleAnimation_c, new PropertyPath("(Canvas.Bottom)"));
+                    storyboard_Corner.Children.Add(doubleAnimation_c);
 
-                //添加淡出动画
-                DoubleAnimation FadeOutAnim = new DoubleAnimation()
-                {
-                    From = 1,
-                    To = 0,
-                    Duration = TimeSpan.FromSeconds(hoverLayers.ElementAt(0).Hover_time / 4),
-                    BeginTime = TimeSpan.FromSeconds(hoverLayers.ElementAt(0).Hover_time / 4),
-                };
-                Storyboard.SetTarget(FadeOutAnim, label);
-                Storyboard.SetTargetProperty(FadeOutAnim, new PropertyPath("(Label.Opacity)"));
-                storyboard_Corner.Children.Add(FadeOutAnim);
+                    //添加淡出动画
+                    DoubleAnimation FadeOutAnim = new DoubleAnimation()
+                    {
+                        From = 1,
+                        To = 0,
+                        Duration = TimeSpan.FromSeconds(hoverLayers.ElementAt(0).Hover_time / 4),
+                        BeginTime = TimeSpan.FromSeconds(hoverLayers.ElementAt(0).Hover_time / 4),
+                    };
+                    Storyboard.SetTarget(FadeOutAnim, label);
+                    Storyboard.SetTargetProperty(FadeOutAnim, new PropertyPath("(Label.Opacity)"));
+                    storyboard_Corner.Children.Add(FadeOutAnim);
 
-                //故事板即将开始
-                storyboard_Corner.Completed += new EventHandler(Storyboard_over);
-                storyboard_Corner.Begin();
+                    //故事板即将开始
+                    storyboard_Corner.Completed += new EventHandler(Storyboard_over);
+                    storyboard_Corner.Begin();
+
+                }
+                
             }
+        }
+
+        bool bottomBarPoped = false;
+
+        private void BottomBarPopUp()
+        {
+
+            TranslateTransform popupTrans = new TranslateTransform();
+            CanvasBottomBar.RenderTransform = popupTrans;
+
+            DoubleAnimation popup_d = new DoubleAnimation(CanvasBottomBar.Height, 0, 
+                TimeSpan.FromSeconds(Properties.Settings.Default.TranSec));
+            popupTrans.BeginAnimation(TranslateTransform.YProperty, popup_d);
+
+            bottomBarPoped = true;
+        }
+
+        private void BottomBarPushDown()
+        {
+            bottomBarPoped = false;
+
+            TranslateTransform pushdownTrans = new TranslateTransform();
+            CanvasBottomBar.RenderTransform = pushdownTrans;
+
+            DoubleAnimation pushdown_d = new DoubleAnimation(0, CanvasBottomBar.Height, 
+                TimeSpan.FromSeconds(Properties.Settings.Default.TranSec));
+            pushdownTrans.BeginAnimation(TranslateTransform.YProperty, pushdown_d);
+
+        }
+
+        // 保持速度
+        // v = Width / HOVER_TIME
+
+        private void BottomFirstStage()
+        {
+            // 第一段：进入段
+            // 结束后触发下一个弹幕出队，留一定空隙
+
+            if (danmakuLabels.Any())
+            {
+                var label = danmakuLabels.Dequeue();
+                label.FontSize = FocalPt_inSize;
+                label.Foreground = new SolidColorBrush((this.FindResource("BubbleFore") as SolidColorBrush).Color);
+                CanvasBottomBar.Children.Add(label);
+                Canvas.SetTop(label, 0);
+
+                double labelWidth = label.Content.ToString().Length * FocalPt_inSize / 0.75;
+                DoubleAnimation doubleAnimation_b = new DoubleAnimation(
+                    this.Width, this.Width - labelWidth,
+                    new Duration(TimeSpan.FromSeconds(HOVER_TIME * labelWidth / this.Width)));
+                    //new Duration(TimeSpan.FromSeconds(0.5)));                
+                Storyboard.SetTarget(doubleAnimation_b, label);
+                Storyboard.SetTargetProperty(doubleAnimation_b, new PropertyPath("(Canvas.Left)"));
+                Storyboard bottoms = new Storyboard();
+                bottoms.Children.Add(doubleAnimation_b);
+                bottoms.Completed += Bottoms_Completed;
+                bottoms.Begin();
+
+            }
+        }
+
+        private void Bottoms_Completed(object sender, EventArgs e)
+        {
+            // 第二段：展示段 
+
+            Label label = Storyboard.GetTarget((sender as ClockGroup).Timeline.Children[0]) as Label;
+            double labelWidth = label.Content.ToString().Length * FocalPt_inSize / 0.75;
+            DoubleAnimation doubleAnimation_b = new DoubleAnimation(
+                        this.Width - labelWidth, -labelWidth,
+                        new Duration(TimeSpan.FromSeconds(HOVER_TIME)));
+                        //new Duration(TimeSpan.FromSeconds(1.5)));
+            Storyboard.SetTarget(doubleAnimation_b, label);
+            Storyboard.SetTargetProperty(doubleAnimation_b, new PropertyPath("(Canvas.Left)"));
+            Storyboard bottomsii = new Storyboard();
+            bottomsii.Children.Add(doubleAnimation_b);
+            bottomsii.Completed += Bottomsii_Completed;
+            bottomsii.Begin();
+
+            // 触发下一个弹幕
+            BottomFirstStage();
+
+        }
+
+        private void Bottomsii_Completed(object sender, EventArgs e)
+        {
+            // 第三段：退出段
+            // 结束后销毁，如果队列为空，则底栏塞回
+
+            Label label = Storyboard.GetTarget((sender as ClockGroup).Timeline.Children[0]) as Label;
+            CanvasBottomBar.Children.Remove(label);
+
+            if (!danmakuLabels.Any() && Properties.Settings.Default.BottomBarAuto && CanvasBottomBar.Children.Count == 0)
+            {
+                if (bottomBarPoped)
+                    BottomBarPushDown();
+            }
+
         }
 
         //二维移动
@@ -356,6 +460,7 @@ namespace ACNginxConsole
                     break;
 
                 case DanmuStyle.BubbleCorner:
+                
                     // 单层：所有的都在第 0 层
                     // 将显示 LAYER_NUM 个消息气泡
 
@@ -363,6 +468,23 @@ namespace ACNginxConsole
 
                     // 下面等待计时器计时
                     // 字号做动画
+                    break;
+                case DanmuStyle.BottomBar:
+
+                    danmakuLabels.Enqueue(label);
+
+                    // 链式反应的引子
+                    if (CanvasBottomBar.Children.Count == 0)
+                    {
+                        BottomFirstStage();
+                        if (CanvasBottomBar.Children.Count == 0 && Properties.Settings.Default.BottomBarAuto)
+                        {
+                            // 初始化：弹出段
+                            // 如果没有元素，则弹出底栏
+                            if (!bottomBarPoped)
+                                BottomBarPopUp();
+                        }
+                    }
 
                     break;
             }
@@ -449,9 +571,36 @@ namespace ACNginxConsole
                 Canvas.SetBottom(corner_thumb, mybottom_c);
             }
 
-            
-           
-           
+            if (DM_Style == DanmuStyle.BottomBar)
+            {
+                CanvasBottomBar.Visibility = Visibility.Visible;
+                CanvasBottomBar.Height = FocalPt_inSize / 0.6;
+                //清除原本的Thumb，避免干扰，层还是被生成的
+                for (int i = 0; i < hoverLayers.Count; ++i)
+                {
+                    ThumbCanvas.Children.Remove(hoverLayers.ElementAt(i).Layer_Thumb);
+                }
+
+                if (CanvasBottomBar.Children.Count == 0)
+                {
+                    // 初始化：弹出段
+                    // 如果没有元素，则弹出底栏
+                    if (!bottomBarPoped)
+                        BottomBarPopUp();
+
+                    // 链式反应的引子
+                    BottomFirstStage();
+                }
+            }
+            else
+            {
+                CanvasBottomBar.Visibility = Visibility.Hidden;
+
+                if (bottomBarPoped)
+                    BottomBarPushDown();
+
+            }
+
 
         }
 

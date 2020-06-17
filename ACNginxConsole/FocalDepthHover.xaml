@@ -63,8 +63,8 @@
         <Canvas x:Name="GridCanvas">
             <Label x:Name="labelSubtitler" Content="" Height="45" Canvas.Left="45" Canvas.Top="365" Width="450" Opacity="0" Foreground="White"/>
         </Canvas>
+        <Canvas x:Name="CanvasBottomBar" Height="40" ClipToBounds="True" Background="{StaticResource BubbleBack}" Margin="0" VerticalAlignment="Bottom"/>
         <Canvas x:Name="ThumbCanvas">
-            
         </Canvas>
     </Grid>
 

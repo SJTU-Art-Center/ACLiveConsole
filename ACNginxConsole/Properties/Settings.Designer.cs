@@ -382,5 +382,29 @@ namespace ACNginxConsole.Properties {
                 this["SubBasel"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool SubAlways {
+            get {
+                return ((bool)(this["SubAlways"]));
+            }
+            set {
+                this["SubAlways"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool BottomBarAuto {
+            get {
+                return ((bool)(this["BottomBarAuto"]));
+            }
+            set {
+                this["BottomBarAuto"] = value;
+            }
+        }
     }
 }
