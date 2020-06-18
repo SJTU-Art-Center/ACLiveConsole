@@ -595,7 +595,7 @@ namespace ACNginxConsole
 
             if (DM_Style == DanmuStyle.BottomBar||DM_Style==DanmuStyle.BottomBarWithUserName)
             {
-                CanvasBottomBar.Visibility = Visibility.Visible;
+                //CanvasBottomBar.Visibility = Visibility.Visible;
                 CanvasBottomBar.Height = FocalPt_inSize / 0.6;
                 //清除原本的Thumb，避免干扰，层还是被生成的
                 for (int i = 0; i < hoverLayers.Count; ++i)
@@ -616,7 +616,7 @@ namespace ACNginxConsole
             }
             else
             {
-                CanvasBottomBar.Visibility = Visibility.Hidden;
+                //CanvasBottomBar.Visibility = Visibility.Hidden;
 
                 if (bottomBarPoped)
                     BottomBarPushDown();

@@ -4677,7 +4677,8 @@ namespace ACNginxConsole
 
         private void OpacSliderFore_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            focaldephov.GridCanvas.Opacity = OpacSliderFore.Value;
+            // focaldephov.GridCanvas.Opacity = OpacSliderFore.Value;
+            focaldephov.GridDanmu.Opacity = OpacSliderFore.Value;
             Properties.Settings.Default.DanmuOpac = OpacSlider.Value;
         }
 
