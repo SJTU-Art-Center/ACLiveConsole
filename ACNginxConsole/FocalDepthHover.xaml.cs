@@ -478,13 +478,10 @@ namespace ACNginxConsole
                     if (CanvasBottomBar.Children.Count == 0)
                     {
                         BottomFirstStage();
-                        if (CanvasBottomBar.Children.Count == 0 && Properties.Settings.Default.BottomBarAuto)
-                        {
-                            // 初始化：弹出段
-                            // 如果没有元素，则弹出底栏
-                            if (!bottomBarPoped)
-                                BottomBarPopUp();
-                        }
+                        // 初始化：弹出段
+                        // 如果没有元素，则弹出底栏
+                        if (!bottomBarPoped && Properties.Settings.Default.BottomBarAuto)
+                            BottomBarPopUp();
                     }
 
                     break;
@@ -504,13 +501,10 @@ namespace ACNginxConsole
                     if (CanvasBottomBar.Children.Count == 0)
                     {
                         BottomFirstStage();
-                        if (CanvasBottomBar.Children.Count == 0 && Properties.Settings.Default.BottomBarAuto)
-                        {
-                            // 初始化：弹出段
-                            // 如果没有元素，则弹出底栏
-                            if (!bottomBarPoped)
-                                BottomBarPopUp();
-                        }
+                        // 初始化：弹出段
+                        // 如果没有元素，则弹出底栏
+                        if (!bottomBarPoped && Properties.Settings.Default.BottomBarAuto)
+                            BottomBarPopUp();
                     }
 
                     break;
