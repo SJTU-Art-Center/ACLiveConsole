@@ -555,6 +555,7 @@
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="auto"/>
                                                 <ColumnDefinition Width="2*"/>
+                                                <ColumnDefinition Width="auto"/>
                                                 <ColumnDefinition Width="2*"/>
                                             </Grid.ColumnDefinitions>
                                             <Label Content="过渡秒数"/>
@@ -565,6 +566,10 @@
                                                 <ComboBoxItem x:Name="Size1080P" Content="1920x1080" Selected="Size1080P_Selected" />
                                                 <ComboBoxItem x:Name="Size720P" Content="1280x720" Selected="Size720P_Selected" />
                                             </ComboBox>
+                                            <Label Grid.Column="2" Content="抽奖人数" />
+                                            <Slider x:Name="SliderGiftNum" Grid.Column="3" VerticalAlignment="Center" Minimum="1" Maximum="20" AutoToolTipPlacement="TopLeft" SmallChange="1"/>
+                                            <Label Grid.Row="1" Grid.Column="2" Content="抽奖弹幕"/>
+                                            <TextBox x:Name="TextBoxGiftDanmu" Grid.Row="1" Grid.Column="3" ToolTip="弹幕要与此相同才可以参与抽奖，留空为任意弹幕。"/>
                                         </Grid>
                                     </StackPanel>
 
@@ -1078,6 +1083,7 @@
                             <ColumnDefinition Width="auto"/>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="auto"/>
                             <ColumnDefinition />
                             <ColumnDefinition Width="auto"/>
                             <ColumnDefinition Width="auto"/>
@@ -1085,7 +1091,7 @@
                         <Button x:Name="buttonScreenSwitch" Grid.Column="0" Content="启动公屏" Width="70" Background="White" Foreground="#FF77D3F5" BorderBrush="#FF01BBE2" Click="buttonScreenSwitch_Click" />
                         <Button x:Name="buttonDanmakuSwitch" Grid.Column="1" Content="连接弹幕" Width="70" Background="White" Foreground="#FF77D3F5" BorderBrush="#FF01BBE2" Click="ButtonDanmakuSwitch_Click" />
                         <Button Grid.Column="2" x:Name="buttonAutoDanmaku" Content="自动弹幕" Background="#FF01BCE1" Foreground="White" BorderBrush="#FF01BCE1" Click="ButtonAutoDanmaku_Click" Width="70"/>
-
+                        <Button x:Name="buttonGift" Grid.Column="3" Content="抽奖" Width="45" Background="White" Foreground="#FF77D3F5" BorderBrush="#FF01BBE2" ToolTip="激活后开始抽奖，再次按下结束抽奖。" Click="buttonGift_Click"/>
                         <Button x:Name="buttonDanmuSetting" Grid.Column="5" Background="#FF01BCE1" BorderBrush="#FF01BCE1" Click="ButtonDanmuSetting_Click" ToolTip="字幕机与设置">
                             <Image RenderTransformOrigin="0.5,0.5" Source="lines_Text_indent_16xLG.png">
                                 <Image.RenderTransform>

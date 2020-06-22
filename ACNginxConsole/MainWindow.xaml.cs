@@ -84,6 +84,8 @@ using Windows.Storage.Streams;
 using System.Collections.Specialized;
 using System.Collections;
 using Windows.ApplicationModel.Activation;
+using System.Security.Cryptography;
+using BitConverter;
 // End "Step 4: Basic RadialController menu customization"
 
 namespace ACNginxConsole
@@ -4237,6 +4239,8 @@ namespace ACNginxConsole
                 //    newDanmakuL.Content = danmakuModel.CommentText;
                 //    listBoxDanmaku.Items.Add(newDanmakuL);
                 DanmakuPool.Enqueue(new DanmakuItem(danmakuModel.CommentText, danmakuModel.isAdmin, danmakuModel.UserName));
+                if (Gifting && (TextBoxGiftDanmu.Text == "" || TextBoxGiftDanmu.Text == danmakuModel.CommentText))
+                        GiftingNameList.Add(danmakuModel.UserName);
             }
         }
 
@@ -6154,8 +6158,6 @@ namespace ACNginxConsole
             Properties.Settings.Default.BottomBarAuto = false;
         }
 
-        
-
         private void buttonNextFile_Click(object sender, RoutedEventArgs e)
         {
             ForeNextFile();
@@ -6204,6 +6206,63 @@ namespace ACNginxConsole
             //Monitors.ElementAt(2).Volume = (int)ProgressLD.Value;
         }
 
+        bool Gifting = false;
+        List<string> GiftingNameList = new List<string>();
+        Queue<string> GodChoosenQueue = new Queue<string>();
+
+        private void buttonGift_Click(object sender, RoutedEventArgs e)
+        {
+            var myblue = new SolidColorBrush(Color.FromArgb(255, 1, 188, 225));
+            if (Gifting)
+            {
+                //终止抽奖
+                buttonGift.Background = Brushes.White;
+                buttonGift.Foreground = myblue;
+
+                //天选抽奖
+                GodChoosenQueue.Clear();
+                GodChoosing();
+
+                //天选者出
+                while (GodChoosenQueue.Any())
+                {
+                    Debug.WriteLine("天选之人：" + GodChoosenQueue.Dequeue());
+                }
+
+            }
+            else
+            {
+                //开始抽奖
+                buttonGift.Background = myblue;
+                buttonGift.Foreground = Brushes.White;
+
+                //清空抽奖池
+                GiftingNameList.Clear();
+
+            }
+            Gifting = !Gifting;
+
+        }
+
+        private void GodChoosing()
+        {
+            //真随机数
+            RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
+            byte[] data = new byte[8];
+
+            // 防止越界
+            int length = (GiftingNameList.Count > ((int)SliderGiftNum.Value + 1) ? ((int)SliderGiftNum.Value + 1) : GiftingNameList.Count);
+            
+            for (int i = 0; i < length; i++)
+            {
+                rng.GetBytes(data);
+                int rnd = (int)Math.Round(Math.Abs(EndianBitConverter.BigEndian.ToInt64(data, 0)) / (decimal)long.MaxValue * (GiftingNameList.Count - 1), 0);
+
+                GodChoosenQueue.Enqueue(GiftingNameList.ElementAt(rnd));
+                GiftingNameList.RemoveAt(rnd);
+            }
+
+        }
 
         // TODO: ffmpeg -f gdigrab -i title="FocalDepthHover" "rtmp://127.0.0.1/live"
 
