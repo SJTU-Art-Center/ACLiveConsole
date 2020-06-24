@@ -6,13 +6,16 @@
         xmlns:local="clr-namespace:ACNginxConsole"
         xmlns:ColorPicker="clr-namespace:ColorPicker;assembly=ColorPicker" x:Class="ACNginxConsole.FocalDepthHover"
         mc:Ignorable="d"
-        Title="FocalDepthHover" Height="450" Width="800" WindowStyle="None" ResizeMode="NoResize" FontFamily="/ACNginxConsole;component/#RTWS YueGothic Trial Regular" AllowsTransparency="True" Loaded="Window_Loaded" Opacity="0">
+        Title="FocalDepthHover" Height="450" Width="800" WindowStyle="None" ResizeMode="NoResize" FontFamily="/ACNginxConsole;component/#RTWS YueGothic Trial Regular" AllowsTransparency="True" Loaded="Window_Loaded">
     <Window.Background>
         <SolidColorBrush x:Name="WinBack" Color="Black"/>
     </Window.Background>
     <Window.Resources>
         <SolidColorBrush x:Key="BubbleFore" Color="#FFE2E6EE"/>
         <SolidColorBrush x:Key="BubbleBack" Color="Black"/>
+        <Storyboard x:Key="ExpandNameCol">
+            <local:GridLengthAnimation Storyboard.TargetName="ColGiftName" Storyboard.TargetProperty="Width" />
+        </Storyboard>
         <Style TargetType="Label" x:Key="tipLable">
             <Setter Property="Template">
                 <Setter.Value>
@@ -65,6 +68,14 @@
                 <Label x:Name="labelSubtitler" Content="" Height="45" Canvas.Left="45" Canvas.Top="365" Width="450" Opacity="0" Foreground="White"/>
             </Canvas>
             <Canvas x:Name="CanvasBottomBar" Height="40" ClipToBounds="True" Background="{StaticResource BubbleBack}" Margin="0" VerticalAlignment="Bottom"/>
+            <Grid x:Name="GridGiftGiving" Width="300" ClipToBounds="True" Margin="0" VerticalAlignment="Bottom" HorizontalAlignment="Right" >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition x:Name="ColGiftHeader" Width="1*"/>
+                    <ColumnDefinition x:Name="ColGiftName" Width="0*"/>
+                </Grid.ColumnDefinitions>
+                <Label x:Name="LabelGiftGiving" Content="抽奖中"  VerticalContentAlignment="Center" FontSize="21.333" HorizontalContentAlignment="Center"/>
+                <Canvas x:Name="CanvasNameField" Grid.Column="1"/>
+            </Grid>
         </Grid>
         <Canvas x:Name="ThumbCanvas">
         </Canvas>

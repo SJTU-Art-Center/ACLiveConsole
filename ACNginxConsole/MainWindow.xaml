@@ -567,9 +567,9 @@
                                                 <ComboBoxItem x:Name="Size720P" Content="1280x720" Selected="Size720P_Selected" />
                                             </ComboBox>
                                             <Label Grid.Column="2" Content="抽奖人数" />
-                                            <Slider x:Name="SliderGiftNum" Grid.Column="3" VerticalAlignment="Center" Minimum="1" Maximum="20" AutoToolTipPlacement="TopLeft" SmallChange="1"/>
+                                            <Slider x:Name="SliderGiftNum" Grid.Column="3" VerticalAlignment="Center" Minimum="1" Maximum="20" AutoToolTipPlacement="TopLeft" SmallChange="1" ValueChanged="SliderGiftNum_ValueChanged"/>
                                             <Label Grid.Row="1" Grid.Column="2" Content="抽奖弹幕"/>
-                                            <TextBox x:Name="TextBoxGiftDanmu" Grid.Row="1" Grid.Column="3" ToolTip="弹幕要与此相同才可以参与抽奖，留空为任意弹幕。"/>
+                                            <TextBox x:Name="TextBoxGiftDanmu" Grid.Row="1" Grid.Column="3" ToolTip="弹幕要与此相同才可以参与抽奖，留空为任意弹幕。" TextChanged="TextBoxGiftDanmu_TextChanged"/>
                                         </Grid>
                                     </StackPanel>
 

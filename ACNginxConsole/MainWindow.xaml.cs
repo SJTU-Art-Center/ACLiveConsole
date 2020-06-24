@@ -1001,6 +1001,9 @@ namespace ACNginxConsole
 
             checkBoxBottomBarAuto.IsChecked = Properties.Settings.Default.BottomBarAuto;
 
+            SliderGiftNum.Value = (double)Properties.Settings.Default.GiftGivingNum;
+            TextBoxGiftDanmu.Text = Properties.Settings.Default.GiftGivingCond;
+
         }
 
         #region 主页
@@ -4239,8 +4242,7 @@ namespace ACNginxConsole
                 //    newDanmakuL.Content = danmakuModel.CommentText;
                 //    listBoxDanmaku.Items.Add(newDanmakuL);
                 DanmakuPool.Enqueue(new DanmakuItem(danmakuModel.CommentText, danmakuModel.isAdmin, danmakuModel.UserName));
-                if (Gifting && (TextBoxGiftDanmu.Text == "" || TextBoxGiftDanmu.Text == danmakuModel.CommentText))
-                        GiftingNameList.Add(danmakuModel.UserName);
+                
             }
         }
 
@@ -6169,6 +6171,16 @@ namespace ACNginxConsole
             Properties.Settings.Default.SurfaceDial = false;
         }
 
+        private void SliderGiftNum_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            Properties.Settings.Default.GiftGivingNum = (int)SliderGiftNum.Value + 1;
+        }
+
+        private void TextBoxGiftDanmu_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            Properties.Settings.Default.GiftGivingCond = TextBoxGiftDanmu.Text;
+        }
+
         private void comboBoxAudio_DropDownOpened(object sender, EventArgs e)
         {
             
@@ -6207,9 +6219,7 @@ namespace ACNginxConsole
         }
 
         bool Gifting = false;
-        List<string> GiftingNameList = new List<string>();
-        Queue<string> GodChoosenQueue = new Queue<string>();
-
+        
         private void buttonGift_Click(object sender, RoutedEventArgs e)
         {
             var myblue = new SolidColorBrush(Color.FromArgb(255, 1, 188, 225));
@@ -6219,15 +6229,7 @@ namespace ACNginxConsole
                 buttonGift.Background = Brushes.White;
                 buttonGift.Foreground = myblue;
 
-                //天选抽奖
-                GodChoosenQueue.Clear();
-                GodChoosing();
-
-                //天选者出
-                while (GodChoosenQueue.Any())
-                {
-                    Debug.WriteLine("天选之人：" + GodChoosenQueue.Dequeue());
-                }
+                FocalDepthHover.GiftGiving = false;
 
             }
             else
@@ -6236,31 +6238,10 @@ namespace ACNginxConsole
                 buttonGift.Background = myblue;
                 buttonGift.Foreground = Brushes.White;
 
-                //清空抽奖池
-                GiftingNameList.Clear();
+                FocalDepthHover.GiftGiving = true;
 
             }
             Gifting = !Gifting;
-
-        }
-
-        private void GodChoosing()
-        {
-            //真随机数
-            RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
-            byte[] data = new byte[8];
-
-            // 防止越界
-            int length = (GiftingNameList.Count > ((int)SliderGiftNum.Value + 1) ? ((int)SliderGiftNum.Value + 1) : GiftingNameList.Count);
-            
-            for (int i = 0; i < length; i++)
-            {
-                rng.GetBytes(data);
-                int rnd = (int)Math.Round(Math.Abs(EndianBitConverter.BigEndian.ToInt64(data, 0)) / (decimal)long.MaxValue * (GiftingNameList.Count - 1), 0);
-
-                GodChoosenQueue.Enqueue(GiftingNameList.ElementAt(rnd));
-                GiftingNameList.RemoveAt(rnd);
-            }
 
         }
 

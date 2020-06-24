@@ -19,6 +19,8 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows.Controls.Primitives;
 using Windows.UI.Text;
+using System.Security.Cryptography;
+using BitConverter;
 //using System.Windows.Forms;
 
 namespace ACNginxConsole
@@ -33,6 +35,7 @@ namespace ACNginxConsole
         // TODO: 拥有摄像机功能的 WPF 3D
 
         public static bool SettingModified = false;        //设置是否被修改
+        public static bool GiftGiving = false;             //是否正在抽奖
 
         public enum DanmuStyle { Plain, Bubble, BubbleFloat, BubbleCorner, BottomBar, BottomBarWithUserName };
         public static DanmuStyle DM_Style = DanmuStyle.Plain;
@@ -42,7 +45,7 @@ namespace ACNginxConsole
         public static double BLUR_MAX = 10;         //最大模糊程度
         public static int LAYER_NUM = 4;            //层数
         public static double INIT_TOP;              //开始顶距
-        public static double DECR_FAC = 0.85;        //缩小系数
+        public static double DECR_FAC = 0.85;       //缩小系数
         public static bool From_Front = false;      //从前往后
         public static Color ForeColor;              //字体颜色
         public static FontFamily ForeFont;          //字体
@@ -143,7 +146,9 @@ namespace ACNginxConsole
 
             CornerRefreshTimer.Tick += CornerRefreshTimer_Tick;
 
-            
+            Opacity = 0;
+            CanvasBottomBar.Visibility = Visibility.Hidden;
+            GridGiftGiving.Visibility = Visibility.Hidden;
 
         }
 
@@ -331,6 +336,10 @@ namespace ACNginxConsole
 
         int seeds = 0;  //随机种子
 
+        bool GiftGivingPoped = false;
+        List<string> GiftingNameList = new List<string>();      //抽奖名单
+        Queue<string> GodChoosenQueue = new Queue<string>();    //天选之人
+
         /// <summary>
         /// 接收到弹幕 该弹幕将会被立刻打在公屏上
         /// </summary>
@@ -510,6 +519,170 @@ namespace ACNginxConsole
                     break;
                     
             }
+
+            if (GiftGiving)
+            {
+                if (!GiftGivingPoped)
+                {
+                    //开始抽奖
+
+                    //清空抽奖池
+                    GiftingNameList.Clear();
+                    GodChoosenQueue.Clear();
+
+                    //展开抽奖界面
+                    GiftGivingPop();
+                } else
+                {
+                    string cond = Properties.Settings.Default.GiftGivingCond;
+                    if (cond == "" || cond == e.Danmu.Danmaku)
+                    {
+                        GiftingNameList.Add(e.Danmu.UserName);
+
+                        //直接展示名字
+                        DisplayGiftingName(e.Danmu.UserName);
+                    }
+                }
+                
+
+            } else if (GiftingNameList.Any())
+            {
+                //开始抽选
+
+                //天选抽奖
+                GodChoosenQueue.Clear();
+                GodChoosing();
+
+                //展开抽奖界面
+                GiftGivingExpand();
+
+                //天选者出，显示抽奖获得者
+                while (GodChoosenQueue.Any())
+                    DisplayChosenName(GodChoosenQueue.Dequeue());// 展示中奖人
+
+                // 关闭抽奖界面
+                GiftGivingPush();
+            }
+
+        }
+
+        private void GiftGivingPop()
+        {
+            TranslateTransform popupTrans = new TranslateTransform();
+            GridGiftGiving.RenderTransform = popupTrans;
+            GridGiftGiving.Width = this.Width * (INIT_TOP > 0.33 ? INIT_TOP : 0.33);
+            GridGiftGiving.Height = FocalPt_inSize / 0.6;
+            GridGiftGiving.Background = new SolidColorBrush(Color.FromArgb(255,
+                (byte)(WinBack.Color.R * 0.7),
+                (byte)(WinBack.Color.G * 0.7),
+                (byte)(WinBack.Color.B * 0.7)));
+
+            DoubleAnimation popup_d = new DoubleAnimation(GridGiftGiving.Width, 0,
+                TimeSpan.FromSeconds(Properties.Settings.Default.TranSec))
+            { EasingFunction = new BackEase() { EasingMode = EasingMode.EaseIn } };
+
+            LabelGiftGiving.Content = "抽奖中";
+            LabelGiftGiving.FontFamily = ForeFont;
+            LabelGiftGiving.FontSize = FocalPt_inSize;
+            LabelGiftGiving.Foreground = new SolidColorBrush(ForeColor);
+            LabelGiftGiving.Background = new SolidColorBrush(Color.FromArgb(255,
+                (byte)(WinBack.Color.R * 0.5),
+                (byte)(WinBack.Color.G * 0.5),
+                (byte)(WinBack.Color.B * 0.5)));
+
+            GridGiftGiving.Visibility = Visibility.Visible;
+            popupTrans.BeginAnimation(TranslateTransform.XProperty, popup_d);
+
+            GiftGivingPoped = true;
+        }
+
+        bool ColExpanded = false;
+
+        private void DisplayGiftingName(string name)
+        {
+            //显示正在抽奖的人
+
+            Storyboard sbn = new Storyboard();
+
+            if (!ColExpanded)
+            {
+                //分栏动画
+                Storyboard ExpandNameCol = this.FindResource("ExpandNameCol") as Storyboard;
+
+                (ExpandNameCol.Children[0] as GridLengthAnimation).From = new GridLength(0, GridUnitType.Star);
+                (ExpandNameCol.Children[0] as GridLengthAnimation).To = new GridLength(2, GridUnitType.Star);
+                (ExpandNameCol.Children[0] as GridLengthAnimation).EasingFuntion = new BackEase() { EasingMode = EasingMode.EaseIn };
+                ExpandNameCol.Begin(ColGiftName);
+
+                ColExpanded = true;
+            }
+
+            Label currentLabel = new Label();
+            currentLabel.Content = name;
+            currentLabel.Foreground = new SolidColorBrush((this.FindResource("BubbleFore") as SolidColorBrush).Color);
+            currentLabel.FontSize = FocalPt_inSize;
+            currentLabel.FontFamily = ForeFont;
+            currentLabel.FontWeight = System.Windows.FontWeights.Light;
+            CanvasNameField.Children.Add(currentLabel);
+            Canvas.SetLeft(currentLabel, 0);
+
+            DoubleAnimation doubleAnimation_f = new DoubleAnimation(
+                        GridGiftGiving.Height,0,
+                        new Duration(TimeSpan.FromSeconds(Properties.Settings.Default.TranSec)));
+            Storyboard.SetTarget(doubleAnimation_f, currentLabel);
+            Storyboard.SetTargetProperty(doubleAnimation_f, new PropertyPath("(Canvas.Top)"));
+            doubleAnimation_f.EasingFunction = new ExponentialEase()
+            {
+                EasingMode = EasingMode.EaseOut
+            };
+
+            sbn.Children.Add(doubleAnimation_f);
+            sbn.Completed += Sbn_Completed;
+            sbn.Begin();
+
+        }
+
+        private void Sbn_Completed(object sender, EventArgs e)
+        {
+            Label label = Storyboard.GetTarget((sender as ClockGroup).Timeline.Children[0]) as Label;
+            CanvasNameField.Children.Remove(label);
+        }
+
+        private void GiftGivingExpand()
+        {
+
+        }
+
+        private void DisplayChosenName(string name)
+        {
+            Debug.WriteLine("天选之人：" + name);
+        }
+
+        private void GiftGivingPush()
+        {
+            GridGiftGiving.Visibility = Visibility.Hidden;
+            ColExpanded = false;
+            GiftGivingPoped = false;
+        }
+
+        private void GodChoosing()
+        {
+            //真随机数
+            RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
+            byte[] data = new byte[8];
+
+            // 防止越界
+            int length = (GiftingNameList.Count > Properties.Settings.Default.GiftGivingNum ? Properties.Settings.Default.GiftGivingNum : GiftingNameList.Count);
+
+            for (int i = 0; i < length; i++)
+            {
+                rng.GetBytes(data);
+                int rnd = (int)Math.Round(Math.Abs(EndianBitConverter.BigEndian.ToInt64(data, 0)) / (decimal)long.MaxValue * (GiftingNameList.Count - 1), 0);
+
+                GodChoosenQueue.Enqueue(GiftingNameList.ElementAt(rnd));
+                GiftingNameList.RemoveAt(rnd);
+            }
+
         }
 
         private void Storyboard_over(object sender,EventArgs e)
