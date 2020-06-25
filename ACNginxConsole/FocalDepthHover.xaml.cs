@@ -21,6 +21,7 @@ using System.Windows.Controls.Primitives;
 using Windows.UI.Text;
 using System.Security.Cryptography;
 using BitConverter;
+using Windows.System;
 //using System.Windows.Forms;
 
 namespace ACNginxConsole
@@ -340,6 +341,16 @@ namespace ACNginxConsole
         List<string> GiftingNameList = new List<string>();      //抽奖名单
         Queue<string> GodChoosenQueue = new Queue<string>();    //天选之人
 
+        DateTime prevDanmu;
+
+        struct NameLabel {
+            public Label nameL;
+            public double intervalL;
+        };
+
+        // 队列
+        Queue<NameLabel> queueNameLabel = new Queue<NameLabel>();
+
         /// <summary>
         /// 接收到弹幕 该弹幕将会被立刻打在公屏上
         /// </summary>
@@ -522,32 +533,61 @@ namespace ACNginxConsole
 
             if (GiftGiving)
             {
-                if (!GiftGivingPoped)
+                string cond = Properties.Settings.Default.GiftGivingCond;
+                if (cond == "" || cond == e.Danmu.Danmaku)
                 {
-                    //开始抽奖
+                    GiftingNameList.Add(e.Danmu.UserName);
 
-                    //清空抽奖池
-                    GiftingNameList.Clear();
-                    GodChoosenQueue.Clear();
+                    Label currentLabel = new Label();
+                    currentLabel.Content = e.Danmu.UserName;
+                    currentLabel.Foreground = new SolidColorBrush((this.FindResource("BubbleFore") as SolidColorBrush).Color);
+                    currentLabel.FontSize = FocalPt_inSize;
+                    currentLabel.FontFamily = ForeFont;
+                    currentLabel.FontWeight = System.Windows.FontWeights.Light;
 
-                    //展开抽奖界面
-                    GiftGivingPop();
-                } else
-                {
-                    string cond = Properties.Settings.Default.GiftGivingCond;
-                    if (cond == "" || cond == e.Danmu.Danmaku)
+                    NameLabel curnLabel;
+                    curnLabel.nameL = currentLabel;
+                    curnLabel.intervalL = Properties.Settings.Default.TranSec;
+
+                    //CanvasNameField.Children.Add(currentLabel);
+                    //Canvas.SetLeft(currentLabel, 0);
+
+                    if (!GiftGivingPoped)
                     {
-                        GiftingNameList.Add(e.Danmu.UserName);
+                        //开始抽奖
 
-                        //直接展示名字
-                        DisplayGiftingName(e.Danmu.UserName);
+                        //清空抽奖池
+                        GiftingNameList.Clear();
+                        GodChoosenQueue.Clear();
+                        CanvasNameField.Children.Clear();
+                        queueNameLabel.Clear();
+
+                        //展开抽奖界面
+                        GiftGivingPop();
+
+                        prevDanmu = DateTime.Now;
+                        queueNameLabel.Enqueue(curnLabel);
+
+                    } else
+                    {
+                        curnLabel.intervalL = DateTime.Now.Subtract(prevDanmu).TotalSeconds;
+                        prevDanmu = DateTime.Now;
+                        queueNameLabel.Enqueue(curnLabel);
+
                     }
+
+                    if (CanvasNameField.Children.Count == 0)  //引发链式反应
+                        NameFirstStage();
+
                 }
-                
 
             } else if (GiftingNameList.Any())
             {
                 //开始抽选
+                if (ColExpanded) {
+                    ColExpand();
+                    LabelGiftGiving.Content = "抽选中";
+                }
 
                 //天选抽奖
                 GodChoosenQueue.Clear();
@@ -561,7 +601,7 @@ namespace ACNginxConsole
                     DisplayChosenName(GodChoosenQueue.Dequeue());// 展示中奖人
 
                 // 关闭抽奖界面
-                GiftGivingPush();
+                // GiftGivingPush();
             }
 
         }
@@ -598,69 +638,196 @@ namespace ACNginxConsole
 
         bool ColExpanded = false;
 
-        private void DisplayGiftingName(string name)
+        private void ColExpand()
         {
-            //显示正在抽奖的人
-
-            Storyboard sbn = new Storyboard();
+            //分栏动画
+            Storyboard ExpandNameCol = this.FindResource("ExpandNameCol") as Storyboard;
 
             if (!ColExpanded)
             {
-                //分栏动画
-                Storyboard ExpandNameCol = this.FindResource("ExpandNameCol") as Storyboard;
-
                 (ExpandNameCol.Children[0] as GridLengthAnimation).From = new GridLength(0, GridUnitType.Star);
                 (ExpandNameCol.Children[0] as GridLengthAnimation).To = new GridLength(2, GridUnitType.Star);
                 (ExpandNameCol.Children[0] as GridLengthAnimation).EasingFuntion = new BackEase() { EasingMode = EasingMode.EaseIn };
-                ExpandNameCol.Begin(ColGiftName);
 
+                ExpandNameCol.Begin(ColGiftName);
                 ColExpanded = true;
             }
-
-            Label currentLabel = new Label();
-            currentLabel.Content = name;
-            currentLabel.Foreground = new SolidColorBrush((this.FindResource("BubbleFore") as SolidColorBrush).Color);
-            currentLabel.FontSize = FocalPt_inSize;
-            currentLabel.FontFamily = ForeFont;
-            currentLabel.FontWeight = System.Windows.FontWeights.Light;
-            CanvasNameField.Children.Add(currentLabel);
-            Canvas.SetLeft(currentLabel, 0);
-
-            DoubleAnimation doubleAnimation_f = new DoubleAnimation(
-                        GridGiftGiving.Height,0,
-                        new Duration(TimeSpan.FromSeconds(Properties.Settings.Default.TranSec)));
-            Storyboard.SetTarget(doubleAnimation_f, currentLabel);
-            Storyboard.SetTargetProperty(doubleAnimation_f, new PropertyPath("(Canvas.Top)"));
-            doubleAnimation_f.EasingFunction = new ExponentialEase()
+            else
             {
-                EasingMode = EasingMode.EaseOut
-            };
+                (ExpandNameCol.Children[0] as GridLengthAnimation).From = new GridLength(2, GridUnitType.Star);
+                (ExpandNameCol.Children[0] as GridLengthAnimation).To = new GridLength(0, GridUnitType.Star);
+                (ExpandNameCol.Children[0] as GridLengthAnimation).EasingFuntion = new BackEase() { EasingMode = EasingMode.EaseIn };
 
-            sbn.Children.Add(doubleAnimation_f);
-            sbn.Completed += Sbn_Completed;
-            sbn.Begin();
+                ExpandNameCol.Begin(ColGiftName);
+                ColExpanded = false;
+            }
+        }
 
+        // 维持时间
+        // prev(default) -> prev + cur(interval) -> cur + next(interval) -> next(default)
+
+        private void NameFirstStage()
+        {
+            if(!ColExpanded) ColExpand();
+
+            if (queueNameLabel.Any())
+            {
+                //首名字出现
+                NameLabel nl = queueNameLabel.Dequeue();
+                double intervalDanmu = nl.intervalL;
+
+                Storyboard sbn = new Storyboard();
+
+                Label currentLabel = nl.nameL;
+                CanvasNameField.Children.Add(currentLabel);
+                Canvas.SetLeft(currentLabel, 0);
+
+                DoubleAnimation doubleAnimation_f = new DoubleAnimation(
+                            GridGiftGiving.Height, 0,
+                            new Duration(TimeSpan.FromSeconds(intervalDanmu)));
+                Storyboard.SetTarget(doubleAnimation_f, currentLabel);
+                Storyboard.SetTargetProperty(doubleAnimation_f, new PropertyPath("(Canvas.Top)"));
+                //doubleAnimation_f.EasingFunction = new ExponentialEase()
+                //{
+                //    EasingMode = EasingMode.EaseIn
+                //};
+
+                sbn.Children.Add(doubleAnimation_f);
+
+                sbn.Completed += Sbn_Completed;
+                sbn.Begin();
+            }
         }
 
         private void Sbn_Completed(object sender, EventArgs e)
         {
-            Label label = Storyboard.GetTarget((sender as ClockGroup).Timeline.Children[0]) as Label;
-            CanvasNameField.Children.Remove(label);
+            if((sender as ClockGroup).Timeline.Children.Count > 0)
+            {
+                Label prevLabel = Storyboard.GetTarget((sender as ClockGroup).Timeline.Children[0]) as Label;
+                //CanvasNameField.Children.Remove(prevLabel);
+
+                Storyboard sbn = new Storyboard();
+                Storyboard sbnleave = new Storyboard();
+
+                double intervalDanmu = Properties.Settings.Default.TranSec;
+
+                if (queueNameLabel.Any())
+                {
+                    NameLabel nl = queueNameLabel.Dequeue();
+                    intervalDanmu = nl.intervalL;
+
+                    Label currentLabel = nl.nameL;
+                    CanvasNameField.Children.Add(currentLabel);
+                    Canvas.SetLeft(currentLabel, 0);
+
+                    DoubleAnimation doubleAnimation_f = new DoubleAnimation(
+                                GridGiftGiving.Height, 0,
+                                new Duration(TimeSpan.FromSeconds(intervalDanmu)));
+                    Storyboard.SetTarget(doubleAnimation_f, currentLabel);
+                    Storyboard.SetTargetProperty(doubleAnimation_f, new PropertyPath("(Canvas.Top)"));
+                    //doubleAnimation_f.EasingFunction = new ExponentialEase()
+                    //{
+                    //    EasingMode = EasingMode.EaseIn
+                    //};
+
+                    sbn.Children.Add(doubleAnimation_f);
+                    sbn.Completed += Sbn_Completed;
+                    sbn.Begin();
+
+                }
+
+                //离开
+                //Label prevLabel = (CanvasNameField.Children[0] as Label);
+                DoubleAnimation doubleAnimation_p = new DoubleAnimation(
+                        0, -GridGiftGiving.Height,
+                        new Duration(TimeSpan.FromSeconds(intervalDanmu)));
+                Storyboard.SetTarget(doubleAnimation_p, prevLabel);
+                Storyboard.SetTargetProperty(doubleAnimation_p, new PropertyPath("(Canvas.Top)"));
+                //doubleAnimation_p.EasingFunction = new ExponentialEase()
+                //{
+                //    EasingMode = EasingMode.EaseOut
+                //};
+
+                sbnleave.Children.Add(doubleAnimation_p);
+                sbnleave.Completed += Sbnleave_Completed;
+                sbnleave.Begin();
+
+            }
+            
+        }
+
+        private void Sbnleave_Completed(object sender, EventArgs e)
+        {
+            Label prevLabel = Storyboard.GetTarget((sender as ClockGroup).Timeline.Children[0]) as Label;
+            CanvasNameField.Children.Remove(prevLabel);
         }
 
         private void GiftGivingExpand()
         {
+            DoubleAnimation widthani = new DoubleAnimation()
+            {
+                From = GridGiftGiving.Width,
+                To = this.Width,
+                Duration = TimeSpan.FromSeconds(Properties.Settings.Default.TranSec),
+                EasingFunction = new BackEase() { EasingMode = EasingMode.EaseIn }
+            };
+
+            TranslateTransform expandTrans = new TranslateTransform();
+            GridGiftGiving.RenderTransform = expandTrans;
+
+            GridGiftGiving.BeginAnimation(WidthProperty, widthani);
+            if (!ColExpanded) ColExpand();
+            //expandTrans.BeginAnimation(TranslateTransform.XProperty, popup_d);
+            LabelGiftGiving.Content = "中奖者";
 
         }
+
+        Label prev = null;
 
         private void DisplayChosenName(string name)
         {
             Debug.WriteLine("天选之人：" + name);
+            Label next = null;
+
+            if (prev == null)
+            {
+                prev = new Label();
+                prev.Content = name;
+                prev.Foreground = new SolidColorBrush((this.FindResource("BubbleFore") as SolidColorBrush).Color);
+                prev.FontSize = FocalPt_inSize;
+                prev.FontFamily = ForeFont;
+                prev.FontWeight = System.Windows.FontWeights.Light;
+
+                CanvasNameField.Children.Add(prev);
+                Canvas.SetLeft(prev, 0);
+            }
+            else
+            {
+                next = new Label();
+                next.Content = name;
+                next.Foreground = new SolidColorBrush((this.FindResource("BubbleFore") as SolidColorBrush).Color);
+                next.FontSize = FocalPt_inSize;
+                next.FontFamily = ForeFont;
+                next.FontWeight = System.Windows.FontWeights.Light;
+
+                CanvasNameField.Children.Add(next);
+                Canvas.SetLeft(next, Canvas.GetLeft(prev) + prev.Content.ToString().Length * FocalPt_inSize / 0.9);
+                prev = next;
+            }
+
         }
 
         private void GiftGivingPush()
         {
-            GridGiftGiving.Visibility = Visibility.Hidden;
+            TranslateTransform popupTrans = new TranslateTransform();
+            GridGiftGiving.RenderTransform = popupTrans;
+
+            DoubleAnimation push_d = new DoubleAnimation(-(this.Width - GridGiftGiving.Width), -(2* this.Width - GridGiftGiving.Width),
+                TimeSpan.FromSeconds(Properties.Settings.Default.TranSec))
+            { EasingFunction = new BackEase() { EasingMode = EasingMode.EaseIn } };
+
+            popupTrans.BeginAnimation(TranslateTransform.XProperty, push_d);
+            //GridGiftGiving.Visibility = Visibility.Hidden;
             ColExpanded = false;
             GiftGivingPoped = false;
         }
@@ -679,10 +846,14 @@ namespace ACNginxConsole
                 rng.GetBytes(data);
                 int rnd = (int)Math.Round(Math.Abs(EndianBitConverter.BigEndian.ToInt64(data, 0)) / (decimal)long.MaxValue * (GiftingNameList.Count - 1), 0);
 
-                GodChoosenQueue.Enqueue(GiftingNameList.ElementAt(rnd));
+                if (GodChoosenQueue.Contains(GiftingNameList.ElementAt(rnd)))
+                    --i;
+                else
+                    GodChoosenQueue.Enqueue(GiftingNameList.ElementAt(rnd));
                 GiftingNameList.RemoveAt(rnd);
             }
 
+            GiftingNameList.Clear();
         }
 
         private void Storyboard_over(object sender,EventArgs e)

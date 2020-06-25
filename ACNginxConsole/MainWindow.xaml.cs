@@ -1001,7 +1001,7 @@ namespace ACNginxConsole
 
             checkBoxBottomBarAuto.IsChecked = Properties.Settings.Default.BottomBarAuto;
 
-            SliderGiftNum.Value = (double)Properties.Settings.Default.GiftGivingNum;
+            SliderGiftNum.Value = (double)Properties.Settings.Default.GiftGivingNum - 1;
             TextBoxGiftDanmu.Text = Properties.Settings.Default.GiftGivingCond;
 
         }
