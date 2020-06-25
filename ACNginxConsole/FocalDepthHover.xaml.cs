@@ -22,6 +22,7 @@ using Windows.UI.Text;
 using System.Security.Cryptography;
 using BitConverter;
 using Windows.System;
+using System.Text.RegularExpressions;
 //using System.Windows.Forms;
 
 namespace ACNginxConsole
@@ -114,6 +115,42 @@ namespace ACNginxConsole
         }
 
         public DispatcherTimer CornerRefreshTimer = new DispatcherTimer();     //气泡右下刷新计时
+
+        public double CalcLabelWidth(string input)
+        {
+            int ChineseNum = GetChineseLeng(input);
+            int OtherNum = input.Length - ChineseNum;
+            return FocalPt_inSize * ChineseNum * 1.2 + FocalPt_inSize * OtherNum * 0.6;
+        }
+
+        public int GetChineseLeng(string StrContert)
+        {
+            if (string.IsNullOrEmpty(StrContert))
+                return 0;
+            //此处进行的是一些转义符的替换,以免照成统计错误.
+            StrContert = StrContert.Replace("\n", "").Replace("\r", "").Replace("\t", "");
+            //替换掉内容中的数字,英文,空格.方便进行字数统计.
+            return getByteLengthByChinese(StrContert);
+            //return Regex.Matches(StrContert, @"[0-9][0-9'\-.]*").Count + iChinese;//中文中的字数统计需要加上数字统计.
+        }
+        /// <summary>
+        /// 返回字节数
+        /// </summary>
+        /// <param name="s"></param>
+        /// <returns></returns>
+        private int getByteLengthByChinese(string s)
+        {
+            int l = 0;
+            char[] q = s.ToCharArray();
+            for (int i = 0; i < q.Length; i++)
+            {
+                if ((int)q[i] >= 0x4E00 && (int)q[i] <= 0x9FA5) // 汉字
+                {
+                    l += 1;
+                }
+            }
+            return l;
+        }
 
         /// <summary>
         /// 初始化
@@ -259,6 +296,7 @@ namespace ACNginxConsole
         {
             // 第一段：进入段
             // 结束后触发下一个弹幕出队，留一定空隙
+            CanvasBottomBar.Visibility = Visibility.Visible;
 
             if (danmakuLabels.Any())
             {
@@ -268,7 +306,7 @@ namespace ACNginxConsole
                 CanvasBottomBar.Children.Add(label);
                 Canvas.SetTop(label, 0);
 
-                double labelWidth = label.Content.ToString().Length * FocalPt_inSize / (label.FontWeight ==System.Windows.FontWeights.Light?0.9:0.75);
+                double labelWidth = CalcLabelWidth(label.Content.ToString());
                 DoubleAnimation doubleAnimation_b = new DoubleAnimation(
                     this.Width, this.Width - labelWidth,
                     new Duration(TimeSpan.FromSeconds(HOVER_TIME * labelWidth / this.Width)));
@@ -288,7 +326,7 @@ namespace ACNginxConsole
             // 第二段：展示段 
 
             Label label = Storyboard.GetTarget((sender as ClockGroup).Timeline.Children[0]) as Label;
-            double labelWidth = label.Content.ToString().Length * FocalPt_inSize / (label.FontWeight == System.Windows.FontWeights.Light ? 0.9 : 0.75);
+            double labelWidth = CalcLabelWidth(label.Content.ToString());
             DoubleAnimation doubleAnimation_b = new DoubleAnimation(
                         this.Width - labelWidth, -labelWidth,
                         new Duration(TimeSpan.FromSeconds(HOVER_TIME)));
@@ -531,6 +569,7 @@ namespace ACNginxConsole
                     
             }
 
+            // TODO: 精确度太差，要直接插近道
             if (GiftGiving)
             {
                 string cond = Properties.Settings.Default.GiftGivingCond;
@@ -555,6 +594,7 @@ namespace ACNginxConsole
                     if (!GiftGivingPoped)
                     {
                         //开始抽奖
+                        // GridGiftGiving.Width = this.Width * (INIT_TOP > 0.33 ? INIT_TOP : 0.33);
 
                         //清空抽奖池
                         GiftingNameList.Clear();
@@ -600,8 +640,10 @@ namespace ACNginxConsole
                 while (GodChoosenQueue.Any())
                     DisplayChosenName(GodChoosenQueue.Dequeue());// 展示中奖人
 
+                //TODO: 记录日志
+
                 // 关闭抽奖界面
-                // GiftGivingPush();
+                GiftGivingPush();
             }
 
         }
@@ -610,7 +652,6 @@ namespace ACNginxConsole
         {
             TranslateTransform popupTrans = new TranslateTransform();
             GridGiftGiving.RenderTransform = popupTrans;
-            GridGiftGiving.Width = this.Width * (INIT_TOP > 0.33 ? INIT_TOP : 0.33);
             GridGiftGiving.Height = FocalPt_inSize / 0.6;
             GridGiftGiving.Background = new SolidColorBrush(Color.FromArgb(255,
                 (byte)(WinBack.Color.R * 0.7),
@@ -632,6 +673,7 @@ namespace ACNginxConsole
 
             GridGiftGiving.Visibility = Visibility.Visible;
             popupTrans.BeginAnimation(TranslateTransform.XProperty, popup_d);
+            if (GridGiftGiving.Width >= this.Width) GiftGivingExpand();
 
             GiftGivingPoped = true;
         }
@@ -669,7 +711,7 @@ namespace ACNginxConsole
         private void NameFirstStage()
         {
             if(!ColExpanded) ColExpand();
-
+            LabelGiftGiving.Content = "抽奖中";
             if (queueNameLabel.Any())
             {
                 //首名字出现
@@ -764,13 +806,20 @@ namespace ACNginxConsole
 
         private void GiftGivingExpand()
         {
-            DoubleAnimation widthani = new DoubleAnimation()
+            DoubleAnimation widthani = new DoubleAnimation() { Duration = TimeSpan.FromSeconds(Properties.Settings.Default.TranSec) };
+
+            if (GridGiftGiving.Width < this.Width)
             {
-                From = GridGiftGiving.Width,
-                To = this.Width,
-                Duration = TimeSpan.FromSeconds(Properties.Settings.Default.TranSec),
-                EasingFunction = new BackEase() { EasingMode = EasingMode.EaseIn }
-            };
+                widthani.From = GridGiftGiving.Width;
+                widthani.To = this.Width;
+                widthani.EasingFunction = new BackEase() { EasingMode = EasingMode.EaseIn };
+            }
+            else
+            {
+                widthani.From = this.Width;
+                widthani.To = this.Width * (INIT_TOP > 0.33 ? INIT_TOP : 0.33);
+                widthani.EasingFunction = new BackEase() { EasingMode = EasingMode.EaseOut };
+            }
 
             TranslateTransform expandTrans = new TranslateTransform();
             GridGiftGiving.RenderTransform = expandTrans;
@@ -779,7 +828,7 @@ namespace ACNginxConsole
             if (!ColExpanded) ColExpand();
             //expandTrans.BeginAnimation(TranslateTransform.XProperty, popup_d);
             LabelGiftGiving.Content = "中奖者";
-
+            
         }
 
         Label prev = null;
@@ -791,6 +840,8 @@ namespace ACNginxConsole
 
             if (prev == null)
             {
+                CanvasNameField.Children.Clear();
+
                 prev = new Label();
                 prev.Content = name;
                 prev.Foreground = new SolidColorBrush((this.FindResource("BubbleFore") as SolidColorBrush).Color);
@@ -811,7 +862,7 @@ namespace ACNginxConsole
                 next.FontWeight = System.Windows.FontWeights.Light;
 
                 CanvasNameField.Children.Add(next);
-                Canvas.SetLeft(next, Canvas.GetLeft(prev) + prev.Content.ToString().Length * FocalPt_inSize / 0.9);
+                Canvas.SetLeft(next, Canvas.GetLeft(prev) + CalcLabelWidth(prev.Content.ToString()));
                 prev = next;
             }
 
@@ -822,14 +873,31 @@ namespace ACNginxConsole
             TranslateTransform popupTrans = new TranslateTransform();
             GridGiftGiving.RenderTransform = popupTrans;
 
-            DoubleAnimation push_d = new DoubleAnimation(-(this.Width - GridGiftGiving.Width), -(2* this.Width - GridGiftGiving.Width),
-                TimeSpan.FromSeconds(Properties.Settings.Default.TranSec))
-            { EasingFunction = new BackEase() { EasingMode = EasingMode.EaseIn } };
+            //Storyboard pushsb = new Storyboard();
+
+            DoubleAnimationUsingKeyFrames push_d = new DoubleAnimationUsingKeyFrames();
+            KeyTime k1 = KeyTime.FromTimeSpan(TimeSpan.FromSeconds(0));
+            KeyTime k2 = KeyTime.FromTimeSpan(TimeSpan.FromSeconds(HOVER_TIME));
+            KeyTime k3 = KeyTime.FromTimeSpan(TimeSpan.FromSeconds(HOVER_TIME + Properties.Settings.Default.TranSec));
+
+            push_d.KeyFrames.Add(new LinearDoubleKeyFrame() { Value = 0, KeyTime = k1 });
+            push_d.KeyFrames.Add(new LinearDoubleKeyFrame() { Value = 0, KeyTime = k2 });
+            push_d.KeyFrames.Add(new EasingDoubleKeyFrame() { Value = -this.Width, KeyTime = k3 });
 
             popupTrans.BeginAnimation(TranslateTransform.XProperty, push_d);
+
+            //Storyboard.SetTarget(push_d, popupTrans);
+            //Storyboard.SetTargetProperty(push_d, new PropertyPath(TranslateTransform.XProperty));
+
+            //pushsb.Children.Add(push_d);
+            //pushsb.Completed += Pushsb_Completed;
+            //pushsb.Begin();
+            //GiftGivingExpand();
             //GridGiftGiving.Visibility = Visibility.Hidden;
+            //if (GridGiftGiving.Width >= this.Width) GiftGivingExpand();
             ColExpanded = false;
             GiftGivingPoped = false;
+            prev = null;
         }
 
         private void GodChoosing()
