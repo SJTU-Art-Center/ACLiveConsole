@@ -189,7 +189,7 @@ namespace ACNginxConsole
             CanvasBottomBar.Visibility = Visibility.Hidden;
             GridGiftGiving.Visibility = Visibility.Hidden;
 
-            GridGiftGiving.Width = this.Width * (INIT_TOP > 0.33 ? INIT_TOP : 0.33);
+            
 
         }
 
@@ -633,15 +633,20 @@ namespace ACNginxConsole
                     LabelGiftGiving.Content = "抽选中";
                 }
 
+                int danmuNum = GiftingNameList.Count;
+                
                 //天选抽奖
                 GodChoosenQueue.Clear();
                 GodChoosing();
+                int chosenCount = GodChoosenQueue.Count;
+                double rate = (double)chosenCount / danmuNum * 100;
 
                 //展开抽奖界面
                 GiftGivingExpand();
 
                 string ChosenName = null;
-                string logText = "\n抽奖：" + DateTime.Now.ToString() + '\n';
+                string logText = "\n抽奖时间：" + DateTime.Now.ToString() + '\n' +
+                    "抽奖人次：" + danmuNum + "\t中奖人数：" + chosenCount + "\t中奖率：" + string.Format("{0:F2}", rate) + "%\n";
 
                 //天选者出，显示抽奖获得者
                 while (GodChoosenQueue.Any())
@@ -657,7 +662,8 @@ namespace ACNginxConsole
                 try
                 {
                     File.AppendAllText("Gift.txt", logText);
-                    System.Diagnostics.Process.Start("Gift.txt");
+                    if (Properties.Settings.Default.GiftGivingShow)
+                        System.Diagnostics.Process.Start("Gift.txt");
                 }
                 catch
                 {
@@ -1046,6 +1052,7 @@ namespace ACNginxConsole
 
             }
 
+            GridGiftGiving.Width = this.Width * (INIT_TOP > 0.33 ? INIT_TOP : 0.33);
 
         }
 

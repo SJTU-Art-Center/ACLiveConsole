@@ -1009,10 +1009,10 @@ namespace ACNginxConsole
 
             checkBoxTxCloud.IsEnabled = false;
 
-            checkBoxBottomBarAuto.IsChecked = Properties.Settings.Default.BottomBarAuto;
+            checkBoxBottomBarAuto.IsChecked = !Properties.Settings.Default.BottomBarAuto;
 
-            
             TextBoxGiftDanmu.Text = Properties.Settings.Default.GiftGivingCond;
+            checkBoxGiftShow.IsChecked = Properties.Settings.Default.GiftGivingShow;
 
         }
 
@@ -6162,12 +6162,12 @@ namespace ACNginxConsole
 
         private void checkBoxBottomBarAuto_Checked(object sender, RoutedEventArgs e)
         {
-            Properties.Settings.Default.BottomBarAuto = true;
+            Properties.Settings.Default.BottomBarAuto = false;
         }
 
         private void checkBoxBottomBarAuto_Unchecked(object sender, RoutedEventArgs e)
         {
-            Properties.Settings.Default.BottomBarAuto = false;
+            Properties.Settings.Default.BottomBarAuto = true;
         }
 
         private void buttonNextFile_Click(object sender, RoutedEventArgs e)
@@ -6190,6 +6190,16 @@ namespace ACNginxConsole
         private void TextBoxGiftDanmu_TextChanged(object sender, TextChangedEventArgs e)
         {
             Properties.Settings.Default.GiftGivingCond = TextBoxGiftDanmu.Text;
+        }
+
+        private void checkBoxGiftShow_Checked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.GiftGivingShow = true;
+        }
+
+        private void checkBoxGiftShow_Unchecked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.GiftGivingShow = false;
         }
 
         private void comboBoxAudio_DropDownOpened(object sender, EventArgs e)

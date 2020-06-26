@@ -850,7 +850,7 @@
 
                         </StackPanel>
 
-                        <RichTextBox x:Name="richTextBoxTu" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" IsReadOnly="True" Margin="25,286,25,24.5">
+                        <RichTextBox x:Name="richTextBoxTu" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" IsReadOnly="True" Margin="25,304,25,24.5">
                             <FlowDocument>
                                 <Paragraph>
                                     <Run Text="Tutourial Error"/>
@@ -858,9 +858,9 @@
                             </FlowDocument>
                         </RichTextBox>
 
-                        <Button x:Name="button6" Content="清除所有设置" HorizontalAlignment="Left" Margin="25,259,0,0" Width="170" Click="Button6_Click" Height="20" VerticalAlignment="Top"/>
-                        <Button x:Name="button7" Content="确认" HorizontalAlignment="Left" Margin="200,259,0,0" Width="42" Click="Button7_Click" Height="20" VerticalAlignment="Top"/>
-                        <StackPanel Margin="24,10,24,0" CanVerticallyScroll="True" ScrollViewer.CanContentScroll="True" Height="244" VerticalAlignment="Top">
+                        <Button x:Name="button6" Content="清除所有设置" HorizontalAlignment="Left" Margin="25,277,0,0" Width="170" Click="Button6_Click" Height="20" VerticalAlignment="Top"/>
+                        <Button x:Name="button7" Content="确认" HorizontalAlignment="Left" Margin="200,277,0,0" Width="42" Click="Button7_Click" Height="20" VerticalAlignment="Top"/>
+                        <StackPanel Margin="24,10,24,0" CanVerticallyScroll="True" ScrollViewer.CanContentScroll="True" Height="267" VerticalAlignment="Top">
                             <CheckBox x:Name="checkBoxtest" Content="测试时不使用ffmpeg" HorizontalAlignment="Left" VerticalAlignment="Top" Width="147" Checked="CheckBoxtest_Checked" Unchecked="CheckBoxtest_Unchecked" Margin="0,5,0,0"/>
                             <CheckBox x:Name="checkBox2" Content="解决程序冲突时不再次启动推流" HorizontalAlignment="Left" VerticalAlignment="Top" Width="203" Checked="CheckBox2_Checked" Unchecked="CheckBox2_Unchecked" Margin="0,5,0,0"/>
                             <CheckBox x:Name="checkBoxFullRange" Content="全局调试模式(较慢)" Checked="CheckBox_Checked" HorizontalAlignment="Left" Width="130" VerticalAlignment="Top" Unchecked="CheckBoxFullRange_Unchecked" Margin="0,5,0,0"/>
@@ -875,7 +875,8 @@
 
                             <CheckBox x:Name="checkBoxSurfaceDial" Margin="0,5,0.5,0" Content="启动时初始化 Surface Dial" Checked="checkBoxSurfaceDial_Checked" Unchecked="checkBoxSurfaceDial_Unchecked"/>
                             <CheckBox x:Name="checkBoxSubtitleAlways" Margin="0,5,0.5,0" Content="始终启用字幕机" Checked="checkBoxSubtitleAlways_Checked" Unchecked="checkBoxSubtitleAlways_Unchecked"/>
-                            <CheckBox x:Name="checkBoxBottomBarAuto" Margin="0,5,0.5,0" Content="随弹幕接收自动弹出或弹回底部字幕条" Checked="checkBoxBottomBarAuto_Checked" Unchecked="checkBoxBottomBarAuto_Unchecked"/>
+                            <CheckBox x:Name="checkBoxBottomBarAuto" Margin="0,5,0.5,0" Content="不随弹幕接收自动弹出或弹回底部字幕条" Checked="checkBoxBottomBarAuto_Checked" Unchecked="checkBoxBottomBarAuto_Unchecked"/>
+                            <CheckBox x:Name="checkBoxGiftShow" Margin="0,5,0.5,0" Content="抽奖结束后显示抽奖记录" Checked="checkBoxGiftShow_Checked" Unchecked="checkBoxGiftShow_Unchecked" />
                         </StackPanel>
                         <Button x:Name="buttonTest" Content="试验性界面" HorizontalAlignment="Left" Height="66" Margin="331,152,0,0" VerticalAlignment="Top" Width="85" Click="ButtonTest_Click" Visibility="Hidden"/>
 

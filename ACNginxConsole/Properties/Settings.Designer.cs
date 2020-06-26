@@ -406,5 +406,41 @@ namespace ACNginxConsole.Properties {
                 this["BottomBarAuto"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public int GiftGivingNum {
+            get {
+                return ((int)(this["GiftGivingNum"]));
+            }
+            set {
+                this["GiftGivingNum"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string GiftGivingCond {
+            get {
+                return ((string)(this["GiftGivingCond"]));
+            }
+            set {
+                this["GiftGivingCond"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool GiftGivingShow {
+            get {
+                return ((bool)(this["GiftGivingShow"]));
+            }
+            set {
+                this["GiftGivingShow"] = value;
+            }
+        }
     }
 }
