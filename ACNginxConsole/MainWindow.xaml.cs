@@ -712,6 +712,7 @@ namespace ACNginxConsole
             private bool isSelected;
             private bool isAdmin;
             private string userName;
+            private int uid;
 
             public string Danmaku
             {
@@ -755,6 +756,12 @@ namespace ACNginxConsole
                 set { userName = value; }
             }
 
+            public int UID
+            {
+                get { return uid; }
+                set { uid = value; }
+            }
+
             public double Opacity
             {
                 get { return timepass * 1.0 / EXPIRE_TIME; }
@@ -766,13 +773,14 @@ namespace ACNginxConsole
             }
 
             public DanmakuItem() { }
-            public DanmakuItem(string DanmakuIn = "", bool isAdm = false, string un = "")
+            public DanmakuItem(int userid, string DanmakuIn = "", bool isAdm = false, string un = "")
             {
                 Danmaku = DanmakuIn;
                 Timepass = 0;
                 IsSelected = AutoDanmaku ? true : false;
                 IsAdmin = isAdm;
                 UserName = un;
+                UID = userid;
             }
 
         }
@@ -946,6 +954,8 @@ namespace ACNginxConsole
 
             checkBoxDanmuLink.IsChecked = Properties.Settings.Default.danmuLink;
             Rec2.Visibility = Visibility.Collapsed;
+
+            SliderGiftNum.Value = (double)Properties.Settings.Default.GiftGivingNum;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -1001,7 +1011,7 @@ namespace ACNginxConsole
 
             checkBoxBottomBarAuto.IsChecked = Properties.Settings.Default.BottomBarAuto;
 
-            SliderGiftNum.Value = (double)Properties.Settings.Default.GiftGivingNum - 1;
+            
             TextBoxGiftDanmu.Text = Properties.Settings.Default.GiftGivingCond;
 
         }
@@ -4241,7 +4251,7 @@ namespace ACNginxConsole
                 //    ListBoxItem newDanmakuL = new ListBoxItem();
                 //    newDanmakuL.Content = danmakuModel.CommentText;
                 //    listBoxDanmaku.Items.Add(newDanmakuL);
-                DanmakuPool.Enqueue(new DanmakuItem(danmakuModel.CommentText, danmakuModel.isAdmin, danmakuModel.UserName));
+                DanmakuPool.Enqueue(new DanmakuItem(danmakuModel.UserID,danmakuModel.CommentText, danmakuModel.isAdmin, danmakuModel.UserName));
                 
             }
         }
@@ -6173,7 +6183,8 @@ namespace ACNginxConsole
 
         private void SliderGiftNum_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            Properties.Settings.Default.GiftGivingNum = (int)SliderGiftNum.Value + 1;
+            if (this.IsLoaded)
+                Properties.Settings.Default.GiftGivingNum = (int)SliderGiftNum.Value + 1;
         }
 
         private void TextBoxGiftDanmu_TextChanged(object sender, TextChangedEventArgs e)

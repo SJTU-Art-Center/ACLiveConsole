@@ -23,6 +23,7 @@ using System.Security.Cryptography;
 using BitConverter;
 using Windows.System;
 using System.Text.RegularExpressions;
+using System.IO;
 //using System.Windows.Forms;
 
 namespace ACNginxConsole
@@ -187,6 +188,8 @@ namespace ACNginxConsole
             Opacity = 0;
             CanvasBottomBar.Visibility = Visibility.Hidden;
             GridGiftGiving.Visibility = Visibility.Hidden;
+
+            GridGiftGiving.Width = this.Width * (INIT_TOP > 0.33 ? INIT_TOP : 0.33);
 
         }
 
@@ -613,11 +616,12 @@ namespace ACNginxConsole
                         curnLabel.intervalL = DateTime.Now.Subtract(prevDanmu).TotalSeconds;
                         prevDanmu = DateTime.Now;
                         queueNameLabel.Enqueue(curnLabel);
-
                     }
 
                     if (CanvasNameField.Children.Count == 0)  //引发链式反应
                         NameFirstStage();
+                    else if(Canvas.GetTop(CanvasNameField.Children[0]) == 0)    //防卡兵
+                    { CanvasNameField.Children.Clear();NameFirstStage(); }
 
                 }
 
@@ -636,11 +640,29 @@ namespace ACNginxConsole
                 //展开抽奖界面
                 GiftGivingExpand();
 
+                string ChosenName = null;
+                string logText = "\n抽奖：" + DateTime.Now.ToString() + '\n';
+
                 //天选者出，显示抽奖获得者
                 while (GodChoosenQueue.Any())
-                    DisplayChosenName(GodChoosenQueue.Dequeue());// 展示中奖人
+                {
+                    var gn = GodChoosenQueue.Dequeue();
+                    ChosenName += gn + ' ';
+                    logText += gn + '\n';
+                }
+                //DisplayChosenName(GodChoosenQueue.Dequeue());// 展示中奖人
+                DisplayChosenName(ChosenName);
 
-                //TODO: 记录日志
+                //记录日志
+                try
+                {
+                    File.AppendAllText("Gift.txt", logText);
+                    System.Diagnostics.Process.Start("Gift.txt");
+                }
+                catch
+                {
+
+                }
 
                 // 关闭抽奖界面
                 GiftGivingPush();
@@ -658,6 +680,8 @@ namespace ACNginxConsole
                 (byte)(WinBack.Color.G * 0.7),
                 (byte)(WinBack.Color.B * 0.7)));
 
+            if (GridGiftGiving.Width >= this.Width) GiftGivingExpand();
+
             DoubleAnimation popup_d = new DoubleAnimation(GridGiftGiving.Width, 0,
                 TimeSpan.FromSeconds(Properties.Settings.Default.TranSec))
             { EasingFunction = new BackEase() { EasingMode = EasingMode.EaseIn } };
@@ -673,7 +697,6 @@ namespace ACNginxConsole
 
             GridGiftGiving.Visibility = Visibility.Visible;
             popupTrans.BeginAnimation(TranslateTransform.XProperty, popup_d);
-            if (GridGiftGiving.Width >= this.Width) GiftGivingExpand();
 
             GiftGivingPoped = true;
         }
@@ -753,7 +776,7 @@ namespace ACNginxConsole
 
                 double intervalDanmu = Properties.Settings.Default.TranSec;
 
-                if (queueNameLabel.Any())
+                if (queueNameLabel.Any() && GiftGiving)         //防止抽完还进
                 {
                     NameLabel nl = queueNameLabel.Dequeue();
                     intervalDanmu = nl.intervalL;
@@ -810,7 +833,7 @@ namespace ACNginxConsole
 
             if (GridGiftGiving.Width < this.Width)
             {
-                widthani.From = GridGiftGiving.Width;
+                widthani.From = this.Width * (INIT_TOP > 0.33 ? INIT_TOP : 0.33);
                 widthani.To = this.Width;
                 widthani.EasingFunction = new BackEase() { EasingMode = EasingMode.EaseIn };
             }
@@ -831,40 +854,38 @@ namespace ACNginxConsole
             
         }
 
-        Label prev = null;
-
         private void DisplayChosenName(string name)
         {
-            Debug.WriteLine("天选之人：" + name);
-            Label next = null;
+            CanvasNameField.Children.Clear();
 
-            if (prev == null)
+            Label GodChosenLabel = new Label();
+            GodChosenLabel.Content = name;
+            GodChosenLabel.Foreground = new SolidColorBrush((this.FindResource("BubbleFore") as SolidColorBrush).Color);
+            GodChosenLabel.FontSize = FocalPt_inSize;
+            GodChosenLabel.FontFamily = ForeFont;
+            GodChosenLabel.FontWeight = System.Windows.FontWeights.Light;
+
+            CanvasNameField.Children.Add(GodChosenLabel);
+            Canvas.SetTop(GodChosenLabel, 0);
+
+            double NameFieldWidth = this.Width * (INIT_TOP > 0.33 ? INIT_TOP : 0.33);
+
+            if (CalcLabelWidth(name) > NameFieldWidth)
             {
-                CanvasNameField.Children.Clear();
+                Storyboard pushsb = new Storyboard();
 
-                prev = new Label();
-                prev.Content = name;
-                prev.Foreground = new SolidColorBrush((this.FindResource("BubbleFore") as SolidColorBrush).Color);
-                prev.FontSize = FocalPt_inSize;
-                prev.FontFamily = ForeFont;
-                prev.FontWeight = System.Windows.FontWeights.Light;
+                DoubleAnimationUsingKeyFrames push_in = new DoubleAnimationUsingKeyFrames();
+                push_in.KeyFrames.Add(new EasingDoubleKeyFrame(NameFieldWidth * 0.5, KeyTime.FromTimeSpan(TimeSpan.FromSeconds(0)), new BackEase() { EasingMode = EasingMode.EaseIn }));
+                push_in.KeyFrames.Add(new LinearDoubleKeyFrame(0, KeyTime.FromTimeSpan(TimeSpan.FromSeconds(Properties.Settings.Default.TranSec + HOVER_TIME / 4))));
+                push_in.KeyFrames.Add(new LinearDoubleKeyFrame(NameFieldWidth - CalcLabelWidth(name), KeyTime.FromTimeSpan(TimeSpan.FromSeconds(Properties.Settings.Default.TranSec + HOVER_TIME*1.3))));     //你算不清楚我把时间拉长
 
-                CanvasNameField.Children.Add(prev);
-                Canvas.SetLeft(prev, 0);
+                Storyboard.SetTarget(push_in, GodChosenLabel);
+                Storyboard.SetTargetProperty(push_in, new PropertyPath("(Canvas.Left)"));
+                pushsb.Children.Add(push_in);
+                pushsb.Begin();
             }
             else
-            {
-                next = new Label();
-                next.Content = name;
-                next.Foreground = new SolidColorBrush((this.FindResource("BubbleFore") as SolidColorBrush).Color);
-                next.FontSize = FocalPt_inSize;
-                next.FontFamily = ForeFont;
-                next.FontWeight = System.Windows.FontWeights.Light;
-
-                CanvasNameField.Children.Add(next);
-                Canvas.SetLeft(next, Canvas.GetLeft(prev) + CalcLabelWidth(prev.Content.ToString()));
-                prev = next;
-            }
+                Canvas.SetLeft(GodChosenLabel, 0);
 
         }
 
@@ -872,8 +893,6 @@ namespace ACNginxConsole
         {
             TranslateTransform popupTrans = new TranslateTransform();
             GridGiftGiving.RenderTransform = popupTrans;
-
-            //Storyboard pushsb = new Storyboard();
 
             DoubleAnimationUsingKeyFrames push_d = new DoubleAnimationUsingKeyFrames();
             KeyTime k1 = KeyTime.FromTimeSpan(TimeSpan.FromSeconds(0));
@@ -886,18 +905,8 @@ namespace ACNginxConsole
 
             popupTrans.BeginAnimation(TranslateTransform.XProperty, push_d);
 
-            //Storyboard.SetTarget(push_d, popupTrans);
-            //Storyboard.SetTargetProperty(push_d, new PropertyPath(TranslateTransform.XProperty));
-
-            //pushsb.Children.Add(push_d);
-            //pushsb.Completed += Pushsb_Completed;
-            //pushsb.Begin();
-            //GiftGivingExpand();
-            //GridGiftGiving.Visibility = Visibility.Hidden;
-            //if (GridGiftGiving.Width >= this.Width) GiftGivingExpand();
             ColExpanded = false;
             GiftGivingPoped = false;
-            prev = null;
         }
 
         private void GodChoosing()
@@ -913,6 +922,8 @@ namespace ACNginxConsole
             {
                 rng.GetBytes(data);
                 int rnd = (int)Math.Round(Math.Abs(EndianBitConverter.BigEndian.ToInt64(data, 0)) / (decimal)long.MaxValue * (GiftingNameList.Count - 1), 0);
+
+                if (!GiftingNameList.Any()) break;
 
                 if (GodChoosenQueue.Contains(GiftingNameList.ElementAt(rnd)))
                     --i;

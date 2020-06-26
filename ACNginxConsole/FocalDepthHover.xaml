@@ -68,13 +68,13 @@
                 <Label x:Name="labelSubtitler" Content="" Height="45" Canvas.Left="45" Canvas.Top="365" Width="450" Opacity="0" Foreground="White"/>
             </Canvas>
             <Canvas x:Name="CanvasBottomBar" Height="40" ClipToBounds="True" Background="{StaticResource BubbleBack}" Margin="0" VerticalAlignment="Bottom"/>
-            <Grid x:Name="GridGiftGiving" Width="300" ClipToBounds="True" Margin="0" VerticalAlignment="Bottom" HorizontalAlignment="Right" RenderTransformOrigin="0,0.5" >
+            <Grid x:Name="GridGiftGiving" ClipToBounds="True" Margin="0" VerticalAlignment="Bottom" HorizontalAlignment="Right" RenderTransformOrigin="0,0.5" >
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition x:Name="ColGiftHeader" Width="1*"/>
                     <ColumnDefinition x:Name="ColGiftName" Width="0*"/>
                 </Grid.ColumnDefinitions>
                 <Label x:Name="LabelGiftGiving" Content="抽奖中"  VerticalContentAlignment="Center" FontSize="21.333" HorizontalContentAlignment="Center"/>
-                <Canvas x:Name="CanvasNameField" Grid.Column="1"/>
+                <Canvas x:Name="CanvasNameField" Grid.Column="1" ClipToBounds="True"/>
             </Grid>
         </Grid>
         <Canvas x:Name="ThumbCanvas">
