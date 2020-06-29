@@ -1031,7 +1031,7 @@ namespace ACNginxConsole
                     WCMaskImg.Source = img;
                     WCMaskAdd.Content = MaskAdd;
                     //找到方法后放到线程中：//?有移位
-                    focaldephov.WordCloud.OpacityMask = new ImageBrush(img);
+                    //focaldephov.WordCloud.OpacityMask = new ImageBrush(img);
                 }
                 catch
                 {
@@ -6389,7 +6389,7 @@ namespace ACNginxConsole
                 WCMaskImg.Source = img;
                 WCMaskAdd.Content = openFileDialog.FileName;
                 //找到方法后放到线程中：
-                focaldephov.WordCloud.OpacityMask = new ImageBrush(img);
+                //focaldephov.WordCloud.OpacityMask = new ImageBrush(img);
 
                 Properties.Settings.Default.WCMaskAdd = openFileDialog.FileName;
             }
@@ -6452,6 +6452,7 @@ namespace ACNginxConsole
                 //this.wc.OnStepDrawIntegralImg += ShowIntegralImage;
                 var img = wc.Draw(keyw, freq);
                 System.Drawing.Bitmap bmp = new System.Drawing.Bitmap(img);
+                bmp.MakeTransparent(System.Drawing.Color.White);
                 var imgs = Imaging.CreateBitmapSourceFromHBitmap(bmp.GetHbitmap(), IntPtr.Zero,
                 Int32Rect.Empty,
                 BitmapSizeOptions.FromEmptyOptions());
