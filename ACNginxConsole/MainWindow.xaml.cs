@@ -87,6 +87,9 @@ using Windows.ApplicationModel.Activation;
 using System.Security.Cryptography;
 using BitConverter;
 // End "Step 4: Basic RadialController menu customization"
+using JiebaNet.Segmenter;
+using WordCloudSharp;
+using System.Runtime.InteropServices;
 
 namespace ACNginxConsole
 {
@@ -234,6 +237,7 @@ namespace ACNginxConsole
         DispatcherTimer dispatcherTimerMon = new DispatcherTimer();
         DispatcherTimer dispatcherTimerDanmaku = new DispatcherTimer();
         DispatcherTimer dispatcherTimerSysTime = new DispatcherTimer();
+        DispatcherTimer dispatcherTimerWC = new DispatcherTimer();
 
         int time_left;
 
@@ -1014,7 +1018,31 @@ namespace ACNginxConsole
             TextBoxGiftDanmu.Text = Properties.Settings.Default.GiftGivingCond;
             checkBoxGiftShow.IsChecked = Properties.Settings.Default.GiftGivingShow;
 
+            SliderWCInterval.Value = Properties.Settings.Default.WCInterval;
+            dispatcherTimerWC.Tick += DispatcherTimerWC_Tick;
+            dispatcherTimerWC.Interval = TimeSpan.FromMinutes(SliderWCInterval.Value);
+
+            string MaskAdd = Properties.Settings.Default.WCMaskAdd;
+            if (MaskAdd != "")
+            {
+                try
+                {
+                    var img = new ImageSourceConverter().ConvertFromString(MaskAdd) as ImageSource;
+                    WCMaskImg.Source = img;
+                    WCMaskAdd.Content = MaskAdd;
+                    //找到方法后放到线程中：//?有移位
+                    focaldephov.WordCloud.OpacityMask = new ImageBrush(img);
+                }
+                catch
+                {
+                    Properties.Settings.Default.WCMaskAdd = "";
+                }
+            }
+
+            GridWordCloud.IsEnabled = false;
+
         }
+
 
         #region 主页
 
@@ -4082,6 +4110,9 @@ namespace ACNginxConsole
                 buttonDanmakuSwitch.Background = Brushes.White;
                 buttonDanmakuSwitch.Content = "连接弹幕";
 
+                GridWordCloud.IsEnabled = false;
+                switchWCOpac();
+
                 DanmakuSwitch = false;
 
             }
@@ -4157,6 +4188,9 @@ namespace ACNginxConsole
 
                         if(!screenSwitch)       //关闭时打开
                             ScreenSwitch();
+
+                        GridWordCloud.IsEnabled = true;
+                        //FadeOutAnim(buttonWCOpac, WCOpacSlider);
 
                         DanmakuSwitch = true;
 
@@ -4252,6 +4286,32 @@ namespace ACNginxConsole
                 //    newDanmakuL.Content = danmakuModel.CommentText;
                 //    listBoxDanmaku.Items.Add(newDanmakuL);
                 DanmakuPool.Enqueue(new DanmakuItem(danmakuModel.UserID,danmakuModel.CommentText, danmakuModel.isAdmin, danmakuModel.UserName));
+                if (wcCollecting)
+                {
+                    //认为是开始统计
+                    var seg = new JiebaSegmenter();
+                    var segs = seg.Cut(danmakuModel.CommentText);
+
+                    ////使用一个小型字典减少查询的时间复杂度
+                    //SortedDictionary<string, int> smalldic = new SortedDictionary<string, int>();
+                    //foreach (string s in segs)
+                    //{
+                    //    if (smalldic.ContainsKey(s)) smalldic[s] += 1;
+                    //    else smalldic.Add(s, 1);
+                    //}
+                    ////与大字典合并
+                    //foreach (var d in smalldic.Keys)
+                    //{
+                    //    if (danmudic.ContainsKey(d)) danmudic[d] += smalldic[d];
+                    //    else danmudic.Add(d, smalldic[d]);
+                    //}
+
+                    foreach(string s in segs)
+                    {
+                        if (danmudic.ContainsKey(s)) danmudic[s] += 1;
+                        else danmudic.Add(s, 1);
+                    }
+                }
                 
             }
         }
@@ -4850,6 +4910,11 @@ namespace ACNginxConsole
             Fade_Storyboard_Remove(buttonDanmuTrans, OpacSliderFore);
         }
 
+        private void WCOpacFadeOut_Storyboard_Remove(object sender, EventArgs e)
+        {
+            Fade_Storyboard_Remove(buttonWCOpac, WCOpacSlider);
+        }
+
         private void FadeOutAnim(object senderbutton, object senderslider)
         {
             //FullFadeOut_sb = new Storyboard();
@@ -4889,6 +4954,8 @@ namespace ACNginxConsole
                 FullFadeOut_sb.Completed += OpacFadeOut_Storyboard_Remove;
             else if(sends == OpacSliderFore)
                 FullFadeOut_sb.Completed += DanmuFadeOut_Storyboard_Remove;
+            else if(sends == WCOpacSlider)
+                FullFadeOut_sb.Completed += WCOpacFadeOut_Storyboard_Remove;
             else
                 FullFadeOut_sb.Completed += SubtitlerFadeOut_sb_Completed;
 
@@ -6267,6 +6334,172 @@ namespace ACNginxConsole
         }
 
         // TODO: ffmpeg -f gdigrab -i title="FocalDepthHover" "rtmp://127.0.0.1/live"
+
+
+        #region 词云
+
+        bool wcCollecting = false;
+
+        private void switchWCOpac()
+        {
+            if (WCOpacSlider.Value > 0)
+            {
+                dispatcherTimerWC.Stop();
+                danmudic.Clear();
+                wcCollecting = false;
+            }
+            else
+            {
+                dispatcherTimerWC.Start();
+                wcCollecting = true;
+            }
+
+            FadeOutAnim(buttonWCOpac, WCOpacSlider);
+        }
+
+        private void buttonWCOpac_Click(object sender, RoutedEventArgs e)
+        {
+            switchWCOpac();
+        }
+
+        private void WCOpacSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (focaldephov != null) focaldephov.WordCloud.Opacity = WCOpacSlider.Value;
+        }
+
+        private void buttonWCMask_Click(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Forms.OpenFileDialog openFileDialog = new System.Windows.Forms.OpenFileDialog();
+            openFileDialog.Title = "选择词云黑白遮罩图像";
+            openFileDialog.Filter = "png|*.png|jpg|*.jpg|jpeg|*.jpeg";
+            openFileDialog.FileName = string.Empty;
+            openFileDialog.FilterIndex = 1;
+            openFileDialog.RestoreDirectory = true;
+            openFileDialog.DefaultExt = "jpg";
+            System.Windows.Forms.DialogResult result = openFileDialog.ShowDialog();
+            if (result == System.Windows.Forms.DialogResult.OK)
+            {
+                System.Drawing.Image maskImg = System.Drawing.Image.FromFile(openFileDialog.FileName);
+                if (!CheckMaskValid(maskImg))
+                {
+                    MessageBox.Show("请使用黑白遮罩图像","遮罩颜色空间错误",MessageBoxButton.OK,MessageBoxImage.None,MessageBoxResult.OK,MessageBoxOptions.None);
+                    return;
+                }
+                ImageSource img = new ImageSourceConverter().ConvertFromString(openFileDialog.FileName) as ImageSource;
+                WCMaskImg.Source = img;
+                WCMaskAdd.Content = openFileDialog.FileName;
+                //找到方法后放到线程中：
+                focaldephov.WordCloud.OpacityMask = new ImageBrush(img);
+
+                Properties.Settings.Default.WCMaskAdd = openFileDialog.FileName;
+            }
+        }
+
+        private void SliderWCInterval_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            Properties.Settings.Default.WCInterval = SliderWCInterval.Value;
+            dispatcherTimerWC.Stop();
+            dispatcherTimerWC.Interval = TimeSpan.FromMinutes(SliderWCInterval.Value);
+            dispatcherTimerWC.Start();
+        }
+
+        Dictionary<string, int> danmudic = new Dictionary<string, int>();
+
+        private void DispatcherTimerWC_Tick(object sender, EventArgs e)
+        {
+            //生成词云
+            //根据弹幕存储词云
+
+            //获取降序
+            danmudic.OrderByDescending(u => u.Value);
+
+            List<string> keyw = new List<string>();
+            List<int> freq = new List<int>();
+
+            //只取TOP 50
+            int wordCount = (danmudic.Count > 50 ? 50 : danmudic.Count);
+            for (int k = 0; k < wordCount; ++k)
+            {
+                var ddic = danmudic.ElementAt(k);
+                keyw.Add(ddic.Key);
+                freq.Add(ddic.Value);
+            }
+
+            //建立词云
+
+            //Task.Factory.StartNew(() =>
+            //{
+
+            var FontStr = ComboBoxFont.SelectedValue.ToString().Replace("System.Windows.Controls.ComboBoxItem: ", "");
+            var maskadd = WCMaskAdd.Content.ToString();
+
+            //Task.Factory.StartNew(() =>
+            //{
+
+                WordCloud wc;
+
+                if (maskadd == "") wc = new WordCloud(1280, 720, mask: null, allowVerical: false, fontname: FontStr);
+                else
+                {
+                    
+                    System.Drawing.Image maskImg = System.Drawing.Image.FromFile(maskadd);
+                    wc = new WordCloud(maskImg.Width, maskImg.Height, mask: maskImg, allowVerical: false, fontname: FontStr);
+                }
+
+                wc.OnProgress += Wc_OnProgress;
+                //wc.StepDrawMode = true;
+                //this.wc.OnStepDrawResultImg += ShowResultImage;
+                //this.wc.OnStepDrawIntegralImg += ShowIntegralImage;
+                var img = wc.Draw(keyw, freq);
+                System.Drawing.Bitmap bmp = new System.Drawing.Bitmap(img);
+                var imgs = Imaging.CreateBitmapSourceFromHBitmap(bmp.GetHbitmap(), IntPtr.Zero,
+                Int32Rect.Empty,
+                BitmapSizeOptions.FromEmptyOptions());
+
+                Wc_OnProgress(1);
+                this.Dispatcher.BeginInvoke(new Action(() => {
+                    labelWCStatus.Content = "绘制完成";
+                }));
+
+
+                ShowResultImg(imgs);
+            //});
+
+
+        }
+
+        private void ShowResultImg(BitmapSource imgs)
+        {
+            focaldephov.Dispatcher.Invoke(new Action<BitmapSource>((i) => focaldephov.WordCloud.Source = i), imgs);
+            //this.Dispatcher.BeginInvoke(new Action<BitmapSource>((i) => this.WCMaskImg.Source = i), imgs);
+        }
+
+        private void Wc_OnProgress(double progress)
+        {
+            this.Dispatcher.BeginInvoke(new Action(() => {
+                progressWCGen.Value = Math.Min(progress * 100, progressWCGen.Maximum);
+                labelWCStatus.Content = "正在绘制...";
+            }));
+            
+        }
+
+        bool CheckMaskValid(System.Drawing.Image mask)
+        {
+            bool valid;
+            using (var bmp = new System.Drawing.Bitmap(mask))
+            {
+                var bmpdata = bmp.LockBits(new System.Drawing.Rectangle(0, 0, bmp.Width, bmp.Height), System.Drawing.Imaging.ImageLockMode.ReadOnly, bmp.PixelFormat);
+                var len = bmpdata.Height * bmpdata.Stride;
+                var buf = new byte[len];
+                Marshal.Copy(bmpdata.Scan0, buf, 0, len);
+                valid = buf.Count(b => b != 0 && b != 255) == 0;
+                bmp.UnlockBits(bmpdata);
+            }
+            return valid;
+        }
+
+
+        #endregion
 
     }
 }

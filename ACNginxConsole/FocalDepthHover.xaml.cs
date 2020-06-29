@@ -189,9 +189,9 @@ namespace ACNginxConsole
             CanvasBottomBar.Visibility = Visibility.Hidden;
             GridGiftGiving.Visibility = Visibility.Hidden;
 
-            
-
         }
+
+        
 
         double myright_c;
         double mybottom_c;

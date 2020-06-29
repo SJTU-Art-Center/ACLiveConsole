@@ -6,7 +6,7 @@
         xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker"
         xmlns:local="clr-namespace:ACNginxConsole"
         mc:Ignorable="d"
-        Title="AC Live Console" Height="776.5" Width="920.848" Closed="Window_Closed" SizeChanged="Window_SizeChanged" Loaded="Window_Loaded" MinHeight="30">
+        Title="AC Live Console" Height="850" Width="850" Closed="Window_Closed" SizeChanged="Window_SizeChanged" Loaded="Window_Loaded" MinHeight="30">
 
     <Window.Resources>
         <colorPicker:ColorToStringConverter x:Key="ColorToStringConverter"/>
@@ -576,7 +576,7 @@
                                 </Grid>
 
                             </Border>
-                            <Border Background="White" CornerRadius="10" Margin="0,5,0,0">
+                            <Border Background="White" CornerRadius="10" Margin="0,10,0,0">
                                 <StackPanel  Margin="10">
                                     <Grid Height="40" Background="{DynamicResource CheckersBrush}" Opacity="{Binding Value, ElementName=OpacSlider}" Margin="0,5,0,0">
                                         <Rectangle>
@@ -705,10 +705,39 @@
                                         </StackPanel>
                                     </Grid>
                                 </StackPanel>
-
+                            </Border>
+                            <Border Background="White" CornerRadius="10" Margin="0,10,0,0">
+                                <Grid x:Name="GridWordCloud" Margin="15">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1*"/>
+                                        <ColumnDefinition Width="2*"/>
+                                        <ColumnDefinition Width="0.8*"/>
+                                        <ColumnDefinition Width="2.2*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                    </Grid.RowDefinitions>
+                                    <Button x:Name="buttonWCOpac" Grid.Row="0" Content="词云不透明度"  HorizontalContentAlignment="Left" VerticalAlignment="Bottom" Padding="5,3" Background="#FF6DC2F9" Foreground="#FFFEFDFA" Margin="0,0,0.5,0" Click="buttonWCOpac_Click" ToolTip="变为蓝色时开始收集，变为白色后清空。"/>
+                                    <colorPicker:ColorSlider Grid.Row="0" x:Name="WCOpacSlider" Grid.Column="1" LeftColor="#00000000" RightColor="{Binding SelectedColor, ElementName=BackColorPicker}" Maximum="1" LargeChange="0.1" Background="{DynamicResource CheckersBrush}" ValueChanged="WCOpacSlider_ValueChanged"/>
+                                    <Button x:Name="buttonWCMask" Content="词云遮罩图片" Grid.Column="0" HorizontalContentAlignment="Left" Grid.Row="1" Padding="5,3" ToolTip="点击加载词云遮罩图片。" Click="buttonWCMask_Click"/>
+                                    <ComboBox x:Name="WCMaskComboBox" Grid.Column="1" Grid.Row="1">
+                                        <ComboBoxItem x:Name="WCMaskAdd" IsSelected="True" IsEnabled="False"/>
+                                        <ComboBoxItem IsEnabled="false" MaxWidth="200" >
+                                            <Image x:Name="WCMaskImg" />
+                                        </ComboBoxItem>
+                                    </ComboBox>
+                                    <Label x:Name="LabelWCProgress" Grid.Row="0" Grid.Column="2" Content="生成进度" VerticalAlignment="Center" Padding="5,3" HorizontalAlignment="Center"/>
+                                    <Grid Grid.Row="0" Grid.Column="3">
+                                        <ProgressBar x:Name="progressWCGen" Height="23"/>
+                                        <Label x:Name="labelWCStatus" Content="就绪" HorizontalAlignment="Center"/>
+                                    </Grid>
+                                    <Label Content="生成间隔" Grid.Column="2" Grid.Row="1" HorizontalAlignment="Center"/>
+                                    <Slider x:Name="SliderWCInterval" Grid.Column="3" Grid.Row="1" VerticalAlignment="Center" Minimum="1" ToolTip="词云生成的时间间隔(分钟)" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="1" ValueChanged="SliderWCInterval_ValueChanged"/>
+                                </Grid>
                             </Border>
                         </StackPanel>
-                        <Border Grid.Row="1" Background="White" CornerRadius="10" Margin="5,5,5,5" KeyDown="Border_KeyDown">
+                        <Border Grid.Row="1" Background="White" CornerRadius="10" Margin="5,5,5,10" KeyDown="Border_KeyDown">
                             <Grid x:Name="GridSubtitler" Margin="15">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="1*"/>
