@@ -1040,7 +1040,8 @@ namespace ACNginxConsole
             }
 
             GridWordCloud.IsEnabled = false;
-
+            WCAutoGenerate.IsChecked = Properties.Settings.Default.WCAutoGen;
+            checkBoxWordCloudColor.IsChecked = Properties.Settings.Default.WCColor;
         }
 
 
@@ -4292,6 +4293,8 @@ namespace ACNginxConsole
                     var seg = new JiebaSegmenter();
                     var segs = seg.Cut(danmakuModel.CommentText);
 
+                    //TODO: 禁用词。
+
                     ////使用一个小型字典减少查询的时间复杂度
                     //SortedDictionary<string, int> smalldic = new SortedDictionary<string, int>();
                     //foreach (string s in segs)
@@ -6395,6 +6398,20 @@ namespace ACNginxConsole
             }
         }
 
+        private void WCAutoGenerate_Checked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.WCAutoGen = true;
+            SliderWCInterval.IsEnabled = false;
+            GenerateWordCloud();
+        }
+
+        private void WCAutoGenerate_Unchecked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.WCAutoGen = false;
+            SliderWCInterval.IsEnabled = true;
+            if(WCOpacSlider.Value>0) dispatcherTimerWC.Start();
+        }
+
         private void SliderWCInterval_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             Properties.Settings.Default.WCInterval = SliderWCInterval.Value;
@@ -6405,7 +6422,25 @@ namespace ACNginxConsole
 
         Dictionary<string, int> danmudic = new Dictionary<string, int>();
 
+        private void checkBoxWordCloudColor_Checked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.WCColor = true;
+        }
+
+        private void checkBoxWordCloudColor_Unchecked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.WCColor = false;
+        }
+
         private void DispatcherTimerWC_Tick(object sender, EventArgs e)
+        {
+            GenerateWordCloud();
+            if (Properties.Settings.Default.WCAutoGen) dispatcherTimerWC.Stop();
+        }
+
+        System.Drawing.Image img;
+
+        private void GenerateWordCloud()
         {
             //生成词云
             //根据弹幕存储词云
@@ -6432,47 +6467,92 @@ namespace ACNginxConsole
 
             var FontStr = ComboBoxFont.SelectedValue.ToString().Replace("System.Windows.Controls.ComboBoxItem: ", "");
             var maskadd = WCMaskAdd.Content.ToString();
+            bool IsColor = Properties.Settings.Default.WCColor;
+            System.Windows.Media.Color ForeColor = BackColorPicker.SelectedColor;
+            System.Drawing.Color forecolor = System.Drawing.Color.FromArgb(ForeColor.A, ForeColor.R, ForeColor.G, ForeColor.B);
 
-            //Task.Factory.StartNew(() =>
-            //{
+
+            Task.Factory.StartNew(() =>
+            {
 
                 WordCloud wc;
 
-                if (maskadd == "") wc = new WordCloud(1280, 720, mask: null, allowVerical: false, fontname: FontStr);
+                if (maskadd == "") {
+                    if (IsColor)
+                        wc = new WordCloud(1280, 720, mask: null, allowVerical: false, fontname: FontStr);
+                    else 
+                        wc = new WordCloud(1280, 720, mask: null, allowVerical: false, fontname: FontStr, fontColor: forecolor);
+                }
+                
                 else
                 {
-                    
                     System.Drawing.Image maskImg = System.Drawing.Image.FromFile(maskadd);
-                    wc = new WordCloud(maskImg.Width, maskImg.Height, mask: maskImg, allowVerical: false, fontname: FontStr);
+                    if (IsColor)
+                        wc = new WordCloud(maskImg.Width, maskImg.Height, mask: maskImg, allowVerical: false, fontname: FontStr);
+                    else
+                        wc = new WordCloud(maskImg.Width, maskImg.Height, mask: maskImg, allowVerical: false, fontname: FontStr, fontColor: forecolor);
                 }
 
                 wc.OnProgress += Wc_OnProgress;
                 //wc.StepDrawMode = true;
-                //this.wc.OnStepDrawResultImg += ShowResultImage;
-                //this.wc.OnStepDrawIntegralImg += ShowIntegralImage;
-                var img = wc.Draw(keyw, freq);
-                System.Drawing.Bitmap bmp = new System.Drawing.Bitmap(img);
-                bmp.MakeTransparent(System.Drawing.Color.White);
-                var imgs = Imaging.CreateBitmapSourceFromHBitmap(bmp.GetHbitmap(), IntPtr.Zero,
-                Int32Rect.Empty,
-                BitmapSizeOptions.FromEmptyOptions());
+                //wc.OnStepDrawResultImg += ShowResultImage;
+                //wc.OnStepDrawIntegralImg += ShowIntegralImage;
+                img = wc.Draw(keyw, freq);
 
                 Wc_OnProgress(1);
                 this.Dispatcher.BeginInvoke(new Action(() => {
                     labelWCStatus.Content = "绘制完成";
                 }));
 
+                ////开始下一轮循环
+                //if (WCAutoGenerate.IsChecked.Equals(true)) {
+                //    //TODO: 退出动画
+                //    Storyboard exitsb = new Storyboard();
 
-                ShowResultImg(imgs);
-            //});
+                //    //DoubleAnimation opan = new DoubleAnimation(1, 1.5, TimeSpan.FromSeconds(Properties.Settings.Default.TranSec));
+                //    //ScaleTransform sc = new ScaleTransform();
+                //    //focaldephov.WordCloud.RenderTransform = sc;
+                //    //Storyboard.SetTarget(sizean, sc);
+                //    //Storyboard.SetTargetProperty(sizean, new PropertyPath(ScaleTransform.ScaleXProperty));
 
+                //    //TODO: 动画结束后开始：
+                //    ShowResultImage(img);
 
+                //    GenerateWordCloud();
+                //} else
+                    ShowResultImage(img);
+
+            });
         }
 
-        private void ShowResultImg(BitmapSource imgs)
+        private void ShowResultImage(System.Drawing.Image img)
         {
-            focaldephov.Dispatcher.Invoke(new Action<BitmapSource>((i) => focaldephov.WordCloud.Source = i), imgs);
-            //this.Dispatcher.BeginInvoke(new Action<BitmapSource>((i) => this.WCMaskImg.Source = i), imgs);
+            System.Drawing.Bitmap bmp = new System.Drawing.Bitmap(img);
+            bmp.MakeTransparent(System.Drawing.Color.White);
+            
+            //优化
+            IntPtr ptr = bmp.GetHbitmap();
+
+            //MemoryStream 才可以被传递！
+            using (MemoryStream stream = new MemoryStream())
+            {
+                bmp.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+                bmp.Save(".\\Resources\\WordCloud.png", System.Drawing.Imaging.ImageFormat.Png);
+                stream.Position = 0;
+                BitmapImage result = new BitmapImage();
+                result.BeginInit();
+                result.CacheOption = BitmapCacheOption.OnLoad;
+                result.StreamSource = stream;
+                result.EndInit();
+                result.Freeze();
+                this.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    focaldephov.Dispatcher.BeginInvoke(new Action(delegate
+                    {
+                        focaldephov.WordCloud.Source = result;
+                    }));
+                }));
+            }
         }
 
         private void Wc_OnProgress(double progress)
