@@ -719,7 +719,7 @@
                                         <RowDefinition/>
                                     </Grid.RowDefinitions>
                                     <Button x:Name="buttonWCOpac" Grid.Row="0" Content="词云不透明度"  HorizontalContentAlignment="Left" VerticalAlignment="Bottom" Padding="5,3" Background="White" Foreground="#FF6DC2F9" Margin="0,0,0.5,0" Click="buttonWCOpac_Click" ToolTip="变为蓝色时开始收集，变为白色后清空。"/>
-                                    <colorPicker:ColorSlider Grid.Row="0" x:Name="WCOpacSlider" Grid.Column="1" LeftColor="#00000000" RightColor="{Binding SelectedColor, ElementName=BackColorPicker}" Maximum="1" LargeChange="0.1" Background="{DynamicResource CheckersBrush}" ValueChanged="WCOpacSlider_ValueChanged"/>
+                                    <colorPicker:ColorSlider Grid.Row="0" x:Name="WCOpacSlider" Grid.Column="1" LeftColor="#00000000" Maximum="1" LargeChange="0.1" Background="{DynamicResource CheckersBrush}" ValueChanged="WCOpacSlider_ValueChanged" RightColor="{Binding SelectedColor, ElementName=ForeColorPicker}"/>
                                     <Button x:Name="buttonWCMask" Content="词云遮罩图片" Grid.Column="0" HorizontalContentAlignment="Left" Grid.Row="1" Padding="5,3" ToolTip="点击加载词云遮罩图片。" Click="buttonWCMask_Click"/>
                                     <ComboBox x:Name="WCMaskComboBox" Grid.Column="1" Grid.Row="1">
                                         <ComboBoxItem x:Name="WCMaskAdd" IsSelected="True" IsEnabled="False"/>
@@ -917,6 +917,10 @@
                             <CheckBox x:Name="checkBoxWordCloudColor" Margin="0,5,0.5,0" Content="彩色词云" Checked="checkBoxWordCloudColor_Checked" Unchecked="checkBoxWordCloudColor_Unchecked"/>
                         </StackPanel>
                         <Button x:Name="buttonTest" Content="试验性界面" HorizontalAlignment="Left" Height="66" Margin="331,152,0,0" VerticalAlignment="Top" Width="85" Click="ButtonTest_Click" Visibility="Hidden"/>
+                        <Button x:Name="buttonGiftViewing" Content="打开抽奖记录" HorizontalAlignment="Right" Height="20" Margin="0,295,151,0" VerticalAlignment="Top" Width="128" Click="buttonGiftViewing_Click"/>
+                        <Button x:Name="buttonRankViewing" Content="打开词频记录" Height="20" Margin="0,295,25,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="121" Click="buttonRankViewing_Click"/>
+                        <Slider x:Name="sliderMaxVol" Height="20" Margin="0,270,25,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="156" Minimum="25" Maximum="200" Value="50" ValueChanged="sliderMaxVol_ValueChanged" AutoToolTipPlacement="TopLeft"/>
+                        <Label Content="词云最大词汇数" Height="26" Margin="0,268,181,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="98"/>
 
                     </Grid>
                 </TabItem>

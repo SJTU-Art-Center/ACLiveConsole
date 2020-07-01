@@ -442,5 +442,65 @@ namespace ACNginxConsole.Properties {
                 this["GiftGivingShow"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public double WCInterval {
+            get {
+                return ((double)(this["WCInterval"]));
+            }
+            set {
+                this["WCInterval"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string WCMaskAdd {
+            get {
+                return ((string)(this["WCMaskAdd"]));
+            }
+            set {
+                this["WCMaskAdd"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool WCAutoGen {
+            get {
+                return ((bool)(this["WCAutoGen"]));
+            }
+            set {
+                this["WCAutoGen"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool WCColor {
+            get {
+                return ((bool)(this["WCColor"]));
+            }
+            set {
+                this["WCColor"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("50")]
+        public int WCVol {
+            get {
+                return ((int)(this["WCVol"]));
+            }
+            set {
+                this["WCVol"] = value;
+            }
+        }
     }
 }

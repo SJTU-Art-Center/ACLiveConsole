@@ -90,6 +90,7 @@ using BitConverter;
 using JiebaNet.Segmenter;
 using WordCloudSharp;
 using System.Runtime.InteropServices;
+using ColorPicker;
 
 namespace ACNginxConsole
 {
@@ -1042,6 +1043,7 @@ namespace ACNginxConsole
             GridWordCloud.IsEnabled = false;
             WCAutoGenerate.IsChecked = Properties.Settings.Default.WCAutoGen;
             checkBoxWordCloudColor.IsChecked = Properties.Settings.Default.WCColor;
+            sliderMaxVol.Value = (double)Properties.Settings.Default.WCVol - 1;
 
         }
 
@@ -4113,7 +4115,7 @@ namespace ACNginxConsole
                 buttonDanmakuSwitch.Content = "连接弹幕";
 
                 GridWordCloud.IsEnabled = false;
-                switchWCOpac();
+                if(WCOpacSlider.Value>0) switchWCOpac();
 
                 DanmakuSwitch = false;
 
@@ -4376,6 +4378,7 @@ namespace ACNginxConsole
             //danmuEntry.Left = PrimaryScreen.WorkingArea.Width / 2;
             //danmuEntry.Top = PrimaryScreen.WorkingArea.Height / 2;
             danmuEntry.ShowDialog();
+
             if (d_ok == true)
             {
                 if (RightCol.Width.Value.Equals(0))
@@ -6341,22 +6344,28 @@ namespace ACNginxConsole
         #region 词云
 
         bool wcCollecting = false;
+        bool firstActivate = false;
 
         private void switchWCOpac()
         {
+
             if (WCOpacSlider.Value > 0)
             {
                 dispatcherTimerWC.Stop();
                 danmudic.Clear();
                 wcCollecting = false;
+                firstActivate = false;
             }
             else
             {
-                dispatcherTimerWC.Start();
                 wcCollecting = true;
+                firstActivate = true;
+                if (Properties.Settings.Default.WCAutoGen) GenerateWordCloud();
+                else dispatcherTimerWC.Start();
             }
 
             FadeOutAnim(buttonWCOpac, WCOpacSlider);
+
         }
 
         private void buttonWCOpac_Click(object sender, RoutedEventArgs e)
@@ -6401,14 +6410,15 @@ namespace ACNginxConsole
         {
             Properties.Settings.Default.WCAutoGen = true;
             SliderWCInterval.IsEnabled = false;
-            GenerateWordCloud();
+            dispatcherTimerWC.Stop();
+            if(WCOpacSlider.Value>0) GenerateWordCloud();
         }
 
         private void WCAutoGenerate_Unchecked(object sender, RoutedEventArgs e)
         {
             Properties.Settings.Default.WCAutoGen = false;
             SliderWCInterval.IsEnabled = true;
-            if(WCOpacSlider.Value>0) dispatcherTimerWC.Start();
+            if(WCOpacSlider.Value > 0) dispatcherTimerWC.Start();
         }
 
         private void SliderWCInterval_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -6437,7 +6447,24 @@ namespace ACNginxConsole
             if (Properties.Settings.Default.WCAutoGen) dispatcherTimerWC.Stop();
         }
 
+        private void buttonGiftViewing_Click(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Process.Start("Gift.txt");
+        }
+
+        private void buttonRankViewing_Click(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Process.Start("Resources\\WordRank.txt");
+        }
+
+        private void sliderMaxVol_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            Properties.Settings.Default.WCVol = (int)sliderMaxVol.Value + 1;
+        }
+
         System.Drawing.Image img;
+        Storyboard exitsb = new Storyboard();
+        double opactmp;
 
         private void GenerateWordCloud()
         {
@@ -6462,27 +6489,23 @@ namespace ACNginxConsole
             string rankpath = ".\\Resources\\WordRank.txt";
             File.WriteAllText(rankpath, "词云生成时间：" + DateTime.Now.ToString() + '\n');
 
-            //只取TOP 50
             int wordCount = 0;
             foreach(var k in DecDic)
             {
                 keyw.Add(k.Key);
                 freq.Add(k.Value);
                 File.AppendAllText(rankpath, k.Key + '\t' + k.Value + '\n');
-                if (++wordCount >= 50) break;
+                if (++wordCount >= Properties.Settings.Default.WCVol) break;
             }
 
             //建立词云
 
-            //Task.Factory.StartNew(() =>
-            //{
-
             var FontStr = ComboBoxFont.SelectedValue.ToString().Replace("System.Windows.Controls.ComboBoxItem: ", "");
             var maskadd = WCMaskAdd.Content.ToString();
             bool IsColor = Properties.Settings.Default.WCColor;
-            System.Windows.Media.Color ForeColor = BackColorPicker.SelectedColor;
+            System.Windows.Media.Color ForeColor = ForeColorPicker.SelectedColor;
             System.Drawing.Color forecolor = System.Drawing.Color.FromArgb(ForeColor.A, ForeColor.R, ForeColor.G, ForeColor.B);
-
+            bool IsAuto = WCAutoGenerate.IsChecked.Equals(true) && wcCollecting;
 
             Task.Factory.StartNew(() =>
             {
@@ -6516,31 +6539,68 @@ namespace ACNginxConsole
                     labelWCStatus.Content = "绘制完成";
                 }));
 
-                ////开始下一轮循环
-                //if (WCAutoGenerate.IsChecked.Equals(true)) {
-                //    //TODO: 退出动画
-                //    Storyboard exitsb = new Storyboard();
+                //开始下一轮循环
+                if (IsAuto)
+                {
+                    //TODO: 退出动画
+                    this.Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        if (!firstActivate)
+                        {
+                            opactmp = WCOpacSlider.Value;
+                            DoubleAnimation opan = new DoubleAnimation(opactmp, 0.01, TimeSpan.FromSeconds(Properties.Settings.Default.TranSec * 0.5));
+                            //ScaleTransform sc = new ScaleTransform();
+                            //focaldephov.WordCloud.RenderTransform = sc;
+                            Storyboard.SetTarget(opan, WCOpacSlider);
+                            Storyboard.SetTargetProperty(opan, new PropertyPath(Slider.ValueProperty));
+                            exitsb.Children.Add(opan);
+                            exitsb.Completed += Exitsb_Completed;
+                            exitsb.Begin();
+                        }
+                        else firstActivate = false;
+                        
+                        GenerateWordCloud();
+                    }));
 
-                //    //DoubleAnimation opan = new DoubleAnimation(1, 1.5, TimeSpan.FromSeconds(Properties.Settings.Default.TranSec));
-                //    //ScaleTransform sc = new ScaleTransform();
-                //    //focaldephov.WordCloud.RenderTransform = sc;
-                //    //Storyboard.SetTarget(sizean, sc);
-                //    //Storyboard.SetTargetProperty(sizean, new PropertyPath(ScaleTransform.ScaleXProperty));
-
-                //    //TODO: 动画结束后开始：
-                //    ShowResultImage(img);
-
-                //    GenerateWordCloud();
-                //} else
+                }
+                else
                     ShowResultImage(img);
 
             });
         }
 
+        Storyboard entrysb = new Storyboard();
+
+        private void Exitsb_Completed(object sender, EventArgs e)
+        {
+            //Remove
+            //ColorSlider wcimage = Storyboard.GetTarget((sender as ClockGroup).Timeline.Children[0]) as ColorSlider;
+            exitsb.Remove(WCOpacSlider);
+
+            //Debug.WriteLine("Completed");
+            ShowResultImage(img);
+
+            DoubleAnimation opan = new DoubleAnimation(0.01, opactmp, TimeSpan.FromSeconds(Properties.Settings.Default.TranSec*0.5));
+            
+            Storyboard.SetTarget(opan, WCOpacSlider);
+            Storyboard.SetTargetProperty(opan, new PropertyPath(Slider.ValueProperty)) ;
+            entrysb.Children.Add(opan);
+            entrysb.Completed += Entrysb_Completed;
+            entrysb.Begin();
+        }
+
+        private void Entrysb_Completed(object sender, EventArgs e)
+        {
+            //Remove
+            entrysb.Remove(WCOpacSlider);
+            WCOpacSlider.Value = opactmp;
+            buttonWCOpac.IsEnabled = true;
+        }
+
         private void ShowResultImage(System.Drawing.Image img)
         {
             System.Drawing.Bitmap bmp = new System.Drawing.Bitmap(img);
-            bmp.MakeTransparent(System.Drawing.Color.White);
+            //bmp.MakeTransparent(System.Drawing.Color.White);
             
             //优化
             IntPtr ptr = bmp.GetHbitmap();
