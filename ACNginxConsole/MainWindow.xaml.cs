@@ -618,7 +618,7 @@ namespace ACNginxConsole
                                         re = new Regex(@"(?<=live_)\w+");
                                         matches = re.Matches(api_url);
                                         api_url = matches[0].Groups[0].ToString();
-                                        string result = "https://cn-hbxy-cmcc-live-01.live-play.acgvideo.com/live-bvc/live_" + api_url + ".m3u8";
+                                        string result = "https://cn-jsnt-dx-live-01.bilivideo.com/live-bvc/live_" + api_url + ".m3u8";
 
                                         System.Diagnostics.Debug.WriteLine(result);
                                         return result;
@@ -6459,12 +6459,16 @@ namespace ACNginxConsole
             List<string> keyw = new List<string>();
             List<int> freq = new List<int>();
 
+            string rankpath = ".\\Resources\\WordRank.txt";
+            File.WriteAllText(rankpath, "词云生成时间：" + DateTime.Now.ToString() + '\n');
+
             //只取TOP 50
             int wordCount = 0;
             foreach(var k in DecDic)
             {
                 keyw.Add(k.Key);
                 freq.Add(k.Value);
+                File.AppendAllText(rankpath, k.Key + '\t' + k.Value + '\n');
                 if (++wordCount >= 50) break;
             }
 
