@@ -1042,6 +1042,7 @@ namespace ACNginxConsole
             GridWordCloud.IsEnabled = false;
             WCAutoGenerate.IsChecked = Properties.Settings.Default.WCAutoGen;
             checkBoxWordCloudColor.IsChecked = Properties.Settings.Default.WCColor;
+
         }
 
 
@@ -4293,8 +4294,6 @@ namespace ACNginxConsole
                     var seg = new JiebaSegmenter();
                     var segs = seg.Cut(danmakuModel.CommentText);
 
-                    //TODO: 禁用词。
-
                     ////使用一个小型字典减少查询的时间复杂度
                     //SortedDictionary<string, int> smalldic = new SortedDictionary<string, int>();
                     //foreach (string s in segs)
@@ -6445,19 +6444,28 @@ namespace ACNginxConsole
             //生成词云
             //根据弹幕存储词云
 
+            //禁用词删除 TODO：加开关
+            FileStream fs = new FileStream(@".\Resources\stopwords.txt", FileMode.Open, FileAccess.Read);
+            using (StreamReader read = new StreamReader(fs, Encoding.Default))
+            {
+                string line;
+                while ((line = read.ReadLine()) != null)
+                    if (danmudic.Keys.Contains(line)) danmudic.Remove(line);
+            }
+
             //获取降序
-            danmudic.OrderByDescending(u => u.Value);
+            Dictionary<string,int> DecDic = danmudic.OrderByDescending(u => u.Value).ToDictionary(o => o.Key, p => p.Value);
 
             List<string> keyw = new List<string>();
             List<int> freq = new List<int>();
 
             //只取TOP 50
-            int wordCount = (danmudic.Count > 50 ? 50 : danmudic.Count);
-            for (int k = 0; k < wordCount; ++k)
+            int wordCount = 0;
+            foreach(var k in DecDic)
             {
-                var ddic = danmudic.ElementAt(k);
-                keyw.Add(ddic.Key);
-                freq.Add(ddic.Value);
+                keyw.Add(k.Key);
+                freq.Add(k.Value);
+                if (++wordCount >= 50) break;
             }
 
             //建立词云
