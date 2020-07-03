@@ -6355,6 +6355,7 @@ namespace ACNginxConsole
                 danmudic.Clear();
                 wcCollecting = false;
                 firstActivate = false;
+                WCAutoGenerate.IsChecked = false;
             }
             else
             {
@@ -6501,7 +6502,7 @@ namespace ACNginxConsole
             //建立词云
 
             var FontStr = ComboBoxFont.SelectedValue.ToString().Replace("System.Windows.Controls.ComboBoxItem: ", "");
-            var maskadd = WCMaskAdd.Content.ToString();
+            var maskadd = WCMaskAdd.Content==null?"":WCMaskAdd.Content.ToString();
             bool IsColor = Properties.Settings.Default.WCColor;
             System.Windows.Media.Color ForeColor = ForeColorPicker.SelectedColor;
             System.Drawing.Color forecolor = System.Drawing.Color.FromArgb(ForeColor.A, ForeColor.R, ForeColor.G, ForeColor.B);
