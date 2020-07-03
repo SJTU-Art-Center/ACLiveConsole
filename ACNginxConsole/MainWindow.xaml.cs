@@ -6427,7 +6427,7 @@ namespace ACNginxConsole
             Properties.Settings.Default.WCInterval = SliderWCInterval.Value;
             dispatcherTimerWC.Stop();
             dispatcherTimerWC.Interval = TimeSpan.FromMinutes(SliderWCInterval.Value);
-            dispatcherTimerWC.Start();
+            if (WCOpacSlider.Value > 0) dispatcherTimerWC.Start();  //防止自动开启
         }
 
         Dictionary<string, int> danmudic = new Dictionary<string, int>();
