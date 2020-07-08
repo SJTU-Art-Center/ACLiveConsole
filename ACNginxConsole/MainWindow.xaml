@@ -6,7 +6,7 @@
         xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker"
         xmlns:local="clr-namespace:ACNginxConsole"
         mc:Ignorable="d"
-        Title="AC Live Console" Height="850" Width="850" Closed="Window_Closed" SizeChanged="Window_SizeChanged" Loaded="Window_Loaded" MinHeight="30">
+        Title="AC Live Console" Height="883" Width="850" Closed="Window_Closed" SizeChanged="Window_SizeChanged" Loaded="Window_Loaded" MinHeight="30">
 
     <Window.Resources>
         <colorPicker:ColorToStringConverter x:Key="ColorToStringConverter"/>
@@ -823,13 +823,19 @@
                                                 <ColumnDefinition Width="1*"/>
                                                 <ColumnDefinition Width="2*"/>
                                             </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition/>
+                                                <RowDefinition/>
+                                            </Grid.RowDefinitions>
                                             <Button x:Name="buttonOpenFolder" Click="buttonOpenFolder_Click" >
                                                 <Image Source="Folder(special)_5843_32x.png" Width="20" />
                                             </Button>
                                             <TextBox x:Name="FileSearchBox" Grid.Column="1" BorderBrush="#FF707070" VerticalContentAlignment="Center" IsEnabled="False" TextChanged="FileSearchBox_TextChanged"/>
+                                            <Button x:Name="buttonUpperRight" Grid.Row="1" Content="右上角提示语"  Height="27" VerticalAlignment="Top" Width="82" Background="White" Foreground="#FF9DD0FA" Click="buttonUpperRight_Click"/>
+                                            <TextBox x:Name="textBoxUpperRight" Grid.Row="1" Grid.Column="1" TextWrapping="Wrap" Text="直播" TextChanged="textBoxUpperRight_TextChanged" VerticalContentAlignment="Center"/>
                                         </Grid>
                                     </StackPanel>
-
+                                    
                                 </StackPanel>
                                 <GridSplitter Width="5" Grid.Column="1" HorizontalAlignment="Stretch"/>
                                 <Grid Grid.Column="2">
@@ -917,11 +923,12 @@
                             <CheckBox x:Name="checkBoxWordCloudColor" Margin="0,5,0.5,0" Content="彩色词云" Checked="checkBoxWordCloudColor_Checked" Unchecked="checkBoxWordCloudColor_Unchecked"/>
                         </StackPanel>
                         <Button x:Name="buttonTest" Content="试验性界面" HorizontalAlignment="Left" Height="66" Margin="331,152,0,0" VerticalAlignment="Top" Width="85" Click="ButtonTest_Click" Visibility="Hidden"/>
-                        <Button x:Name="buttonGiftViewing" Content="打开抽奖记录" HorizontalAlignment="Right" Height="20" Margin="0,295,151,0" VerticalAlignment="Top" Width="128" Click="buttonGiftViewing_Click"/>
-                        <Button x:Name="buttonRankViewing" Content="打开词频记录" Height="20" Margin="0,295,25,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="121" Click="buttonRankViewing_Click"/>
+                        <Button x:Name="buttonGiftViewing" Content="抽奖记录" HorizontalAlignment="Right" Height="20" Margin="0,295,110,0" VerticalAlignment="Top" Width="76" Click="buttonGiftViewing_Click"/>
+                        <Button x:Name="buttonRankViewing" Content="词频记录" Height="20" Margin="0,295,25,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="76" Click="buttonRankViewing_Click"/>
                         <Slider x:Name="sliderMaxVol" Height="20" Margin="0,270,25,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="156" Minimum="25" Maximum="200" Value="50" ValueChanged="sliderMaxVol_ValueChanged" AutoToolTipPlacement="TopLeft"/>
                         <Label Content="词云最大词汇数" Height="26" Margin="0,268,181,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="98"/>
-
+                        <Button x:Name="buttonDisabledVol" Content="禁用词库" Height="20" Margin="0,295,197,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="76" Click="buttonDisabledVol_Click"/>
+                        
                     </Grid>
                 </TabItem>
 

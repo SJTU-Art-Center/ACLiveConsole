@@ -180,6 +180,7 @@ namespace ACNginxConsole
             
             //添加接收事件
             MainWindow.ReceivedDanmu += ReceiveDanmu;
+            MainWindow.ReceivedGifting += ReceivedGifting;
 
             ForeColor = Color.FromArgb(255, 255, 255, 255);
 
@@ -190,8 +191,6 @@ namespace ACNginxConsole
             GridGiftGiving.Visibility = Visibility.Hidden;
 
         }
-
-        
 
         double myright_c;
         double mybottom_c;
@@ -379,7 +378,7 @@ namespace ACNginxConsole
         int seeds = 0;  //随机种子
 
         bool GiftGivingPoped = false;
-        List<string> GiftingNameList = new List<string>();      //抽奖名单
+        public static List<string> GiftingNameList = new List<string>();      //抽奖名单
         Queue<string> GodChoosenQueue = new Queue<string>();    //天选之人
 
         DateTime prevDanmu;
@@ -572,16 +571,20 @@ namespace ACNginxConsole
                     
             }
 
+        }
+
+        private void ReceivedGifting(object sender, GiftingReceivedArgs e)
+        {
             // TODO: 精确度太差，要直接插近道
             if (GiftGiving)
             {
                 string cond = Properties.Settings.Default.GiftGivingCond;
-                if (cond == "" || cond == e.Danmu.Danmaku)
+                if (cond == "" || cond == e.danmu.CommentText)
                 {
-                    GiftingNameList.Add(e.Danmu.UserName);
+                    GiftingNameList.Add(e.danmu.UserName);
 
                     Label currentLabel = new Label();
-                    currentLabel.Content = e.Danmu.UserName;
+                    currentLabel.Content = e.danmu.UserName;
                     currentLabel.Foreground = new SolidColorBrush((this.FindResource("BubbleFore") as SolidColorBrush).Color);
                     currentLabel.FontSize = FocalPt_inSize;
                     currentLabel.FontFamily = ForeFont;
@@ -611,7 +614,8 @@ namespace ACNginxConsole
                         prevDanmu = DateTime.Now;
                         queueNameLabel.Enqueue(curnLabel);
 
-                    } else
+                    }
+                    else
                     {
                         curnLabel.intervalL = DateTime.Now.Subtract(prevDanmu).TotalSeconds;
                         prevDanmu = DateTime.Now;
@@ -620,21 +624,23 @@ namespace ACNginxConsole
 
                     if (CanvasNameField.Children.Count == 0)  //引发链式反应
                         NameFirstStage();
-                    else if(Canvas.GetTop(CanvasNameField.Children[0]) == 0)    //防卡兵
-                    { CanvasNameField.Children.Clear();NameFirstStage(); }
+                    else if (Canvas.GetTop(CanvasNameField.Children[0]) == 0)    //防卡兵
+                    { CanvasNameField.Children.Clear(); NameFirstStage(); }
 
                 }
 
-            } else if (GiftingNameList.Any())
+            }
+            else if (GiftingNameList.Any())
             {
                 //开始抽选
-                if (ColExpanded) {
+                if (ColExpanded)
+                {
                     ColExpand();
                     LabelGiftGiving.Content = "抽选中";
                 }
 
                 int danmuNum = GiftingNameList.Count;
-                
+
                 //天选抽奖
                 GodChoosenQueue.Clear();
                 GodChoosing();
@@ -673,7 +679,6 @@ namespace ACNginxConsole
                 // 关闭抽奖界面
                 GiftGivingPush();
             }
-
         }
 
         private void GiftGivingPop()
@@ -772,8 +777,8 @@ namespace ACNginxConsole
 
         private void Sbn_Completed(object sender, EventArgs e)
         {
-            if((sender as ClockGroup).Timeline.Children.Count > 0)
-            {
+            //if((sender as ClockGroup).Timeline.Children.Count > 0)
+            //{
                 Label prevLabel = Storyboard.GetTarget((sender as ClockGroup).Timeline.Children[0]) as Label;
                 //CanvasNameField.Children.Remove(prevLabel);
 
@@ -823,7 +828,7 @@ namespace ACNginxConsole
                 sbnleave.Completed += Sbnleave_Completed;
                 sbnleave.Begin();
 
-            }
+            //}
             
         }
 
@@ -1054,6 +1059,10 @@ namespace ACNginxConsole
 
             GridGiftGiving.Width = this.Width * (INIT_TOP > 0.33 ? INIT_TOP : 0.33);
 
+            labelUpperRight.Text = Properties.Settings.Default.UpperRight;
+            labelUpperRight.FontSize = FocalPt_inSize;
+            labelUpperRight.FontFamily = ForeFont;
+            
         }
 
         //只需要进行纵向移动

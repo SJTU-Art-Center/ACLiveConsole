@@ -502,5 +502,17 @@ namespace ACNginxConsole.Properties {
                 this["WCVol"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("直播")]
+        public string UpperRight {
+            get {
+                return ((string)(this["UpperRight"]));
+            }
+            set {
+                this["UpperRight"] = value;
+            }
+        }
     }
 }

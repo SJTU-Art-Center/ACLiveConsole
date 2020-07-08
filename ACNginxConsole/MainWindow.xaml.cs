@@ -222,6 +222,13 @@ namespace ACNginxConsole
 
     }
 
+    public delegate void GiftingReceivedEvt(object sender, GiftingReceivedArgs e);
+
+    public class GiftingReceivedArgs
+    {
+        public DanmakuModel danmu;
+    }
+
     /// <summary>
     /// MainWindow.xaml 的交互逻辑
     /// </summary>
@@ -1044,6 +1051,8 @@ namespace ACNginxConsole
             WCAutoGenerate.IsChecked = Properties.Settings.Default.WCAutoGen;
             checkBoxWordCloudColor.IsChecked = Properties.Settings.Default.WCColor;
             sliderMaxVol.Value = (double)Properties.Settings.Default.WCVol - 1;
+
+            textBoxUpperRight.Text = Properties.Settings.Default.UpperRight;
 
         }
 
@@ -4082,6 +4091,9 @@ namespace ACNginxConsole
             focaldephov.labelSubtitler.Height = SliderTextSize.Value / 0.6;
             Canvas.SetLeft(focaldephov.labelSubtitler, SliderSubBazelDist.Value * focaldephov.Width);
             Canvas.SetTop(focaldephov.labelSubtitler, focaldephov.Height - SliderSubBazelDist.Value * focaldephov.Width);
+            //UpperRight
+            Canvas.SetTop(focaldephov.labelUpperRight, (SliderSubBazelDist.Value < 0.2 ? SliderSubBazelDist.Value : 0.2) * focaldephov.Height);
+            Canvas.SetRight(focaldephov.labelUpperRight, (SliderSubBazelDist.Value < 0.2 ? SliderSubBazelDist.Value : 0.2) * focaldephov.Height + 10);
         }
 
         private void buttonScreenSwitch_Click(object sender, RoutedEventArgs e)
@@ -4290,6 +4302,10 @@ namespace ACNginxConsole
                 //    newDanmakuL.Content = danmakuModel.CommentText;
                 //    listBoxDanmaku.Items.Add(newDanmakuL);
                 DanmakuPool.Enqueue(new DanmakuItem(danmakuModel.UserID,danmakuModel.CommentText, danmakuModel.isAdmin, danmakuModel.UserName));
+
+                //抽奖人
+                ReceivedGifting?.Invoke(this, new GiftingReceivedArgs() { danmu = danmakuModel });
+
                 if (wcCollecting)
                 {
                     //认为是开始统计
@@ -4563,6 +4579,7 @@ namespace ACNginxConsole
         }
 
         public static event ReceivedDanmuEvt ReceivedDanmu;
+        public static event GiftingReceivedEvt ReceivedGifting;
 
         /// <summary>
         /// 打出弹幕到公屏上，主要接口
@@ -5172,8 +5189,9 @@ namespace ACNginxConsole
             if (focaldephov != null && focaldephov.IsLoaded)
             {
                 focaldephov.labelSubtitler.FontSize = SliderTextSize.Value;
-                focaldephov.labelSubtitler.Width = focaldephov.Width * 2 / 3;
+                //focaldephov.labelSubtitler.Width = focaldephov.Width * 2 / 3;
                 focaldephov.labelSubtitler.Height = SliderTextSize.Value / 0.6;
+                focaldephov.labelUpperRight.FontSize = SliderTextSize.Value;
             }
 
         }
@@ -5236,7 +5254,10 @@ namespace ACNginxConsole
             FocalDepthHover.SettingModified = true;
             Properties.Settings.Default.ForeFont = FontStr;
             if (focaldephov != null && focaldephov.IsLoaded)
+            {
                 focaldephov.labelSubtitler.FontFamily = new FontFamily(FontStr);
+                focaldephov.labelUpperRight.FontFamily = new FontFamily(FontStr);
+            }
         }
 
         private void ColorComboBoxBubble_SelectedColorChanged(object sender, RoutedPropertyChangedEventArgs<Color> e)
@@ -5679,6 +5700,9 @@ namespace ACNginxConsole
             {
                 Canvas.SetLeft(focaldephov.labelSubtitler, SliderSubBazelDist.Value * focaldephov.Width);
                 Canvas.SetTop(focaldephov.labelSubtitler, focaldephov.Height - SliderSubBazelDist.Value * focaldephov.Width);
+                //UpperRight
+                Canvas.SetTop(focaldephov.labelUpperRight, (SliderSubBazelDist.Value < 0.2 ? SliderSubBazelDist.Value : 0.2) * focaldephov.Height);
+                Canvas.SetRight(focaldephov.labelUpperRight, (SliderSubBazelDist.Value < 0.2 ? SliderSubBazelDist.Value : 0.2) * focaldephov.Height + 10);
             }
             if(this.IsLoaded)
                 Properties.Settings.Default.SubBasel = SliderSubBazelDist.Value;
@@ -6568,6 +6592,76 @@ namespace ACNginxConsole
                     ShowResultImage(img);
 
             });
+        }
+
+        private void buttonDisabledVol_Click(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Process.Start("Resources\\stopwords.txt");
+        }
+
+        private void textBoxUpperRight_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (focaldephov != null && focaldephov.IsLoaded)
+            {
+                focaldephov.labelUpperRight.Text = textBoxUpperRight.Text;
+                Properties.Settings.Default.UpperRight = textBoxUpperRight.Text;
+            }
+        }
+
+        private void buttonUpperRight_Click(object sender, RoutedEventArgs e)
+        {
+            
+            if (focaldephov != null && focaldephov.IsLoaded)
+            {
+                DoubleAnimation uprifa = new DoubleAnimation();
+                if (focaldephov.labelUpperRight.Opacity > 0)
+                {
+                    //ImgFadeOutAnim(buttonBackImg, focaldephov.BackImg);
+                    uprifa.From = focaldephov.labelUpperRight.Opacity;
+                    uprifa.To = 0;
+                    uprifa.Duration = TimeSpan.FromSeconds(Properties.Settings.Default.TranSec);
+                    uprifa.EasingFunction = new BackEase()
+                    {
+                        Amplitude = 0.3,
+                        EasingMode = EasingMode.EaseOut,
+                    };
+                }
+                else
+                {
+                    uprifa.From = 0;
+                    uprifa.To = 1;
+                    uprifa.Duration = TimeSpan.FromSeconds(Properties.Settings.Default.TranSec);
+                    uprifa.EasingFunction = new BackEase()
+                    {
+                        Amplitude = 0.3,
+                        EasingMode = EasingMode.EaseIn,
+                    };
+                }
+
+                uprifa.Completed += Uprifa_Completed;
+                focaldephov.labelUpperRight.BeginAnimation(OpacityProperty, uprifa, HandoffBehavior.SnapshotAndReplace);
+                buttonUpperRight.IsEnabled = false;
+
+            }
+        }
+
+        private void Uprifa_Completed(object sender, EventArgs e)
+        {
+            var myblue = new SolidColorBrush(Color.FromArgb(255, 1, 188, 225));
+            if (focaldephov != null && focaldephov.IsLoaded)
+            {
+                if(focaldephov.labelUpperRight.Opacity > 0)
+                {
+                    buttonUpperRight.Background = myblue;
+                    buttonUpperRight.Foreground = Brushes.White;
+                }
+                else
+                {
+                    buttonUpperRight.Background = Brushes.White;
+                    buttonUpperRight.Foreground = myblue;
+                }
+                buttonUpperRight.IsEnabled = true;
+            }
         }
 
         Storyboard entrysb = new Storyboard();
