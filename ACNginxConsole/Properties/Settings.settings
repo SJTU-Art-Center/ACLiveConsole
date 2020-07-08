@@ -125,5 +125,8 @@
     <Setting Name="UpperRight" Type="System.String" Scope="User">
       <Value Profile="(Default)">直播</Value>
     </Setting>
+    <Setting Name="SyncMute" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

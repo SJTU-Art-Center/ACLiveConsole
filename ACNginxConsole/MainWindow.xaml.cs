@@ -91,6 +91,7 @@ using JiebaNet.Segmenter;
 using WordCloudSharp;
 using System.Runtime.InteropServices;
 using ColorPicker;
+using System.Media;
 
 namespace ACNginxConsole
 {
@@ -1053,6 +1054,7 @@ namespace ACNginxConsole
             sliderMaxVol.Value = (double)Properties.Settings.Default.WCVol - 1;
 
             textBoxUpperRight.Text = Properties.Settings.Default.UpperRight;
+            checkBoxMute.IsChecked = Properties.Settings.Default.SyncMute;
 
         }
 
@@ -2335,13 +2337,28 @@ namespace ACNginxConsole
 
         }
 
+        int blink = 0;
+        SoundPlayer biplayer = new SoundPlayer("bi.wav");
+
         private void DispatcherTimerSysTime_Tick(object sender, EventArgs e)
         {
-            textBoxLiveTime.Text = System.DateTime.Now.ToString("HH:mm:ss")
-                + " " + System.DateTime.Now.Millisecond.ToString("000");
+            var nowtime = System.DateTime.Now;
+            textBoxLiveTime.Text = nowtime.ToString("HH:mm:ss")
+                + " " + nowtime.Millisecond.ToString("000");
             if (screenSwitch)
             {
                 CreateBitmapFromVisual();
+            }
+            if (!Properties.Settings.Default.SyncMute)
+            {
+                //约为每5秒响一次
+                if (++blink > 330)
+                {
+                    biplayer.Play();
+                    textBoxLiveTime.Background = Brushes.Yellow;
+                    blink = 0;
+                }
+                else textBoxLiveTime.Background = Brushes.Transparent;
             }
         }
 
@@ -6665,6 +6682,16 @@ namespace ACNginxConsole
                 }
                 buttonUpperRight.IsEnabled = true;
             }
+        }
+
+        private void checkBoxMute_Checked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.SyncMute = true;
+        }
+
+        private void checkBoxMute_Unchecked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.SyncMute = false;
         }
 
         Storyboard entrysb = new Storyboard();

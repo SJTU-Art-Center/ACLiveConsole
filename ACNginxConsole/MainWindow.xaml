@@ -911,8 +911,14 @@
                             <CheckBox x:Name="checkBoxCloseSniffing" Content="关闭播流地址自动获取" HorizontalAlignment="Left" Margin="0,5,0,0" Width="147" Checked="CheckBoxCloseSniffing_Checked" Unchecked="CheckBoxCloseSniffing_Unchecked"/>
                             <CheckBox x:Name="checkBoxClosingAnim" Content="计时器关闭推流时播放Closing.mp4" HorizontalAlignment="Left" Height="16" Margin="0,5,0,0" Width="242"/>
                             <CheckBox x:Name="checkBoxLowMoni" Content="使用低延迟监视器（弃用）" Margin="0,5,0.5,0" Checked="checkBoxLowMoni_Checked" Unchecked="checkBoxLowMoni_Unchecked" IsEnabled="False" Visibility="Collapsed"/>
-
-                            <CheckBox x:Name="checkBoxSystemTime" Margin="0,5,0.5,0" Content="显示系统时间(高刷新公屏监视)" Checked="checkBoxSystemTime_Checked" Unchecked="checkBoxSystemTime_Unchecked"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <CheckBox x:Name="checkBoxSystemTime" Margin="0,5,0.5,0" Content="显示系统时间(高刷新公屏监视)" Checked="checkBoxSystemTime_Checked" Unchecked="checkBoxSystemTime_Unchecked"/>
+                                <CheckBox x:Name="checkBoxMute" Grid.Column="1"  Margin="0,5,0.5,0" Content="静音禁闪" HorizontalAlignment="Right" Checked="checkBoxMute_Checked" Unchecked="checkBoxMute_Unchecked"/>
+                            </Grid>
                             <CheckBox x:Name="checkBoxNetwork" Content="打开网络延迟设置" Margin="0,5,0.5,0" Checked="checkBoxNetwork_Checked" Unchecked="checkBoxNetwork_Unchecked" />
                             <CheckBox x:Name="checkBoxDanmuLink" Margin="0,5,0.5,0" Content="只接收第一个B站地址的弹幕" Checked="checkBoxDanmuLink_Checked" Unchecked="checkBoxDanmuLink_Unchecked"/>
 

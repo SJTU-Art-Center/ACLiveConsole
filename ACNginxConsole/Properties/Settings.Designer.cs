@@ -514,5 +514,17 @@ namespace ACNginxConsole.Properties {
                 this["UpperRight"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool SyncMute {
+            get {
+                return ((bool)(this["SyncMute"]));
+            }
+            set {
+                this["SyncMute"] = value;
+            }
+        }
     }
 }
