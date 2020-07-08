@@ -2875,6 +2875,7 @@ namespace ACNginxConsole
             }
             GridTranEffect.Visibility = Visibility.Collapsed;
             selectItem(to);
+            RightCol.Focus();
         }
 
         private void ButtonLU_Click(object sender, RoutedEventArgs e)
@@ -2992,6 +2993,8 @@ namespace ACNginxConsole
                 fadet.Children.Add(opf);
                 fadet.Completed += Fadet_Completed;
                 fadet.Begin(ProgressTran, HandoffBehavior.SnapshotAndReplace, true);
+
+                RightCol.Focus();
             }
             
 

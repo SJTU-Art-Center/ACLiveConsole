@@ -831,7 +831,7 @@
                                                 <Image Source="Folder(special)_5843_32x.png" Width="20" />
                                             </Button>
                                             <TextBox x:Name="FileSearchBox" Grid.Column="1" BorderBrush="#FF707070" VerticalContentAlignment="Center" IsEnabled="False" TextChanged="FileSearchBox_TextChanged"/>
-                                            <Button x:Name="buttonUpperRight" Grid.Row="1" Content="右上角提示语"  Height="27" VerticalAlignment="Top" Width="82" Background="White" Foreground="#FF9DD0FA" Click="buttonUpperRight_Click"/>
+                                            <Button x:Name="buttonUpperRight" Grid.Row="1" Content="右上角提示语"  Height="27" VerticalAlignment="Top" Background="White" Foreground="#FF9DD0FA" Click="buttonUpperRight_Click"/>
                                             <TextBox x:Name="textBoxUpperRight" Grid.Row="1" Grid.Column="1" TextWrapping="Wrap" Text="直播" TextChanged="textBoxUpperRight_TextChanged" VerticalContentAlignment="Center"/>
                                         </Grid>
                                     </StackPanel>
