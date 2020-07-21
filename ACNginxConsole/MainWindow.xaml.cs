@@ -5781,6 +5781,32 @@ namespace ACNginxConsole
             buttonNextFile.IsEnabled = true;
         }
 
+        private void UpdateFis()
+        {
+            fis.Clear();
+            foreach (string appe in supportedFormat)
+            {
+                string[] files = System.IO.Directory.GetFiles(m_Dir, appe, SearchOption.AllDirectories);
+                foreach (string s in files)
+                {
+                    System.IO.FileInfo fi = null;
+                    try
+                    {
+                        fi = new System.IO.FileInfo(s);
+                    }
+                    catch (System.IO.FileNotFoundException ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                        continue;
+                    }
+                    //this.show.Text += fi.Name;
+                    fis.Add(fi);
+                }
+            }
+            fis.OrderBy(u => u.Name);
+            currentIndex = -1;
+        }
+
         private FileInfo FindFile(string[] appendix)
         {
             FileInfo output = null;
@@ -6215,7 +6241,7 @@ namespace ACNginxConsole
 
         private void ForeNextFile(bool next = true)
         {
-
+            UpdateFis();
             UpdateCurrentInd();
             
             if (next)
