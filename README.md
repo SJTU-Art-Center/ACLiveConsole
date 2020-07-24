@@ -1,7 +1,7 @@
 # ACLiveConsole
 Art Center Live Console is a UI-friendly software to manage multi-streaming work.
 
-Release 6.4.5 Fin
+Release 6.5.0 Fin
 
 This version passed the work of VOS XXIV.
 
