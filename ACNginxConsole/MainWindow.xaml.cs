@@ -12,6 +12,9 @@
 // For more information, please visit:
 // https://github.com/LogCreative/ACLiveConsole.
 
+// Ver 6.5.0.0 by Li Zilong
+// After VOS, Final Update.
+
 // Ver 3.9.1.0 by Li Zilong
 // LAN
 
@@ -1739,6 +1742,105 @@ namespace ACNginxConsole
         }
 
 
+        private void radioButtonRecord_Checked(object sender, RoutedEventArgs e)
+        {
+            comboBoxVideo.IsEnabled = true;
+            comboBoxAudio.IsEnabled = true;
+            textBlockTip.Text = "请选择视频和音频捕获设备，然后 +1 流。";
+            labelWebsite.Content = "播流参数";
+            textBoxSourceName.Text = "捕获" + configcount;
+            textBoxWebsite.IsReadOnly = true;
+            textBoxMan.Text = "";
+            textBoxWebsite.Text = " :dshow-vdev=\"" + "\" :dshow-adev=\"" + "\"";
+            ImgRightArrow.Visibility = Visibility.Hidden;
+            RefreshOutput();
+
+            comboBoxVideo.Items.Clear();
+
+            try
+            {
+                var videoDevices = new FilterInfoCollection(FilterCategory.VideoInputDevice);
+
+                if (videoDevices.Count == 0)
+                    throw new ApplicationException();
+
+                foreach (FilterInfo device in videoDevices)
+                {
+                    comboBoxVideo.Items.Add(device.Name);
+                }
+            }
+            catch
+            {
+
+            }
+
+            comboBoxAudio.Items.Clear();
+
+            try
+            {
+                var audioDevices = new FilterInfoCollection(FilterCategory.AudioInputDevice);
+
+                if (audioDevices.Count == 0)
+                    throw new ApplicationException();
+
+                foreach (FilterInfo device in audioDevices)
+                {
+                    comboBoxAudio.Items.Add(device.Name);
+                }
+            }
+            catch
+            {
+
+            }
+
+        }
+
+        private void radioButtonRecord_Unchecked(object sender, RoutedEventArgs e)
+        {
+            comboBoxVideo.SelectedIndex = -1;
+            comboBoxAudio.SelectedIndex = -1;
+            comboBoxVideo.IsEnabled = false;
+            comboBoxAudio.IsEnabled = false;
+            labelWebsite.Content = "播流地址";
+        }
+
+        private void RefreshDevArg()
+        {
+            //Preview Only.
+            var VidStr = comboBoxVideo.SelectedIndex == -1 ? "" :
+                comboBoxVideo.SelectedValue.ToString().Replace("System.Windows.Controls.ComboBoxItem: ", "");
+            var AudStr = comboBoxAudio.SelectedIndex == -1 ? "" :
+                comboBoxAudio.SelectedValue.ToString().Replace("System.Windows.Controls.ComboBoxItem: ", "");
+
+            textBoxWebsite.Text = "视频: " + VidStr + " 音频: " + AudStr;
+
+        }
+
+        private void comboBoxVideo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            RefreshDevArg();
+        }
+
+        private void comboBoxAudio_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            RefreshDevArg();
+        }
+
+        private void comboBoxVideo_DropDownOpened(object sender, EventArgs e)
+        {
+
+        }
+
+        private void radioButtonScreen_Checked(object sender, RoutedEventArgs e)
+        {
+            textBlockTip.Text = "+1流后，可以监视显示器实时画面。";
+            textBoxWebsite.IsReadOnly = true;
+            textBoxWebsite.Text = "screen://";
+            textBoxSourceName.Text = "桌面" + configcount;
+            textBoxMan.Text = "";
+            RefreshOutput();
+        }
+
         #endregion
 
         #region 测试
@@ -2737,6 +2839,94 @@ namespace ACNginxConsole
             Properties.Settings.Default.SysTime = false;
             Rec4.Visibility = Visibility.Collapsed;
         }
+
+        private void checkBoxTxCloud_Checked(object sender, RoutedEventArgs e)
+        {
+            RefreshOutput();
+            labelWebsite.Content = "推流地址";
+        }
+
+        private void checkBoxTxCloud_Unchecked(object sender, RoutedEventArgs e)
+        {
+            RefreshOutput();
+            labelWebsite.Content = "播流地址";
+        }
+
+        private void checkBoxBottomBarAuto_Checked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.BottomBarAuto = false;
+        }
+
+        private void checkBoxBottomBarAuto_Unchecked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.BottomBarAuto = true;
+        }
+
+        private void buttonNextFile_Click(object sender, RoutedEventArgs e)
+        {
+            ForeNextFile();
+        }
+
+
+        private void checkBoxSurfaceDial_Unchecked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.SurfaceDial = false;
+        }
+
+        private void SliderGiftNum_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (this.IsLoaded)
+                Properties.Settings.Default.GiftGivingNum = (int)SliderGiftNum.Value + 1;
+        }
+
+        private void TextBoxGiftDanmu_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            Properties.Settings.Default.GiftGivingCond = TextBoxGiftDanmu.Text;
+        }
+
+        private void checkBoxGiftShow_Checked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.GiftGivingShow = true;
+        }
+
+        private void checkBoxGiftShow_Unchecked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.GiftGivingShow = false;
+        }
+
+        private void comboBoxAudio_DropDownOpened(object sender, EventArgs e)
+        {
+
+        }
+
+
+        private void checkBoxDanmuLink_Checked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.danmuLink = true;
+            Rec2.Visibility = Visibility.Visible;
+        }
+
+        private void checkBoxDanmuLink_Unchecked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.danmuLink = false;
+            Rec2.Visibility = Visibility.Collapsed;
+        }
+
+        private void SliderTransSec_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            Properties.Settings.Default.TranSec = SliderTransSec.Value;
+        }
+
+        private void checkBoxNetwork_Checked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.OpenNetworkCaching = true;
+        }
+
+        private void checkBoxNetwork_Unchecked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.OpenNetworkCaching = false;
+        }
+
 
         #endregion
 
@@ -5330,8 +5520,6 @@ namespace ACNginxConsole
             }
         }
 
-
-
         private void StackPanelRightCol_KeyDown(object sender, KeyEventArgs e)
         {
             StackPanelRightCol.Focus();
@@ -5467,123 +5655,8 @@ namespace ACNginxConsole
             }
         }
 
-        private void SliderTransSec_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            Properties.Settings.Default.TranSec = SliderTransSec.Value;
-        }
 
-        private void checkBoxNetwork_Checked(object sender, RoutedEventArgs e)
-        {
-            Properties.Settings.Default.OpenNetworkCaching = true;
-        }
-
-        private void checkBoxNetwork_Unchecked(object sender, RoutedEventArgs e)
-        {
-            Properties.Settings.Default.OpenNetworkCaching = false;
-        }
-
-        private void radioButtonRecord_Checked(object sender, RoutedEventArgs e)
-        {
-            comboBoxVideo.IsEnabled = true;
-            comboBoxAudio.IsEnabled = true;
-            textBlockTip.Text = "请选择视频和音频捕获设备，然后 +1 流。";
-            labelWebsite.Content = "播流参数";
-            textBoxSourceName.Text = "捕获" + configcount;
-            textBoxWebsite.IsReadOnly = true;
-            textBoxMan.Text = "";
-            textBoxWebsite.Text = " :dshow-vdev=\"" + "\" :dshow-adev=\"" + "\"";
-            ImgRightArrow.Visibility = Visibility.Hidden;
-            RefreshOutput();
-
-            comboBoxVideo.Items.Clear();
-
-            try
-            {
-                var videoDevices = new FilterInfoCollection(FilterCategory.VideoInputDevice);
-
-                if (videoDevices.Count == 0)
-                    throw new ApplicationException();
-
-                foreach (FilterInfo device in videoDevices)
-                {
-                    comboBoxVideo.Items.Add(device.Name);
-                }
-            }
-            catch
-            {
-
-            }
-
-            comboBoxAudio.Items.Clear();
-
-            try
-            {
-                var audioDevices = new FilterInfoCollection(FilterCategory.AudioInputDevice);
-
-                if (audioDevices.Count == 0)
-                    throw new ApplicationException();
-
-                foreach (FilterInfo device in audioDevices)
-                {
-                    comboBoxAudio.Items.Add(device.Name);
-                }
-            }
-            catch
-            {
-
-            }
-
-        }
-
-        private void radioButtonRecord_Unchecked(object sender, RoutedEventArgs e)
-        {
-            comboBoxVideo.SelectedIndex = -1;
-            comboBoxAudio.SelectedIndex = -1;
-            comboBoxVideo.IsEnabled = false;
-            comboBoxAudio.IsEnabled = false;
-            labelWebsite.Content = "播流地址";
-        }
-
-        private void RefreshDevArg()
-        {
-            //Preview Only.
-            var VidStr = comboBoxVideo.SelectedIndex == -1 ? "" :
-                comboBoxVideo.SelectedValue.ToString().Replace("System.Windows.Controls.ComboBoxItem: ", "");
-            var AudStr = comboBoxAudio.SelectedIndex == -1 ? "" :
-                comboBoxAudio.SelectedValue.ToString().Replace("System.Windows.Controls.ComboBoxItem: ", "");
-
-            textBoxWebsite.Text = "视频: " + VidStr + " 音频: " + AudStr;
-            
-        }
-
-        private void comboBoxVideo_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            RefreshDevArg();
-        }
-
-        private void comboBoxAudio_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            RefreshDevArg();
-        }
-
-        private void comboBoxVideo_DropDownOpened(object sender, EventArgs e)
-        {
-            
-        }
-
-        private void checkBoxDanmuLink_Checked(object sender, RoutedEventArgs e)
-        {
-            Properties.Settings.Default.danmuLink = true;
-            Rec2.Visibility = Visibility.Visible;
-        }
-
-        private void checkBoxDanmuLink_Unchecked(object sender, RoutedEventArgs e)
-        {
-            Properties.Settings.Default.danmuLink = false;
-            Rec2.Visibility = Visibility.Collapsed;
-        }
-
-        
+        #region 字幕机
 
         private void buttonSurfaceDial_Click(object sender, RoutedEventArgs e)
         {
@@ -5828,7 +5901,9 @@ namespace ACNginxConsole
                         continue;
                     }
                     //this.show.Text += fi.Name;
-                    if (fi.Name.Contains(FileSearchBox.Text))
+                    string target = FileSearchBox.Text;
+                    if ((!target.Contains('.') && fi.Name.Contains(target))||
+                        target.Contains('.') && fi.Name.Contains(target.Split('.')[0]))
                     {
                         //TextBlockStatus.Text = "载入：" + fi.Name;
                         output = fi;
@@ -6161,7 +6236,20 @@ namespace ACNginxConsole
         {
             if (buttonPlay.IsEnabled)
             {
-                if (focaldephov != null && focaldephov.IsLoaded && loadfi != null)
+                // 没开公屏的话自己开
+                if (!(focaldephov != null && focaldephov.IsLoaded))
+                {
+                    ScreenSwitch();
+                    //弹出音控台
+                    if (sc == null || sc.IsLoaded == false)
+                    {
+                        sc = new SoundControl();
+                        sc.Show();
+                        sc.Topmost = true;
+                    }
+                }
+
+                if (loadfi != null)
                 {
                     if (ForePic.IsSelected || ForeVid.IsSelected)
                         ForeNone.IsSelected = true;
@@ -6290,74 +6378,9 @@ namespace ACNginxConsole
             }
         }
 
-        private void checkBoxTxCloud_Checked(object sender, RoutedEventArgs e)
-        {
-            RefreshOutput();
-            labelWebsite.Content = "推流地址";
-        }
+        #endregion
 
-        private void checkBoxTxCloud_Unchecked(object sender, RoutedEventArgs e)
-        {
-            RefreshOutput();
-            labelWebsite.Content = "播流地址";
-        }
-
-        private void checkBoxBottomBarAuto_Checked(object sender, RoutedEventArgs e)
-        {
-            Properties.Settings.Default.BottomBarAuto = false;
-        }
-
-        private void checkBoxBottomBarAuto_Unchecked(object sender, RoutedEventArgs e)
-        {
-            Properties.Settings.Default.BottomBarAuto = true;
-        }
-
-        private void buttonNextFile_Click(object sender, RoutedEventArgs e)
-        {
-            ForeNextFile();
-        }
-
-
-        private void checkBoxSurfaceDial_Unchecked(object sender, RoutedEventArgs e)
-        {
-            Properties.Settings.Default.SurfaceDial = false;
-        }
-
-        private void SliderGiftNum_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            if (this.IsLoaded)
-                Properties.Settings.Default.GiftGivingNum = (int)SliderGiftNum.Value + 1;
-        }
-
-        private void TextBoxGiftDanmu_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            Properties.Settings.Default.GiftGivingCond = TextBoxGiftDanmu.Text;
-        }
-
-        private void checkBoxGiftShow_Checked(object sender, RoutedEventArgs e)
-        {
-            Properties.Settings.Default.GiftGivingShow = true;
-        }
-
-        private void checkBoxGiftShow_Unchecked(object sender, RoutedEventArgs e)
-        {
-            Properties.Settings.Default.GiftGivingShow = false;
-        }
-
-        private void comboBoxAudio_DropDownOpened(object sender, EventArgs e)
-        {
-            
-        }
-
-        private void radioButtonScreen_Checked(object sender, RoutedEventArgs e)
-        {
-            textBlockTip.Text = "+1流后，可以监视显示器实时画面。";
-            textBoxWebsite.IsReadOnly = true;
-            textBoxWebsite.Text = "screen://";
-            textBoxSourceName.Text = "桌面" + configcount;
-            textBoxMan.Text = "";
-            RefreshOutput();
-        }
+        #region 音控台
 
         private void buttonMonitorSound_Click(object sender, RoutedEventArgs e)
         {
@@ -6380,6 +6403,10 @@ namespace ACNginxConsole
             //Monitors.ElementAt(1).Volume = (int)ProgressRU.Value;
             //Monitors.ElementAt(2).Volume = (int)ProgressLD.Value;
         }
+
+        #endregion
+
+        #region 抽奖
 
         bool Gifting = false;
         
@@ -6410,6 +6437,7 @@ namespace ACNginxConsole
 
         // TODO: ffmpeg -f gdigrab -i title="FocalDepthHover" "rtmp://127.0.0.1/live"
 
+        #endregion
 
         #region 词云
 
