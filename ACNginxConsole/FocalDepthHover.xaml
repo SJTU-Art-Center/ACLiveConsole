@@ -40,7 +40,7 @@
 
     <Grid x:Name="grid" ClipToBounds="True">
         <Rectangle />
-        <Image x:Name="ForeImg" RenderTransformOrigin="0.5,0.5" ClipToBounds="True" />
+        
         <Image x:Name="WordCloud" UseLayoutRounding="True"/>
         <Image x:Name="TransitionImg" RenderTransformOrigin="0.5,0.5" ClipToBounds="True" >
             <Image.RenderTransform>
@@ -78,6 +78,7 @@
                 <Canvas x:Name="CanvasNameField" Grid.Column="1" ClipToBounds="True"/>
             </Grid>
         </Grid>
+        <Image x:Name="ForeImg" RenderTransformOrigin="0.5,0.5" ClipToBounds="True" />
         <Canvas x:Name="ThumbCanvas">
             <TextBlock x:Name="labelUpperRight" Text="直播" Foreground="White" FontSize="24" Opacity="0" TextAlignment="Right">
                 <TextBlock.Effect>
