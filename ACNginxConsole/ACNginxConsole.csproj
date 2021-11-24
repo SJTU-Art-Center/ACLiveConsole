@@ -8,13 +8,15 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>ACNginxConsole</RootNamespace>
     <AssemblyName>ACNginxConsole</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
     <Deterministic>true</Deterministic>
     <TargetFrameworkProfile />
     <IsWebBootstrapper>false</IsWebBootstrapper>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
     <PublishUrl>C:\Users\lizil\3D Objects\ACLiveConsole\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -30,8 +32,6 @@
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -43,6 +43,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -53,6 +54,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
     <SignManifests>true</SignManifests>
@@ -61,10 +63,10 @@
     <ApplicationIcon>bitbug_favicon %281%29.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>100B5AA28940ECA0A549B977ACA2339B976CFDF1</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>4D2F73D022B3B154DCD44305C759385CA23126F6</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>ACNginxConsole_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>ACNginxConsole_1_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateManifests>true</GenerateManifests>
@@ -72,11 +74,36 @@
   <PropertyGroup>
     <StartupObject>ACNginxConsole.App</StartupObject>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ColorPicker">
+      <HintPath>bin\Debug\ColorPicker.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationFramework.Aero" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Drawing.Design" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Windows" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
@@ -84,25 +111,42 @@
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="UIAutomationProvider" />
-    <Reference Include="Vlc.DotNet.Core, Version=3.0.0.0, Culture=neutral, PublicKeyToken=84529da31f4eb963, processorArchitecture=MSIL">
-      <HintPath>..\packages\Vlc.DotNet.Core.3.0.0\lib\net35\Vlc.DotNet.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Vlc.DotNet.Core.Interops, Version=3.0.0.0, Culture=neutral, PublicKeyToken=84529da31f4eb963, processorArchitecture=MSIL">
-      <HintPath>..\packages\Vlc.DotNet.Core.Interops.3.0.0\lib\net35\Vlc.DotNet.Core.Interops.dll</HintPath>
-    </Reference>
-    <Reference Include="Vlc.DotNet.Wpf, Version=3.0.0.0, Culture=neutral, PublicKeyToken=84529da31f4eb963, processorArchitecture=MSIL">
-      <HintPath>..\packages\Vlc.DotNet.Wpf.3.0.0\lib\net35\Vlc.DotNet.Wpf.dll</HintPath>
-    </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="WindowsFormsIntegration" />
+    <Reference Include="WordCloudSharp, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Downloads\WordCloudSharp-master\WordCloud\bin\Debug\WordCloudSharp.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AnimMsg.xaml.cs">
+      <DependentUpon>AnimMsg.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DanmakuEntry.xaml.cs">
+      <DependentUpon>DanmakuEntry.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DanmakuLoader-old.cs" />
+    <Compile Include="DanmakuLoader.cs" />
+    <Compile Include="DanmakuModel.cs" />
+    <Compile Include="EndianBitConverter\BigEndianBitConverter.cs" />
+    <Compile Include="EndianBitConverter\EndianBitConverter.cs" />
+    <Compile Include="FFmpegBinariesHelper.cs" />
+    <Compile Include="EndianBitConverter\LittleEndianBitConverter.cs" />
+    <Compile Include="EndianBitConverter\SingleConverter.cs" />
+    <Compile Include="SoundControl.xaml.cs">
+      <DependentUpon>SoundControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="tstRtmp.cs" />
+    <Compile Include="FocalDepthHover.xaml.cs">
+      <DependentUpon>FocalDepthHover.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="utils.cs" />
     <Compile Include="DockerPanel.xaml.cs">
       <DependentUpon>DockerPanel.xaml</DependentUpon>
     </Compile>
@@ -112,8 +156,26 @@
     <Compile Include="Monitoring.xaml.cs">
       <DependentUpon>Monitoring.xaml</DependentUpon>
     </Compile>
+    <Compile Include="MsgBox.xaml.cs">
+      <DependentUpon>MsgBox.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Settings.cs" />
+    <Compile Include="VolumeHelper\AudioEndpointVolumeCallback.cs" />
+    <Compile Include="VolumeHelper\VolumeControl.cs" />
+    <Compile Include="VolumeHelper\VolumeHelper.cs" />
+    <Page Include="AnimMsg.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="DanmakuEntry.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="DockerPanel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="FocalDepthHover.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -137,6 +199,14 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="MsgBox.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="SoundControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -156,13 +226,16 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="ACNginxConsole_1_TemporaryKey.pfx" />
     <None Include="ACNginxConsole_TemporaryKey.pfx" />
     <None Include="app.config" />
-    <None Include="packages.config" />
+    <None Include="app.manifest" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <Resource Include="RTWSYueGoTrial-LightCond.otf" />
+    <Resource Include="RTWSYueGoTrial-Regular.otf" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="109_AllAnnotations_Error_16x16_72.png" />
@@ -177,10 +250,15 @@
     <Resource Include="ACLiveConsoleLogo.png" />
   </ItemGroup>
   <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.5.2">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.5.2 %28x86 和 x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
     <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
       <Visible>False</Visible>
       <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>true</Install>
+      <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
@@ -195,12 +273,137 @@
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="arrow_LD_16xLG.png" />
+    <Resource Include="arrow_LU_16xLG.png" />
+    <Resource Include="arrow_RD_16xLG.png" />
+    <Resource Include="arrow_RU_16xLG.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="clock.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="RecordRound_16xLG.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="RecordStop_16xLG.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="DeleteTablefromDatabase_270.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="DeleteHS.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="WebForm%28ASPX%29_815_32x_color.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="arrow_Down_16xLG.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="SelectRow_362.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="StatusAnnotations_Help_and_inconclusive_16xLG_color.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="StatusAnnotations_Stop_16xLG_color.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="EndianBitConverter\LICENSE.EndianBitConverter.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="gear_16xLG.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="arrow_Down_color_32xLG.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="arrow_Forward_color_32xLG.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="OpenFileDialog_692.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="refresh_16xLG.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="SideBySide.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="SWindow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Soundfile_461.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="LRSplit.png" />
+    <Resource Include="UDSplit.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="lines_Text_indent_16xLG.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="AForge.Video.DirectShow">
+      <Version>2.2.5</Version>
+    </PackageReference>
+    <PackageReference Include="FFmpeg.AutoGen">
+      <Version>3.4.0.6</Version>
+    </PackageReference>
+    <PackageReference Include="jieba.NET">
+      <Version>0.42.2</Version>
+    </PackageReference>
+    <PackageReference Include="Lucene.Net">
+      <Version>3.0.3</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Windows.SDK.Contracts">
+      <Version>10.0.19041.1</Version>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>12.0.3</Version>
+    </PackageReference>
+    <PackageReference Include="System.Runtime.WindowsRuntime">
+      <Version>4.7.0</Version>
+    </PackageReference>
+    <PackageReference Include="System.Runtime.WindowsRuntime.UI.Xaml">
+      <Version>4.7.0</Version>
+    </PackageReference>
+    <PackageReference Include="VideoLAN.LibVLC.Windows">
+      <Version>3.0.8</Version>
+    </PackageReference>
+    <PackageReference Include="Vlc.DotNet.Wpf">
+      <Version>3.0.0</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="SurfaceDial.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="arrow_Previous_16xLG_color.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="arrow_Next_16xLG_color.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Clearwindowcontent_6304.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="lines_Text_code_16xLG.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Folder%28special%29_5843_32x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Symbols_Play_32xLG.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Symbols_Pause_32xLG.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Nextrequest_10302.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="StatusAnnotations_Stop_32xLG_color.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\packages\VideoLAN.LibVLC.Windows.3.0.8.1\build\VideoLAN.LibVLC.Windows.targets" Condition="Exists('..\packages\VideoLAN.LibVLC.Windows.3.0.8.1\build\VideoLAN.LibVLC.Windows.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>这台计算机上缺少此项目引用的 NuGet 程序包。使用“NuGet 程序包还原”可下载这些程序包。有关更多信息，请参见 http://go.microsoft.com/fwlink/?LinkID=322105。缺少的文件是 {0}。</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\VideoLAN.LibVLC.Windows.3.0.8.1\build\VideoLAN.LibVLC.Windows.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\VideoLAN.LibVLC.Windows.3.0.8.1\build\VideoLAN.LibVLC.Windows.targets'))" />
-  </Target>
 </Project>

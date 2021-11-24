@@ -24,21 +24,6 @@ namespace ACNginxConsole
         public Monitoring()
         {
             InitializeComponent();
-
-            var vlcLibDirectory = new DirectoryInfo(System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "libvlc\\" + (IntPtr.Size == 4 ? "win-x86" : "win-x64")));
-
-            var options = new string[]
-            {
-                // VLC options
-                "--file-logging","-vvv"
-            };
-
-            this.MyControl.SourceProvider.CreatePlayer(vlcLibDirectory, options);
-
-            //Plug-in Complete.
-            //Load libvlc Lib
-            //this.MyControl.SourceProvider.MediaPlayer.Play("LiveTest.mp4");
-
         }
     }
 }

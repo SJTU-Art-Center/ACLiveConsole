@@ -22,7 +22,7 @@ namespace ACNginxConsole
         class MsgElement
         {
             //对话框对象
-            MsgBox msgb;
+            //MsgBox msgb;
 
             //构造函数
             MsgElement() { //msgb = new MsgBox(); 
@@ -34,13 +34,18 @@ namespace ACNginxConsole
         }
 
         public AnimMsg()
-        { 
+        {
+            InitializeComponent();
             //MsgElement Msg1 = new MsgElement("别折腾了");
             //MsgElement Msg2 = new MsgElement("笑死我了");
-            InitializeComponent();
+
             Storyboard styb = this.FindResource("StoryboardFloat") as Storyboard;
             
             styb.Begin();
+
+            //MsgElement Msg1 = new MsgElement("别折腾了");
+            //this.AddChild(Msg1);
+
         }
     }
 }

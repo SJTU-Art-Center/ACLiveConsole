@@ -24,6 +24,16 @@
                 </CombinedGeometry>
             </Path.Data>
         </Path>
-        <TextBlock x:Name="TextblockMsg" Text="别折腾了" Foreground="White" Margin="122,48,0,48" FontFamily="/ACNginxConsole;component/#RTWS YueGothic Trial Regular" FontSize="48" Width="448" TextWrapping="Wrap" HorizontalAlignment="Left"/>
+
+        <Border BorderBrush="White" BorderThickness="5">
+            <Grid>
+                <TextBlock x:Name="TextblockMsg" Text="别折腾了" Foreground="White" Margin="122,48,0,0" FontFamily="/ACNginxConsole;component/#RTWS YueGothic Trial Regular" FontSize="48" TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Top">
+                </TextBlock>
+            </Grid>
+        </Border>
+
+        
+        
+        
     </Grid>
 </UserControl>

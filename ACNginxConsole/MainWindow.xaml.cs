@@ -338,10 +338,6 @@ namespace ACNginxConsole
                 if (buttonPlay.IsEnabled)
                     ForePlay();
                 else ForeStop();
-            } else if (radialController.Menu.GetSelectedMenuItem() == winshow)
-            {
-                FadeOutAnim(buttonWinTrans, OpacSlider);        //更改窗口不透明度
-                focaldephov.Topmost = true;                     //将窗口置顶
             }
 
             InvalidateVisual();
@@ -375,7 +371,6 @@ namespace ACNginxConsole
 
         RadialControllerMenuItem rcsub;
         RadialControllerMenuItem rcplayer;
-        RadialControllerMenuItem winshow;
 
         private void AddCustomItems()
         {
@@ -383,9 +378,6 @@ namespace ACNginxConsole
             radialController.Menu.Items.Add(rcsub);
             rcplayer = RadialControllerMenuItem.CreateFromFontGlyph("音频电脑", "💻", "Segoe UI Emoji");
             radialController.Menu.Items.Add(rcplayer);
-            winshow = RadialControllerMenuItem.CreateFromFontGlyph("窗口显示", "🖥", "Segoe UI Emoji");
-            radialController.Menu.Items.Add(winshow);
-
         }
 
         #endregion

@@ -21652,3 +21652,21 @@
 2020/02/29 00:00:01 [notice] 21940#15972: exit
 2020/02/29 00:00:01 [notice] 24420#23576: worker process 21940 exited with code 0
 2020/02/29 00:00:01 [notice] 24420#23576: exit
+2020/03/01 00:05:33 [notice] 21760#13508: using the "select" event method
+2020/03/01 00:05:33 [notice] 21760#13508: nginx/1.12.1
+2020/03/01 00:05:33 [info] 21760#13508: OS: 300000 build:18363, "", suite:300, type:1
+2020/03/01 00:05:33 [notice] 21760#13508: start worker processes
+2020/03/01 00:05:33 [notice] 21760#13508: start worker process 21216
+2020/03/01 00:05:33 [notice] 21216#12452: nginx/1.12.1
+2020/03/01 00:05:33 [info] 21216#12452: OS: 300000 build:18363, "", suite:300, type:1
+2020/03/01 00:05:33 [notice] 21216#12452: create thread 21276
+2020/03/01 00:05:33 [notice] 21216#12452: create thread 25608
+2020/03/01 00:05:33 [notice] 21216#12452: create thread 28152
+2020/03/01 00:05:48 [notice] 28024#28272: signal process started
+2020/03/01 00:05:48 [notice] 21760#13508: exiting
+2020/03/01 00:05:48 [notice] 21216#12452: gracefully shutting down
+2020/03/01 00:05:48 [notice] 21216#25608: exiting
+2020/03/01 00:05:48 [notice] 21216#21276: exiting
+2020/03/01 00:05:48 [notice] 21216#12452: exit
+2020/03/01 00:05:48 [notice] 21760#13508: worker process 21216 exited with code 0
+2020/03/01 00:05:48 [notice] 21760#13508: exit

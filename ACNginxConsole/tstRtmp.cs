@@ -1,12 +1,11 @@
 ﻿
-using ACNginxConsole;
 using FFmpeg.AutoGen;
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Windows;
-using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 
 namespace FFmpegDemo
@@ -17,8 +16,7 @@ namespace FFmpegDemo
         /// 显示图片委托
         /// </summary>
         /// <param name="bitmap"></param>
-        public delegate void ShowBitmap(Bitmap bitmap);
-        //public BitmapSource bs;
+        public delegate void ShowBitmap(int width, int height, int Stride, IntPtr data);
         /// <summary>
         /// 执行控制变量
         /// </summary>
@@ -28,9 +26,7 @@ namespace FFmpegDemo
         /// </summary>
         /// <param name="show">解码完成回调函数</param>
         /// <param name="url">播放地址，也可以是本地文件地址</param>
-        public unsafe void Start(
-            ShowBitmap show, 
-            string url)
+        public unsafe void Start(ShowBitmap show, string url)
         {
             CanRun = true;
 
@@ -119,9 +115,8 @@ namespace FFmpegDemo
 
             // 得到编码器ID
             var codecId = codecContext.codec_id;
-            // 目标像素格式，改为YUV
-            //var destinationPixFmt = AVPixelFormat.AV_PIX_FMT_BGR24;
-            var destinationPixFmt = AVPixelFormat.AV_PIX_FMT_YUV420P;
+            // 目标像素格式
+            var destinationPixFmt = AVPixelFormat.AV_PIX_FMT_BGR24;
 
 
             // 某些264格式codecContext.pix_fmt获取到的格式是AV_PIX_FMT_NONE 统一都认为是YUV420P
@@ -180,7 +175,7 @@ namespace FFmpegDemo
                     {
                         // 读取一帧未解码数据
                         error = ffmpeg.av_read_frame(pFormatContext, pPacket);
-                       // Console.WriteLine(pPacket->dts);
+                        // Console.WriteLine(pPacket->dts);
                         if (error == ffmpeg.AVERROR_EOF) break;
                         if (error < 0) throw new ApplicationException(GetErrorMessage(error));
 
@@ -198,10 +193,8 @@ namespace FFmpegDemo
                     if (pPacket->stream_index != pStream->index) continue;
 
                     //Console.WriteLine($@"frame: {frameNumber}");
-                    //// YUV->RGB
-                    //  YUV
+                    // YUV->RGB
                     ffmpeg.sws_scale(pConvertContext, pDecodedFrame->data, pDecodedFrame->linesize, 0, height, dstData, dstLinesize);
-                    
                 }
                 finally
                 {
@@ -210,23 +203,18 @@ namespace FFmpegDemo
                 }
 
                 // 封装Bitmap图片
-                var bitmap = new Bitmap(width, height, dstLinesize[0], PixelFormat.Format24bppRgb, convertedFrameBufferPtr);
-                //bs = Imaging.CreateBitmapSourceFromHBitmap(bitmap.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-
-                //convertedFrameBufferPtr 里面有YUV信息
-                //dstLinesize 有解码信息
+                //var bitmap = new Bitmap(width, height, dstLinesize[0], PixelFormat.Format24bppRgb, convertedFrameBufferPtr);
 
 
                 // 回调
-                //show(convertedFrameBufferPtr);
-                show(bitmap);
+                show(width, height, dstLinesize[0], convertedFrameBufferPtr);
+                Debug.WriteLine(frameNumber);
                 //bitmap.Save(AppDomain.CurrentDomain.BaseDirectory + "\\264\\frame.buffer."+ frameNumber + ".jpg", ImageFormat.Jpeg);
 
                 frameNumber++;
             }
             //播放完置空播放图片 
-            show(null);
-            
+            show(0, 0, 0, IntPtr.Zero);
 
             #endregion
 
@@ -238,11 +226,10 @@ namespace FFmpegDemo
             ffmpeg.av_free(pDecodedFrame);
             ffmpeg.avcodec_close(pCodecContext);
             ffmpeg.avformat_close_input(&pFormatContext);
-            
+
 
             #endregion
         }
-
 
 
         /// <summary>
@@ -263,6 +250,5 @@ namespace FFmpegDemo
         {
             CanRun = false;
         }
-
     }
 }

@@ -24,10 +24,10 @@ namespace ACNginxConsole
             InitializeComponent();
         }
 
-        //public MsgBox(string MsgText="")
-        //{
-        //    InitializeComponent();
-        //    TextblockMsg.Text = MsgText;
-        //}
+        public MsgBox(string MsgText = "")
+        {
+            InitializeComponent();
+            TextblockMsg.Text = MsgText;
+        }
     }
 }

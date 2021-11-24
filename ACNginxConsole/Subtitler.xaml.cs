@@ -41,44 +41,14 @@ namespace ACNginxConsole
         {
             // Create a reference to the RadialController.
             CreateController();
-            // Set rotation resolution to 1 degree of sensitivity.
+            // Set rotation resolution to 5 degree of sensitivity.
             radialController.RotationResolutionInDegrees = 5;
 
-            // Declare input handlers for the RadialController.
-            //radialController.ButtonClicked += (sender, args) =>
-            //{ RadialController_ButtonClicked(sender, args); };
-            //radialController.RotationChanged += (sender, args) =>
-            //{ RadialController_RotationChanged(sender, args); };
             radialController.RotationChanged += RadialController_RotationChanged;
-            radialController.ControlAcquired += RadialController_ControlAcquired;
             radialController.ButtonClicked += RadialController_ButtonClicked;
 
-            //radialController.ControlAcquired += (sender, args) =>
-            //{ RadialController_ControlAcquired(sender, args); };
-            //radialController.ControlLost += (sender, args) =>
-            //{ RadialController_ControlLost(sender, args); };
-            //radialController.ScreenContactStarted += (sender, args) =>
-            //{ RadialController_ScreenContactStarted(sender, args); };
-            //radialController.ScreenContactContinued += (sender, args) =>
-            //{ RadialController_ScreenContactContinued(sender, args); };
-            //radialController.ScreenContactEnded += (sender, args) =>
-            //{ RadialController_ScreenContactEnded(sender, args); };
-            //AddToLog("Input handlers created");
-
-            // Create the custom menu items.
-            //CreateMenuItems();
-            // Specify the menu items.
-            //ConfigureMenu();
-
             AddCustomItems();
-            SetDefaultItems();
         }
-
-        private void RadialController_ControlAcquired(RadialController sender, RadialControllerControlAcquiredEventArgs args)
-        {
-            
-        }
-
 
         // Occurs when the wheel device is rotated while a custom 
         // RadialController tool is active.
@@ -88,7 +58,8 @@ namespace ACNginxConsole
         private void RadialController_RotationChanged(RadialController sender,
           RadialControllerRotationChangedEventArgs args)
         {
-            
+            System.Diagnostics.Debug.WriteLine("Rotated");
+            //args.RotationDeltaInDegrees
             InvalidateVisual();
         }
 
@@ -100,7 +71,8 @@ namespace ACNginxConsole
         private void RadialController_ButtonClicked(RadialController sender,
           RadialControllerButtonClickedEventArgs args)
         {
-
+            System.Diagnostics.Debug.WriteLine("Clicked");
+            InvalidateVisual();
         }
 
         [System.Runtime.InteropServices.Guid("1B0535C9-57AD-45C1-9D79-AD5C34360513")]
@@ -131,26 +103,7 @@ namespace ACNginxConsole
 
         private void AddCustomItems()
         {
-            radialController.Menu.Items.Add(RadialControllerMenuItem.CreateFromKnownIcon("Ruler", RadialControllerMenuKnownIcon.Ruler));
-
-            AddItemsFromFont();
-        }
-
-        private void AddItemsFromFont()
-        {
-            // Using system font
-            radialController.Menu.Items.Add(RadialControllerMenuItem.CreateFromFontGlyph("System Font Icon", "\xD83D\xDC31\x200D\xD83D\xDC64", "Segoe UI Emoji"));
-        }
-
-        private void SetDefaultItems()
-        {
-            RadialControllerConfiguration radialControllerConfig;
-            IRadialControllerConfigurationInterop radialControllerConfigInterop = (IRadialControllerConfigurationInterop)System.Runtime.InteropServices.WindowsRuntime.WindowsRuntimeMarshal.GetActivationFactory(typeof(RadialControllerConfiguration));
-            Guid guid = typeof(RadialControllerConfiguration).GetInterface("IRadialControllerConfiguration").GUID;
-
-            radialControllerConfig = radialControllerConfigInterop.GetForWindow(new WindowInteropHelper(this).Handle, ref guid);
-            radialControllerConfig.SetDefaultMenuItems(new[] { RadialControllerSystemMenuItemKind.Volume, RadialControllerSystemMenuItemKind.Scroll });
-            radialControllerConfig.TrySelectDefaultMenuItem(RadialControllerSystemMenuItemKind.Scroll);
+            radialController.Menu.Items.Add(RadialControllerMenuItem.CreateFromFontGlyph("字幕机", "⌨", "Segoe UI Emoji"));
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)

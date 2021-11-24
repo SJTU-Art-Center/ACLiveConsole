@@ -209,7 +209,7 @@ namespace BiliDMLib
                                 }
 
                             }
-                            catch (Exception e)
+                            catch
                             {
 
                             }
