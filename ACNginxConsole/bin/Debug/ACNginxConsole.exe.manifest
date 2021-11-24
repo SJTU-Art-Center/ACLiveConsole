@@ -49,7 +49,7 @@
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>kkLYpQ5exFgXInyGKzGLCHQMdaU5zNzH5bjuYB/PfUI=</dsig:DigestValue>
+        <dsig:DigestValue>MWNkawghVk4cwCAue40ohTyBWl4xcX8CC/XaHGMa1jk=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -221,13 +221,13 @@
       </hash>
     </dependentAssembly>
   </dependency>
-  <file name="ACNginxConsole.exe.config" size="23511">
+  <file name="ACNginxConsole.exe.config" size="6490">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>uz7GrnMd4ziRf+Cc1MXzSelgO/U6WZ4zrm4p18yZg2U=</dsig:DigestValue>
+      <dsig:DigestValue>XHPWgOeDmDjv5NRppukEkvCUJ+kixEucPfEznqZwEYM=</dsig:DigestValue>
     </hash>
   </file>
   <file name="bitbug_favicon (1).ico" size="67646">

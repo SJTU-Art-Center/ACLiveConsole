@@ -1248,7 +1248,7 @@ namespace ACNginxConsole
             }
             else if (radioButtonWeibo.IsChecked == true)
             {   //微博配置文件
-                textBoxMan.Text = textBoxAdd.Text + "/" + textBoxCode.Text;
+                textBoxMan.Text = textBoxAdd.Text + textBoxCode.Text;
                 sourceType = 1;
                 //textBoxMan.Text = "push " + pushCode + ";";
             }

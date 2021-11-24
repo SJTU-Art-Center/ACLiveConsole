@@ -7,14 +7,14 @@
     <framework targetVersion="4.8" profile="Full" supportedRuntime="4.0.30319" />
   </compatibleFrameworks>
   <dependency>
-    <dependentAssembly dependencyType="install" codebase="ACNginxConsole.exe.manifest" size="495367">
+    <dependentAssembly dependencyType="install" codebase="ACNginxConsole.exe.manifest" size="495366">
       <assemblyIdentity name="ACNginxConsole.exe" version="2.0.0.1" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="msil" type="win32" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>LlHQMWKAwFRm/E9UdQJzmMyPvmMc5KEGN37648Z00sw=</dsig:DigestValue>
+        <dsig:DigestValue>OIes+5MCh/e9j2Bv/54hU9Ybb+RCpyjy5RjfJ4vAKDM=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
