@@ -1,7 +1,7 @@
 {
   "version": 3,
   "targets": {
-    ".NETFramework,Version=v4.6.1": {
+    ".NETFramework,Version=v4.8": {
       "AForge/2.2.5": {
         "type": "package",
         "compile": {
@@ -261,7 +261,7 @@
         }
       }
     },
-    ".NETFramework,Version=v4.6.1/win": {
+    ".NETFramework,Version=v4.8/win": {
       "AForge/2.2.5": {
         "type": "package",
         "compile": {
@@ -521,7 +521,7 @@
         }
       }
     },
-    ".NETFramework,Version=v4.6.1/win-x64": {
+    ".NETFramework,Version=v4.8/win-x64": {
       "AForge/2.2.5": {
         "type": "package",
         "compile": {
@@ -781,7 +781,7 @@
         }
       }
     },
-    ".NETFramework,Version=v4.6.1/win-x86": {
+    ".NETFramework,Version=v4.8/win-x86": {
       "AForge/2.2.5": {
         "type": "package",
         "compile": {
@@ -2896,7 +2896,7 @@
     }
   },
   "projectFileDependencyGroups": {
-    ".NETFramework,Version=v4.6.1": [
+    ".NETFramework,Version=v4.8": [
       "AForge.Video.DirectShow >= 2.2.5",
       "FFmpeg.AutoGen >= 3.4.0.6",
       "Lucene.Net >= 3.0.3",
@@ -2932,20 +2932,20 @@
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
-        "net461"
+        "net48"
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
-        "net461": {
+        "net48": {
           "projectReferences": {}
         }
       }
     },
     "frameworks": {
-      "net461": {
+      "net48": {
         "dependencies": {
           "AForge.Video.DirectShow": {
             "target": "Package",

@@ -21670,3 +21670,9 @@
 2020/03/01 00:05:48 [notice] 21216#12452: exit
 2020/03/01 00:05:48 [notice] 21760#13508: worker process 21216 exited with code 0
 2020/03/01 00:05:48 [notice] 21760#13508: exit
+2021/11/24 20:14:03 [emerg] 17780#1756: host not found in url "890890" in C:\Users\lizil\source\repos\ACLiveConsole\ACNginxConsole\bin\Debug/conf/../option.txt:1
+2021/11/24 20:14:14 [emerg] 6608#17836: host not found in url "890890" in C:\Users\lizil\source\repos\ACLiveConsole\ACNginxConsole\bin\Debug/conf/../option.txt:1
+2021/11/24 20:14:15 [emerg] 22784#8872: host not found in url "890890" in C:\Users\lizil\source\repos\ACLiveConsole\ACNginxConsole\bin\Debug/conf/../option.txt:1
+2021/11/24 20:28:14 [emerg] 22568#6308: host not found in url "890890" in C:\Users\lizil\source\repos\ACLiveConsole\ACNginxConsole\bin\Debug/conf/../option.txt:1
+2021/11/24 20:28:26 [emerg] 20740#4276: host not found in url "890890" in C:\Users\lizil\source\repos\ACLiveConsole\ACNginxConsole\bin\Debug/conf/../option.txt:1
+2021/11/24 20:28:28 [emerg] 14672#22924: host not found in url "890890" in C:\Users\lizil\source\repos\ACLiveConsole\ACNginxConsole\bin\Debug/conf/../option.txt:1

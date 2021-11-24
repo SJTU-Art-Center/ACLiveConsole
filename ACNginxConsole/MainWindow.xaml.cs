@@ -1,11 +1,11 @@
 ﻿// Art Center Live Console
-// Copyright (c) 2019 - 2020 by Art Center, All Rights Reserved.
+// Copyright (c) 2019 - 2021 by Art Center, All Rights Reserved.
 // GPL-3.0
 
 //========= Platform =============
 
 // C# WPF(Windows Presentation Foundation) 
-// .NET Framework 4.5
+// .NET Framework 4.8
 
 //========= Update Log ===========
 
@@ -838,7 +838,7 @@ namespace ACNginxConsole
             dispatcherTimerSysTime.Interval = new TimeSpan(0, 0, 0, 0, 15);
 
             labelVer.Content = "版本: " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() + "\n";
-            labelVer.Content += "© Art Center 2019 - 2020, All Rights Reserved." + "\n";
+            labelVer.Content += "© Art Center 2019 - 2021, All Rights Reserved." + "\n";
             labelVer.Content += "Based on Open Source Projects: Nginx, ffmpeg, VLC, bililive-dm";
 
             if (Environment.MachineName.Equals(Properties.Settings.Default.LastComputer))

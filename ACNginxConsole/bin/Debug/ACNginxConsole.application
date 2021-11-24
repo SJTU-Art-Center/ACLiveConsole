@@ -4,17 +4,17 @@
   <description asmv2:publisher="ACNginxConsole" asmv2:product="ACNginxConsole" xmlns="urn:schemas-microsoft-com:asm.v1" />
   <deployment install="true" mapFileExtensions="true" />
   <compatibleFrameworks xmlns="urn:schemas-microsoft-com:clickonce.v2">
-    <framework targetVersion="4.6.1" profile="Full" supportedRuntime="4.0.30319" />
+    <framework targetVersion="4.8" profile="Full" supportedRuntime="4.0.30319" />
   </compatibleFrameworks>
   <dependency>
-    <dependentAssembly dependencyType="install" codebase="ACNginxConsole.exe.manifest" size="562912">
+    <dependentAssembly dependencyType="install" codebase="ACNginxConsole.exe.manifest" size="495367">
       <assemblyIdentity name="ACNginxConsole.exe" version="2.0.0.1" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="msil" type="win32" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>szchN6HtSkrBvjjOGPY4yYu37hrsOyAd0nyGVoOWa+o=</dsig:DigestValue>
+        <dsig:DigestValue>LlHQMWKAwFRm/E9UdQJzmMyPvmMc5KEGN37648Z00sw=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

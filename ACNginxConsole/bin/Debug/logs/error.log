@@ -21673,3 +21673,26 @@
 2021/11/24 20:14:03 [emerg] 17780#1756: host not found in url "890890" in C:\Users\lizil\source\repos\ACLiveConsole\ACNginxConsole\bin\Debug/conf/../option.txt:1
 2021/11/24 20:14:14 [emerg] 6608#17836: host not found in url "890890" in C:\Users\lizil\source\repos\ACLiveConsole\ACNginxConsole\bin\Debug/conf/../option.txt:1
 2021/11/24 20:14:15 [emerg] 22784#8872: host not found in url "890890" in C:\Users\lizil\source\repos\ACLiveConsole\ACNginxConsole\bin\Debug/conf/../option.txt:1
+2021/11/24 20:28:14 [emerg] 22568#6308: host not found in url "890890" in C:\Users\lizil\source\repos\ACLiveConsole\ACNginxConsole\bin\Debug/conf/../option.txt:1
+2021/11/24 20:28:26 [emerg] 20740#4276: host not found in url "890890" in C:\Users\lizil\source\repos\ACLiveConsole\ACNginxConsole\bin\Debug/conf/../option.txt:1
+2021/11/24 20:28:28 [emerg] 14672#22924: host not found in url "890890" in C:\Users\lizil\source\repos\ACLiveConsole\ACNginxConsole\bin\Debug/conf/../option.txt:1
+2021/11/24 20:29:19 [notice] 14824#22344: using the "select" event method
+2021/11/24 20:29:19 [notice] 14824#22344: nginx/1.12.1
+2021/11/24 20:29:19 [info] 14824#22344: OS: 300000 build:22504, "", suite:100, type:1
+2021/11/24 20:29:19 [notice] 14824#22344: start worker processes
+2021/11/24 20:29:19 [notice] 14824#22344: start worker process 22396
+2021/11/24 20:29:19 [notice] 22396#2028: nginx/1.12.1
+2021/11/24 20:29:19 [info] 22396#2028: OS: 300000 build:22504, "", suite:100, type:1
+2021/11/24 20:29:19 [notice] 22396#2028: create thread 12336
+2021/11/24 20:29:19 [notice] 22396#2028: create thread 23372
+2021/11/24 20:29:19 [notice] 22396#2028: create thread 20720
+2021/11/24 20:29:30 [notice] 21596#22072: signal process started
+2021/11/24 20:29:30 [notice] 14824#22344: exiting
+2021/11/24 20:29:30 [notice] 22396#2028: gracefully shutting down
+2021/11/24 20:29:30 [notice] 22396#23372: exiting
+2021/11/24 20:29:31 [notice] 22396#12336: exiting
+2021/11/24 20:29:31 [notice] 22396#2028: exit
+2021/11/24 20:29:31 [notice] 14824#22344: worker process 22396 exited with code 0
+2021/11/24 20:29:31 [notice] 14824#22344: exit
+2021/11/24 20:30:35 [notice] 12820#10568: signal process started (stop)
+2021/11/24 20:30:35 [error] 12820#10568: CreateFile() "C:\Users\lizil\source\repos\ACLiveConsole\ACNginxConsole\bin\Debug/logs/nginx.pid" failed (2: The system cannot find the file specified)

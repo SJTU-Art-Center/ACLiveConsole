@@ -23,20 +23,20 @@
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
-          "net461"
+          "net48"
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
-          "net461": {
+          "net48": {
             "projectReferences": {}
           }
         }
       },
       "frameworks": {
-        "net461": {
+        "net48": {
           "dependencies": {
             "AForge.Video.DirectShow": {
               "target": "Package",
