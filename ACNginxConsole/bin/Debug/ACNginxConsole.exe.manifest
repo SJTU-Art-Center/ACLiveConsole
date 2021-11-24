@@ -42,14 +42,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="ACNginxConsole.exe" size="3544008">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="ACNginxConsole.exe" size="3544520">
       <assemblyIdentity name="ACNginxConsole" version="6.6.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>MWNkawghVk4cwCAue40ohTyBWl4xcX8CC/XaHGMa1jk=</dsig:DigestValue>
+        <dsig:DigestValue>XS9UrySwFnVC+ztqbvJcOkeCXhcyL/3LRu/ACpoZ940=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -221,13 +221,13 @@
       </hash>
     </dependentAssembly>
   </dependency>
-  <file name="ACNginxConsole.exe.config" size="6490">
+  <file name="ACNginxConsole.exe.config" size="6661">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>XHPWgOeDmDjv5NRppukEkvCUJ+kixEucPfEznqZwEYM=</dsig:DigestValue>
+      <dsig:DigestValue>keEuqNYH2rhFi5U8eCRSAaaYDecVCSpWiSY/JB9GWR4=</dsig:DigestValue>
     </hash>
   </file>
   <file name="bitbug_favicon (1).ico" size="67646">

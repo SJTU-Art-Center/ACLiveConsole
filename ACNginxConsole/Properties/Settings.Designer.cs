@@ -526,5 +526,17 @@ namespace ACNginxConsole.Properties {
                 this["SyncMute"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("https://cn-sh-fx-live-02.bilivideo.com/live-bvc/")]
+        public string BiliPrefix {
+            get {
+                return ((string)(this["BiliPrefix"]));
+            }
+            set {
+                this["BiliPrefix"] = value;
+            }
+        }
     }
 }

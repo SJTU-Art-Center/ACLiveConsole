@@ -630,7 +630,7 @@ namespace ACNginxConsole
                                         re = new Regex(@"(?<=live_)\w+");
                                         matches = re.Matches(api_url);
                                         api_url = matches[0].Groups[0].ToString();
-                                        string result = "https://cn-jsnt-dx-live-01.bilivideo.com/live-bvc/live_" + api_url + ".m3u8";
+                                        string result = Properties.Settings.Default.BiliPrefix + "live_" + api_url + ".m3u8";
 
                                         System.Diagnostics.Debug.WriteLine(result);
                                         return result;
@@ -972,6 +972,8 @@ namespace ACNginxConsole
             Rec2.Visibility = Visibility.Collapsed;
 
             SliderGiftNum.Value = (double)Properties.Settings.Default.GiftGivingNum;
+
+            textBoxBiliPrefix.Text = Properties.Settings.Default.BiliPrefix;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -6746,6 +6748,11 @@ namespace ACNginxConsole
         private void checkBoxMute_Unchecked(object sender, RoutedEventArgs e)
         {
             Properties.Settings.Default.SyncMute = false;
+        }
+
+        private void textBoxBiliPrefix_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            Properties.Settings.Default.BiliPrefix = textBoxBiliPrefix.Text;
         }
 
         Storyboard entrysb = new Storyboard();

@@ -835,7 +835,7 @@
                                             <TextBox x:Name="textBoxUpperRight" Grid.Row="1" Grid.Column="1" TextWrapping="Wrap" Text="直播" TextChanged="textBoxUpperRight_TextChanged" VerticalContentAlignment="Center"/>
                                         </Grid>
                                     </StackPanel>
-                                    
+
                                 </StackPanel>
                                 <GridSplitter Width="5" Grid.Column="1" HorizontalAlignment="Stretch"/>
                                 <Grid Grid.Column="2">
@@ -893,7 +893,7 @@
 
                         </StackPanel>
 
-                        <RichTextBox x:Name="richTextBoxTu" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" IsReadOnly="True" Margin="25,320,25,24">
+                        <RichTextBox x:Name="richTextBoxTu" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" IsReadOnly="True" Margin="25,346,25,24">
                             <FlowDocument>
                                 <Paragraph>
                                     <Run Text="Tutourial Error"/>
@@ -901,8 +901,8 @@
                             </FlowDocument>
                         </RichTextBox>
 
-                        <Button x:Name="button6" Content="清除所有设置" HorizontalAlignment="Left" Margin="25,295,0,0" Width="170" Click="Button6_Click" Height="20" VerticalAlignment="Top"/>
-                        <Button x:Name="button7" Content="确认" HorizontalAlignment="Left" Margin="200,295,0,0" Width="42" Click="Button7_Click" Height="20" VerticalAlignment="Top"/>
+                        <Button x:Name="button6" Content="清除所有设置" HorizontalAlignment="Left" Margin="25,322,0,0" Width="170" Click="Button6_Click" Height="20" VerticalAlignment="Top"/>
+                        <Button x:Name="button7" Content="确认" HorizontalAlignment="Left" Margin="200,322,0,0" Width="42" Click="Button7_Click" Height="20" VerticalAlignment="Top"/>
                         <StackPanel Margin="24,10,24,0" CanVerticallyScroll="True" ScrollViewer.CanContentScroll="True" Height="281" VerticalAlignment="Top">
                             <CheckBox x:Name="checkBoxtest" Content="测试时不使用ffmpeg" HorizontalAlignment="Left" VerticalAlignment="Top" Width="147" Checked="CheckBoxtest_Checked" Unchecked="CheckBoxtest_Unchecked" Margin="0,5,0,0"/>
                             <CheckBox x:Name="checkBox2" Content="解决程序冲突时不再次启动推流" HorizontalAlignment="Left" VerticalAlignment="Top" Width="203" Checked="CheckBox2_Checked" Unchecked="CheckBox2_Unchecked" Margin="0,5,0,0"/>
@@ -929,12 +929,14 @@
                             <CheckBox x:Name="checkBoxWordCloudColor" Margin="0,5,0.5,0" Content="彩色词云" Checked="checkBoxWordCloudColor_Checked" Unchecked="checkBoxWordCloudColor_Unchecked"/>
                         </StackPanel>
                         <Button x:Name="buttonTest" Content="试验性界面" HorizontalAlignment="Left" Height="66" Margin="331,152,0,0" VerticalAlignment="Top" Width="85" Click="ButtonTest_Click" Visibility="Hidden"/>
-                        <Button x:Name="buttonGiftViewing" Content="抽奖记录" HorizontalAlignment="Right" Height="20" Margin="0,295,110,0" VerticalAlignment="Top" Width="76" Click="buttonGiftViewing_Click"/>
-                        <Button x:Name="buttonRankViewing" Content="词频记录" Height="20" Margin="0,295,25,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="76" Click="buttonRankViewing_Click"/>
+                        <Button x:Name="buttonGiftViewing" Content="抽奖记录" HorizontalAlignment="Right" Height="20" Margin="0,322,110,0" VerticalAlignment="Top" Width="76" Click="buttonGiftViewing_Click"/>
+                        <Button x:Name="buttonRankViewing" Content="词频记录" Height="20" Margin="0,322,25,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="76" Click="buttonRankViewing_Click"/>
                         <Slider x:Name="sliderMaxVol" Height="20" Margin="0,270,25,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="156" Minimum="25" Maximum="200" Value="50" ValueChanged="sliderMaxVol_ValueChanged" AutoToolTipPlacement="TopLeft"/>
                         <Label Content="词云最大词汇数" Height="26" Margin="0,268,181,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="98"/>
-                        <Button x:Name="buttonDisabledVol" Content="禁用词库" Height="20" Margin="0,295,197,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="76" Click="buttonDisabledVol_Click"/>
-                        
+                        <Button x:Name="buttonDisabledVol" Content="禁用词库" Height="20" Margin="0,322,197,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="76" Click="buttonDisabledVol_Click"/>
+                        <TextBox x:Name="textBoxBiliPrefix" Height="16" Margin="101,301,25,0" TextWrapping="Wrap" VerticalAlignment="Top" TextChanged="textBoxBiliPrefix_TextChanged" ToolTip="B站播流前缀，比如https://cn-sh-fx-live-02.bilivideo.com/live-bvc/"/>
+                        <Label x:Name="label11" Content="B站播流前缀" HorizontalAlignment="Left" Height="25" Margin="25,297,0,0" VerticalAlignment="Top" Width="85"/>
+
                     </Grid>
                 </TabItem>
 

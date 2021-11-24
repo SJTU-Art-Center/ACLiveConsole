@@ -128,5 +128,8 @@
     <Setting Name="SyncMute" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="BiliPrefix" Type="System.String" Scope="User">
+      <Value Profile="(Default)">https://cn-sh-fx-live-02.bilivideo.com/live-bvc/</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
